@@ -8,9 +8,9 @@ export default function Home() {
           <Typography.Title className="m-0">
             Build first. Configure never.
           </Typography.Title>
-          <Typography.Paragraph>
+          <Typography.Text>
             This page combines Tailwind CSS utilities with Ant Design components.
-          </Typography.Paragraph>
+          </Typography.Text>
           <Button type="primary">Hello from yolo-jsx</Button>
         </Space>
       </Card>
