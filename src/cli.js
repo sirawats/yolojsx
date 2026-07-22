@@ -1,0 +1,111 @@
+import process from "node:process";
+import semver from "semver";
+import { parseArgs, USAGE } from "./args.js";
+import { buildApplication, withTemporaryApplicationBuild } from "./build.js";
+import { NODE_ENGINE, PACKAGE_VERSION } from "./constants.js";
+import { formatError, YoloJsxError } from "./errors.js";
+import {
+  resolveAndValidateEntry,
+  resolveAndValidateHtmlOutput,
+  resolveAndValidateInputDirectory,
+  resolveAndValidateOutput,
+} from "./paths.js";
+import {
+  commitFileOutput,
+  inspectFileOutput,
+  inspectOutput,
+} from "./output.js";
+import { createSingleFileArtifact } from "./single-file.js";
+
+function assertSupportedNode(nodeVersion) {
+  if (!semver.satisfies(nodeVersion, NODE_ENGINE)) {
+    throw new YoloJsxError(
+      `Node.js ${nodeVersion} is not supported. yolo-jsx requires ${NODE_ENGINE}.`,
+      { code: "UNSUPPORTED_NODE" },
+    );
+  }
+}
+
+export async function runCli(
+  argv,
+  {
+    cwd = process.cwd(),
+    stdout = process.stdout,
+    stderr = process.stderr,
+    nodeVersion = process.versions.node,
+  } = {},
+) {
+  try {
+    assertSupportedNode(nodeVersion);
+    const options = parseArgs(argv);
+
+    if (options.action === "help") {
+      stdout.write(`${USAGE}\n`);
+      return 0;
+    }
+    if (options.action === "version") {
+      stdout.write(`${PACKAGE_VERSION}\n`);
+      return 0;
+    }
+
+    if (options.action === "pack") {
+      const inputDirectory = await resolveAndValidateInputDirectory(
+        options.inputDir,
+        cwd,
+      );
+      const output = await resolveAndValidateHtmlOutput(options.output, cwd, {
+        inputDirectory,
+      });
+      const outputState = await inspectFileOutput(output, options.force);
+      if (outputState.forced) {
+        stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
+      }
+      const artifact = await createSingleFileArtifact(inputDirectory);
+      await commitFileOutput(artifact.html, output);
+      stdout.write(
+        `Packed ${inputDirectory}\nOutput: ${output}\nSize: ${artifact.bytes} bytes\n`,
+      );
+      return 0;
+    }
+
+    const entry = await resolveAndValidateEntry(options.entry, cwd);
+
+    if (options.singleFile) {
+      const output = await resolveAndValidateHtmlOutput(options.output, cwd, {
+        entry,
+      });
+      const outputState = await inspectFileOutput(output, options.force);
+      if (outputState.forced) {
+        stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
+      }
+      const artifact = await withTemporaryApplicationBuild(
+        { entry, base: "./", singleFile: true },
+        createSingleFileArtifact,
+      );
+      await commitFileOutput(artifact.html, output);
+      stdout.write(
+        `Built ${entry}\nOutput: ${output}\nSize: ${artifact.bytes} bytes\n`,
+      );
+      return 0;
+    }
+
+    const output = await resolveAndValidateOutput(options.outDir, cwd, entry);
+    const outputState = await inspectOutput(output, options.force);
+
+    if (outputState.forced) {
+      stderr.write(`Warning: replacing unowned output directory: ${output}\n`);
+    }
+
+    await buildApplication({ entry, output, base: options.base });
+    stdout.write(`Built ${entry}\nOutput: ${output}\n`);
+    return 0;
+  } catch (error) {
+    stderr.write(`yolojsx: ${formatError(error)}\n`);
+    return 1;
+  }
+}
+
+export async function main(argv = process.argv.slice(2)) {
+  const exitCode = await runCli(argv);
+  process.exitCode = exitCode;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "yolo-jsx",
+  "version": "0.1.0",
+  "description": "Build a JSX component into a deployable React app with Vite, Tailwind CSS, and Ant Design.",
+  "type": "module",
+  "bin": {
+    "yolojsx": "bin/yolojsx.js",
+    "yolo-jsx": "bin/yolojsx.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "examples",
+    "README.md",
+    "RELEASING.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/unit/*.test.js test/integration/*.test.js",
+    "test:unit": "node --test --test-concurrency=1 test/unit/*.test.js",
+    "test:integration": "node --test --test-concurrency=1 test/integration/*.test.js",
+    "pack:check": "npm pack --dry-run"
+  },
+  "keywords": [
+    "jsx",
+    "react",
+    "vite",
+    "tailwindcss",
+    "antd",
+    "cli"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "antd": "^6.5.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "semver": "^7.8.5",
+    "tailwindcss": "^4.3.3",
+    "vite": "^8.1.5"
+  }
+}

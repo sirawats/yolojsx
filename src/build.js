@@ -1,0 +1,119 @@
+import { cp, mkdtemp, realpath, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import tailwindcss from "@tailwindcss/vite";
+import react from "@vitejs/plugin-react";
+import { build } from "vite";
+import { createCoreAliases, resolvePackageImport } from "./dependencies.js";
+import { YoloJsxError } from "./errors.js";
+import {
+  cleanupDirectory,
+  commitOutput,
+  createOutputStage,
+  writeOutputMarker,
+} from "./output.js";
+import {
+  createEntryPlugin,
+  createHtml,
+  createMainModule,
+  createTailwindStyles,
+} from "./templates.js";
+
+async function createWorkspace(entry) {
+  const temporaryWorkspace = await mkdtemp(
+    path.join(os.tmpdir(), "yolojsx-work-"),
+  );
+  const workspace = await realpath(temporaryWorkspace);
+  await Promise.all([
+    writeFile(path.join(workspace, "index.html"), createHtml(), "utf8"),
+    writeFile(path.join(workspace, "main.jsx"), createMainModule(), "utf8"),
+    writeFile(
+      path.join(workspace, "styles.css"),
+      createTailwindStyles(
+        workspace,
+        path.dirname(entry),
+        resolvePackageImport("tailwindcss/index.css"),
+      ),
+      "utf8",
+    ),
+  ]);
+  return workspace;
+}
+
+function asBuildError(error) {
+  if (error instanceof YoloJsxError) {
+    return error;
+  }
+  return new YoloJsxError(`Build failed: ${error.message ?? String(error)}`, {
+    code: "BUILD_FAILED",
+    cause: error,
+  });
+}
+
+export async function withTemporaryApplicationBuild(
+  { entry, base, singleFile = false },
+  consume,
+) {
+  let workspace;
+
+  try {
+    workspace = await createWorkspace(entry);
+    const workspaceOutput = path.join(workspace, "dist");
+
+    await build({
+      root: workspace,
+      base,
+      configFile: false,
+      envFile: false,
+      publicDir: false,
+      appType: "spa",
+      logLevel: "silent",
+      plugins: [createEntryPlugin(entry), react(), tailwindcss()],
+      resolve: {
+        alias: createCoreAliases(),
+        dedupe: ["react", "react-dom"],
+      },
+      build: {
+        outDir: workspaceOutput,
+        emptyOutDir: true,
+        copyPublicDir: false,
+        ...(singleFile
+          ? {
+              assetsInlineLimit: () => true,
+              cssCodeSplit: false,
+              modulePreload: false,
+              rolldownOptions: {
+                output: {
+                  codeSplitting: false,
+                },
+              },
+            }
+          : {}),
+      },
+    });
+
+    return await consume(workspaceOutput);
+  } catch (error) {
+    throw asBuildError(error);
+  } finally {
+    await cleanupDirectory(workspace);
+  }
+}
+
+export async function buildApplication({ entry, output, base }) {
+  let stage;
+
+  try {
+    stage = await createOutputStage(output);
+    await withTemporaryApplicationBuild({ entry, base }, async (workspaceOutput) => {
+      await cp(workspaceOutput, stage, { recursive: true });
+      await writeOutputMarker(stage);
+    });
+    await commitOutput(stage, output);
+    stage = undefined;
+  } catch (error) {
+    throw asBuildError(error);
+  } finally {
+    await cleanupDirectory(stage);
+  }
+}
