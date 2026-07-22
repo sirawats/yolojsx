@@ -47,13 +47,17 @@ Node's built-in gzip implementation compresses the UTF-8 payload, which is base6
 
 The uncompressed bootstrap is unavoidable because a locally opened browser file has no HTTP `Content-Encoding` metadata. Native decompression avoids shipping a JavaScript inflate library, at the cost of limiting support to modern browsers. Base64's size overhead is accepted because it applies after gzip and enables safe text embedding.
 
-### Treat file publication as a staged commit
+### Confirm replacement before staged publication
 
-Output paths resolve from the invocation directory and must end in `.html`. The CLI refuses an existing destination unless `--force` is present, always rejects a directory at the destination, and rejects a `pack` destination inside its input directory. It writes a temporary sibling file, closes it successfully, and then replaces the destination with backup/restore behavior where replacement is not natively atomic. Direct mode keeps all intermediate directory output temporary; `pack` never mutates its input.
+Before replacing any existing directory or regular HTML file, the CLI asks the interactive user to type `yes` or `no`. `yes` authorizes that one replacement, `no` cancels without mutation, and other input repeats the question. `--force` bypasses the prompt for automation. When stdin is not interactive and `--force` is absent, the CLI refuses replacement rather than waiting indefinitely.
+
+HTML output paths resolve from the invocation directory and must end in `.html`. The CLI always rejects a directory at a file destination and rejects a `pack` destination inside its input directory. It writes a temporary sibling file, closes it successfully, and then replaces the destination with backup/restore behavior where replacement is not natively atomic. Direct mode keeps all intermediate directory output temporary; `pack` never mutates its input.
 
 ### Test the container separately from browser smoke behavior
 
 Unit tests will cover parsing, naming, validation, asset normalization, gzip round trips, and bootstrap escaping. Integration tests will cover both CLI forms, forced replacement, failed-build preservation, unsupported output diagnostics, and absence of external local references. The release checklist will include opening the generated example through `file://` in a supported browser because the repository does not currently carry a browser automation dependency.
+
+A repository-owned `npm run verify` command will run the normal test suite, syntax checks, package-content inspection, and a packed-artifact smoke test. The packed smoke test extracts the tarball into a temporary directory and links the repository's existing `node_modules`, proving that published files work together without downloading the same dependencies after every edit. A genuinely isolated `npm install` remains a release-only check because it validates registry installation rather than source correctness.
 
 ## Risks / Trade-offs
 
@@ -63,6 +67,7 @@ Unit tests will cover parsing, naming, validation, asset normalization, gzip rou
 - **Inline code conflicts with strict Content Security Policy** → Document that the artifact is self-contained and requires inline execution; do not claim compatibility with restrictive embedding contexts.
 - **Browser support excludes older clients** → Feature-detect `DecompressionStream` and render a readable error instead of failing silently.
 - **Forced replacement can lose a prior file if publication is interrupted** → Stage beside the destination and use backup/restore semantics already aligned with managed-directory commits.
+- **Prompts can block unattended builds** → Prompt only on an interactive terminal; otherwise refuse with guidance to use `--force`.
 
 ## Migration Plan
 

@@ -12,11 +12,13 @@ The package is pre-1.0. Treat the CLI, entry contract, and managed-output marker
 6. Run `yolojsx examples/Home.jsx --single-file`, confirm `Home.html` is created, and open it directly through `file://` in a browser with `DecompressionStream` support.
 7. Run `yolojsx examples/Home.jsx --single-file --output index.html` and verify the explicit name replaces the basename default.
 8. Run `yolojsx pack dist --output packed.html`, open it through `file://`, and confirm the source `dist/` tree is unchanged.
-9. Run `npm pack --dry-run` and confirm only the bin, source, example, README, release guide, license, and package metadata are included, including the single-file runtime modules.
-10. Install the generated tarball into an isolated prefix and test both `yolojsx --version` and `yolo-jsx --version`.
-11. From the isolated installation, verify directory output, both direct single-file naming forms, and `yolojsx pack dist --output index.html`.
-12. Exercise an npm-exec/npx-equivalent invocation against the packed tarball.
-13. Confirm that no credentials, local output, temporary files, or unrelated OpenSpec artifacts are present in the tarball.
-14. Publish with an explicit pre-1.0 version and verify the installed package can build and package the documented example.
+9. Repeat directory and HTML output commands against existing targets; verify `no` preserves them, `yes` replaces them, invalid answers repeat the prompt, and `--force` bypasses the prompt.
+10. Verify a non-interactive invocation refuses existing output with guidance to use `--force`.
+11. Run `npm pack --dry-run` and confirm only the bin, source, example, README, release guide, license, and package metadata are included, including the single-file runtime modules.
+12. Install the generated tarball into an isolated prefix and test both `yolojsx --version` and `yolo-jsx --version`.
+13. From the isolated installation, verify directory output, both direct single-file naming forms, and `yolojsx pack dist --output index.html`.
+14. Exercise an npm-exec/npx-equivalent invocation against the packed tarball.
+15. Confirm that no credentials, local output, temporary files, or unrelated OpenSpec artifacts are present in the tarball.
+16. Publish with an explicit pre-1.0 version and verify the installed package can build and package the documented example.
 
 If a release is broken, deprecate the affected version, restore the previous dist-tag, and publish a corrected patch version. Avoid unpublishing unless npm policy and the short post-publication window make it necessary.

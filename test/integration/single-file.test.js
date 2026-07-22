@@ -70,17 +70,39 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
 
   const refused = await invoke(["Home.jsx", "--single-file"], { cwd: fixture });
   assert.equal(refused.exitCode, 1);
-  assert.match(refused.stderr, /already exists/);
+  assert.match(refused.stderr, /non-interactive.*--force/s);
+  assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
+
+  const declined = await invoke(["Home.jsx", "--single-file"], {
+    cwd: fixture,
+    confirmReplacement: async () => false,
+  });
+  assert.equal(declined.exitCode, 1);
+  assert.match(declined.stderr, /Cancelled/);
   assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
 
   await writeFixture(fixture, { "Home.jsx": "export default function Broken( {" });
-  const failed = await invoke(["Home.jsx", "--single-file", "--force"], {
+  const failed = await invoke(["Home.jsx", "--single-file"], {
     cwd: fixture,
+    confirmReplacement: async () => true,
   });
   assert.equal(failed.exitCode, 1);
   assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
   assert.ok(
     !(await readdir(fixture)).some((name) => name.includes("yolojsx-stage")),
+  );
+
+  await writeFixture(fixture, {
+    "Home.jsx": `export default () => <div>Confirmed replacement</div>;`,
+  });
+  const confirmed = await invoke(["Home.jsx", "--single-file"], {
+    cwd: fixture,
+    confirmReplacement: async () => true,
+  });
+  assert.equal(confirmed.exitCode, 0, confirmed.stderr);
+  assert.match(
+    readEmbeddedPayload(await readFile(path.join(fixture, "Home.html"), "utf8")).script,
+    /Confirmed replacement/,
   );
 
   await writeFixture(fixture, {

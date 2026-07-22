@@ -19,7 +19,10 @@
     "test": "node --test --test-concurrency=1 test/unit/*.test.js test/integration/*.test.js",
     "test:unit": "node --test --test-concurrency=1 test/unit/*.test.js",
     "test:integration": "node --test --test-concurrency=1 test/integration/*.test.js",
-    "pack:check": "npm pack --dry-run"
+    "check": "node scripts/check-syntax.js",
+    "pack:check": "node scripts/pack-check.js",
+    "verify:package": "node scripts/verify-package.js",
+    "verify": "node scripts/verify.js"
   },
   "keywords": [
     "jsx",

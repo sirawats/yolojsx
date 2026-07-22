@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-`bin/yolojsx.js` is the executable entry point. Core ES modules live in `src/`: argument parsing, path and output safety, dependency resolution, templates, build orchestration, and CLI error handling are kept separate. Tests are split between `test/unit/` and `test/integration/`, with shared fixture utilities in `test/helpers.js`. Use `examples/Home.jsx` for manual smoke tests. Product requirements live in `openspec/specs/`; completed design records are under `openspec/changes/archive/`. Do not commit generated `dist/` output or temporary fixtures.
+`bin/yolojsx.js` is the executable entry point. Core ES modules live in `src/`; development verification tools live in `scripts/`. Tests are split between `test/unit/` and `test/integration/`, with shared fixture utilities in `test/helpers.js`. Use `examples/Home.jsx` for manual smoke tests. Product requirements live in `openspec/specs/`; completed design records are under `openspec/changes/archive/`. Do not commit generated output or temporary fixtures.
 
 ## Build, Test, and Development Commands
 
@@ -10,7 +10,9 @@
 - `node bin/yolojsx.js examples/Home.jsx` builds the example into `dist/`.
 - `npm test` runs every unit and integration test serially.
 - `npm run test:unit` or `npm run test:integration` runs one test group.
-- `npm run pack:check` previews the files included in the npm package.
+- `npm run check` syntax-checks repository JavaScript.
+- `npm run verify:package` packs and extracts the npm artifact, links existing dependencies, and exercises all CLI modes without downloading packages.
+- `npm run verify` runs tests, syntax checks, package-content inspection, and packaged-artifact verification.
 
 There is no separate compilation step for the CLI; source files run directly as native ECMAScript modules.
 
@@ -20,7 +22,7 @@ Use two-space indentation, double quotes, semicolons, trailing commas in multili
 
 ## Testing Guidelines
 
-Tests use Node's built-in `node:test` runner and `node:assert/strict`. Name files `*.test.js` and write behavior-focused test names, for example `test("rejects unsafe output paths", ...)`. Add unit tests for pure parsing/path logic and integration tests for CLI builds, diagnostics, filesystem safety, or generated assets. Clean temporary fixtures with `t.after(...)`. Run `npm test` before submitting; no numeric coverage threshold is currently enforced.
+Tests use Node's built-in `node:test` runner and `node:assert/strict`. Name files `*.test.js` and write behavior-focused names. Add unit tests for pure logic and integration tests for CLI builds, diagnostics, filesystem safety, or generated assets. Clean fixtures with `t.after(...)`. Run `npm run verify` before submitting; no numeric coverage threshold is enforced.
 
 ## Commit & Pull Request Guidelines
 
@@ -28,4 +30,4 @@ Git history is not available in this checkout, so no repository-specific commit 
 
 ## Safety & Release Notes
 
-Preserve output-directory safeguards and the `.yolojsx-output.json` ownership marker. Never weaken destructive-path checks without dedicated tests. Follow `RELEASING.md` before publishing, including package-content and packed-tarball smoke checks.
+Preserve output safeguards and the `.yolojsx-output.json` ownership marker. Never weaken destructive-path checks without dedicated tests. Full isolated dependency installation is a release check, not part of the edit-test loop; follow `RELEASING.md` before publishing.

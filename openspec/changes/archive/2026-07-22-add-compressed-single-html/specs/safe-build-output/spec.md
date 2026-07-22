@@ -1,28 +1,4 @@
-# safe-build-output Specification
-
-## Purpose
-
-Define output path selection, ownership tracking, staged replacement, and safeguards that prevent `yolojsx` from destroying unrelated files.
-
-## Requirements
-
-### Requirement: Default output directory
-The CLI SHALL use a `dist` directory beneath the invocation working directory when no output option is provided.
-
-#### Scenario: Default output selection
-- **WHEN** a user runs `yolojsx Home.jsx` from `/workspace/site` without an output option
-- **THEN** the resolved output directory is `/workspace/site/dist`
-
-### Requirement: Configurable output directory
-The CLI SHALL accept `-o <path>` and `--out-dir <path>` and resolve relative values from the invocation working directory.
-
-#### Scenario: Relative custom output
-- **WHEN** a user runs `yolojsx Home.jsx --out-dir public/app` from `/workspace/site`
-- **THEN** the resolved output directory is `/workspace/site/public/app`
-
-#### Scenario: Absolute custom output
-- **WHEN** a user provides a valid absolute output path
-- **THEN** the CLI writes the application to that exact directory
+## MODIFIED Requirements
 
 ### Requirement: Managed output replacement
 The CLI SHALL identify output directories it generated and SHALL obtain explicit overwrite confirmation before replacing an existing managed directory unless `--force` is supplied.
@@ -65,6 +41,8 @@ The CLI SHALL obtain explicit interactive confirmation before destructively clea
 #### Scenario: Explicit forced replacement
 - **WHEN** the selected output is a valid non-dangerous directory and the user supplies `--force`
 - **THEN** the CLI may replace the directory without prompting after displaying that forced replacement is occurring
+
+## ADDED Requirements
 
 ### Requirement: Single-file destination validation
 The CLI SHALL resolve single-file destinations from the invocation working directory, require an `.html` filename, and reject destinations that are directories or otherwise cannot safely represent one file.
@@ -125,21 +103,3 @@ The `pack` command SHALL treat its source directory as read-only and SHALL rejec
 #### Scenario: Output inside source directory
 - **WHEN** a user selects an output path within the directory being packaged
 - **THEN** the CLI rejects the operation before writing output even when `--force` is supplied
-
-### Requirement: Dangerous output rejection
-The CLI SHALL reject output targets whose cleanup could erase the filesystem root, the invocation working directory, the input file, or an ancestor directory containing the input.
-
-#### Scenario: Working directory selected as output
-- **WHEN** the resolved output directory equals the invocation working directory
-- **THEN** the CLI rejects the build before performing filesystem mutations
-
-#### Scenario: Source ancestor selected as output
-- **WHEN** the resolved output directory contains the input source file
-- **THEN** the CLI rejects the build even when `--force` is supplied
-
-### Requirement: Preserve last successful output on compilation failure
-The CLI SHALL avoid deleting a managed output's last successful build before a replacement build has completed successfully.
-
-#### Scenario: Rebuild fails to compile
-- **WHEN** an existing managed output is selected and the new build fails
-- **THEN** the previous successful output remains available and the CLI reports the failure

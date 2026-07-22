@@ -9,8 +9,9 @@
 - Add `yolojsx pack <directory> --output <file>` to package an existing compatible static build.
 - Embed a gzip-compressed application payload and a small browser bootstrap that decompresses and starts the application with the native `DecompressionStream` API.
 - Validate package compatibility and reject resources that cannot run from the self-contained artifact rather than producing a broken file.
+- Prompt for typed `yes` or `no` before replacing any existing directory or HTML target, while retaining `--force` as the explicit non-interactive bypass.
 - Protect existing destination files, write artifacts atomically, and preserve input build directories.
-- Keep the existing `yolojsx Home.jsx` directory-build behavior unchanged.
+- Keep the existing `yolojsx Home.jsx` directory output shape and options unchanged apart from overwrite confirmation.
 
 ## Capabilities
 
@@ -25,4 +26,4 @@
 
 ## Impact
 
-The CLI parser, help text, build orchestration, templates, output validation, and integration tests will change. New packaging modules will read generated assets, create a normalized payload, compress it with Node.js built-ins, and generate the browser bootstrap. Documentation and release smoke checks will gain both direct single-file and existing-directory pack examples. No new runtime dependency is expected because Node provides gzip compression and supported browsers provide decompression.
+The CLI parser, help text, build orchestration, templates, output validation, integration tests, and local verification scripts will change. New packaging modules will read generated assets, create a normalized payload, compress it with Node.js built-ins, and generate the browser bootstrap. Documentation and release smoke checks will gain both direct single-file and existing-directory pack examples. No new runtime dependency is expected because Node provides gzip compression and supported browsers provide decompression.

@@ -15,25 +15,47 @@ test("rebuilds managed output and protects unowned output", async (t) => {
   assert.equal(first.exitCode, 0, first.stderr);
   await writeFixture(path.join(fixture, "dist"), { "stale.txt": "stale" });
 
-  const rebuild = await invoke(["Home.jsx"], { cwd: fixture });
+  const declined = await invoke(["Home.jsx"], {
+    cwd: fixture,
+    confirmReplacement: async () => false,
+  });
+  assert.equal(declined.exitCode, 1);
+  assert.match(declined.stderr, /Cancelled/);
+  assert.ok((await readdir(path.join(fixture, "dist"))).includes("stale.txt"));
+
+  const rebuild = await invoke(["Home.jsx"], {
+    cwd: fixture,
+    confirmReplacement: async () => true,
+  });
   assert.equal(rebuild.exitCode, 0, rebuild.stderr);
   assert.ok(!(await readdir(path.join(fixture, "dist"))).includes("stale.txt"));
 
   await writeFixture(fixture, { "unowned/important.txt": "keep" });
   const refused = await invoke(["Home.jsx", "-o", "unowned"], { cwd: fixture });
   assert.equal(refused.exitCode, 1);
-  assert.match(refused.stderr, /not managed/);
+  assert.match(refused.stderr, /non-interactive.*--force/s);
   assert.equal(
     await readFile(path.join(fixture, "unowned/important.txt"), "utf8"),
     "keep",
   );
 
-  const forced = await invoke(["Home.jsx", "-o", "unowned", "--force"], {
+  const confirmed = await invoke(["Home.jsx", "-o", "unowned"], {
+    cwd: fixture,
+    confirmReplacement: async () => true,
+  });
+  assert.equal(confirmed.exitCode, 0, confirmed.stderr);
+  assert.match(confirmed.stderr, /Warning: replacing unowned/);
+  assert.ok(!(await readdir(path.join(fixture, "unowned"))).includes("important.txt"));
+
+  await writeFixture(fixture, { "unowned-force/important.txt": "replace again" });
+  const forced = await invoke(["Home.jsx", "-o", "unowned-force", "--force"], {
     cwd: fixture,
   });
   assert.equal(forced.exitCode, 0, forced.stderr);
   assert.match(forced.stderr, /Warning: replacing unowned/);
-  assert.ok(!(await readdir(path.join(fixture, "unowned"))).includes("important.txt"));
+  assert.ok(
+    !(await readdir(path.join(fixture, "unowned-force"))).includes("important.txt"),
+  );
 });
 
 test("rejects dangerous paths even with force", async (t) => {
@@ -72,7 +94,10 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
   await writeFixture(fixture, {
     "Home.jsx": `export default function Broken( {`,
   });
-  const failed = await invoke(["Home.jsx"], { cwd: fixture });
+  const failed = await invoke(["Home.jsx"], {
+    cwd: fixture,
+    confirmReplacement: async () => true,
+  });
   assert.equal(failed.exitCode, 1);
   assert.equal(
     await readFile(path.join(fixture, "dist/index.html"), "utf8"),

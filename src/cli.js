@@ -2,6 +2,7 @@ import process from "node:process";
 import semver from "semver";
 import { parseArgs, USAGE } from "./args.js";
 import { buildApplication, withTemporaryApplicationBuild } from "./build.js";
+import { confirmReplacement as promptForReplacement } from "./confirmation.js";
 import { NODE_ENGINE, PACKAGE_VERSION } from "./constants.js";
 import { formatError, YoloJsxError } from "./errors.js";
 import {
@@ -30,9 +31,11 @@ export async function runCli(
   argv,
   {
     cwd = process.cwd(),
+    stdin = process.stdin,
     stdout = process.stdout,
     stderr = process.stderr,
     nodeVersion = process.versions.node,
+    confirmReplacement = promptForReplacement,
   } = {},
 ) {
   try {
@@ -56,8 +59,18 @@ export async function runCli(
       const output = await resolveAndValidateHtmlOutput(options.output, cwd, {
         inputDirectory,
       });
-      const outputState = await inspectFileOutput(output, options.force);
-      if (outputState.forced) {
+      const outputState = await inspectFileOutput(output, true);
+      if (outputState.exists && !options.force) {
+        const confirmed = await confirmReplacement(output, {
+          input: stdin,
+          output: stderr,
+        });
+        if (!confirmed) {
+          stderr.write("Cancelled. Existing output was not changed.\n");
+          return 1;
+        }
+      }
+      if (outputState.exists && options.force) {
         stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
       }
       const artifact = await createSingleFileArtifact(inputDirectory);
@@ -74,8 +87,18 @@ export async function runCli(
       const output = await resolveAndValidateHtmlOutput(options.output, cwd, {
         entry,
       });
-      const outputState = await inspectFileOutput(output, options.force);
-      if (outputState.forced) {
+      const outputState = await inspectFileOutput(output, true);
+      if (outputState.exists && !options.force) {
+        const confirmed = await confirmReplacement(output, {
+          input: stdin,
+          output: stderr,
+        });
+        if (!confirmed) {
+          stderr.write("Cancelled. Existing output was not changed.\n");
+          return 1;
+        }
+      }
+      if (outputState.exists && options.force) {
         stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
       }
       const artifact = await withTemporaryApplicationBuild(
@@ -90,9 +113,20 @@ export async function runCli(
     }
 
     const output = await resolveAndValidateOutput(options.outDir, cwd, entry);
-    const outputState = await inspectOutput(output, options.force);
+    const outputState = await inspectOutput(output, true);
 
-    if (outputState.forced) {
+    if (outputState.exists && !options.force) {
+      const confirmed = await confirmReplacement(output, {
+        input: stdin,
+        output: stderr,
+      });
+      if (!confirmed) {
+        stderr.write("Cancelled. Existing output was not changed.\n");
+        return 1;
+      }
+    }
+
+    if (outputState.unowned) {
       stderr.write(`Warning: replacing unowned output directory: ${output}\n`);
     }
 

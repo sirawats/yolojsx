@@ -36,12 +36,19 @@ function createSink() {
 export async function invoke(args, options = {}) {
   const stdout = createSink();
   const stderr = createSink();
-  const exitCode = await runCli(args, {
+  const cliOptions = {
     cwd: options.cwd,
     nodeVersion: options.nodeVersion,
     stdout: stdout.stream,
     stderr: stderr.stream,
-  });
+  };
+  if (options.stdin) {
+    cliOptions.stdin = options.stdin;
+  }
+  if (options.confirmReplacement) {
+    cliOptions.confirmReplacement = options.confirmReplacement;
+  }
+  const exitCode = await runCli(args, cliOptions);
   return { exitCode, stdout: stdout.read(), stderr: stderr.read() };
 }
 

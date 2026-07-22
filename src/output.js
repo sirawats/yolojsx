@@ -58,7 +58,13 @@ export async function inspectOutput(output, force) {
     );
   }
 
-  return { exists: true, managed, empty, forced: !empty && !managed && force };
+  return {
+    exists: true,
+    managed,
+    empty,
+    unowned: !empty && !managed,
+    forced: !empty && !managed && force,
+  };
 }
 
 export async function createOutputStage(output) {

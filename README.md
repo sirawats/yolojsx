@@ -137,13 +137,15 @@ Because Tailwind preflight is enabled, global element defaults follow Tailwind's
 
 ## Safe output replacement
 
-A successful build writes `.yolojsx-output.json` to identify managed output. Later builds can safely replace that directory and remove stale assets.
+A successful build writes `.yolojsx-output.json` to identify managed output. When any selected output directory already exists, the CLI asks `Replace it? Type yes or no:` before building. Type `yes` to authorize that replacement or `no` to leave it unchanged.
 
-The CLI refuses to clean a non-empty directory without a valid marker unless `--force` is supplied. Filesystem roots, the current working directory, and directories containing the source entry are always rejected.
+The same prompt protects non-empty directories without a valid marker, with an additional unowned-output warning. Filesystem roots, the current working directory, and directories containing the source entry are always rejected.
 
 Builds are staged separately. If compilation fails, the last successful managed output remains intact.
 
-Single-file output follows the same conservative approach: an existing `.html` file requires `--force`, directories and symbolic links are never replaced, and publication occurs through a staged sibling file. `pack` rejects an output inside its input directory and treats every input file as read-only.
+Single-file output follows the same conservative approach: an existing `.html` file prompts for `yes` or `no`, directories and symbolic links are never replaced, and publication occurs through a staged sibling file. `pack` rejects an output inside its input directory and treats every input file as read-only.
+
+Use `--force` to explicitly replace an existing valid target without prompting. In a non-interactive session the CLI never waits for input: it refuses an existing target and directs automation to use `--force`.
 
 ## Browser and security notes
 
@@ -172,9 +174,12 @@ node bin/yolojsx.js examples/Home.jsx
 
 ```sh
 npm install
-npm test
-npm run pack:check
+npm run verify
 ```
+
+`npm run verify` runs tests, syntax checks, the npm package-content preview, and a packed-artifact smoke test covering directory output, both single-file forms, `pack`, overwrite refusal, and `--force`. The package smoke test extracts the tarball into a temporary directory and links the repository's existing `node_modules`, so normal development does not reinstall dependencies.
+
+Use `npm test` for the fastest behavior-only loop, `npm run check` for syntax checks, or `npm run verify:package` for only the packaged-artifact smoke test. A genuine isolated `npm install` is intentionally reserved for the pre-release checklist.
 
 See [RELEASING.md](RELEASING.md) for the pre-release checklist.
 

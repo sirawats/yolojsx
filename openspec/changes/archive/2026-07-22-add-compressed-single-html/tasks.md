@@ -42,3 +42,10 @@
 - [x] 6.2 Extend `RELEASING.md` with direct and `pack` smoke tests, including opening the generated example through `file://` in a supported browser.
 - [x] 6.3 Run unit and integration suites, syntax checks, and `npm run pack:check`, then confirm the npm tarball contains every new runtime module.
 - [x] 6.4 Install the packed tarball in isolation and verify directory output, both single-file naming forms, and `yolojsx pack dist --output index.html`.
+
+## 7. Interactive Overwrite Confirmation
+
+- [x] 7.1 Implement a reusable terminal prompt that accepts typed `yes` or `no`, repeats invalid answers, and refuses safely when stdin is non-interactive.
+- [x] 7.2 Require confirmation for every existing directory or HTML target while keeping `--force` as a prompt-free override.
+- [x] 7.3 Add unit and integration tests for yes, no, invalid input, non-interactive refusal, managed and unowned directories, HTML files, and forced replacement.
+- [x] 7.4 Add repository-owned quick and packaged-artifact verification scripts, document the local-versus-release workflow, and pass the full local and strict OpenSpec verification suite.
