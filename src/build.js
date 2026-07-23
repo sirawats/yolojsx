@@ -97,7 +97,10 @@ export async function withTemporaryApplicationBuild(
 
     return await consume(workspaceOutput);
   } catch (error) {
-    throw asBuildError(error);
+    const failure = asBuildError(error);
+    await cleanupDirectory(workspace, failure);
+    workspace = undefined;
+    throw failure;
   } finally {
     await cleanupDirectory(workspace);
   }
@@ -118,7 +121,10 @@ export async function buildApplication({ entry, output, base, theme, customCss }
     await commitOutput(stage, output);
     stage = undefined;
   } catch (error) {
-    throw asBuildError(error);
+    const failure = asBuildError(error);
+    await cleanupDirectory(stage, failure);
+    stage = undefined;
+    throw failure;
   } finally {
     await cleanupDirectory(stage);
   }

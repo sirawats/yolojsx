@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { parseArgs, USAGE } from "../../src/args.js";
+
+const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 
 test("defaults JSX builds to a named HTML file", () => {
   assert.deepEqual(parseArgs(["Home.jsx"]), {
@@ -65,6 +70,12 @@ test("parses deprecated single-file, theme discovery, and pack commands", () => 
 test("supports help and version without an entry", () => {
   assert.equal(parseArgs(["--help"]).action, "help");
   assert.equal(parseArgs(["--version"]).action, "version");
+});
+
+test("keeps the documented CLI help synchronized with runtime usage", async () => {
+  const readme = await readFile(path.join(repository, "README.md"), "utf8");
+  const documentedUsage = readme.match(/## CLI\s+```text\n([\s\S]*?)\n```/);
+  assert.equal(documentedUsage?.[1], USAGE);
 });
 
 test("rejects invalid modes, duplicate values, and action-specific options", () => {

@@ -106,9 +106,18 @@ export async function commitOutput(stage, output) {
   await rm(backup, { recursive: true, force: true });
 }
 
-export async function cleanupDirectory(directory) {
-  if (directory) {
+export async function cleanupDirectory(directory, failure) {
+  if (!directory) {
+    return;
+  }
+
+  try {
     await rm(directory, { recursive: true, force: true });
+  } catch (cleanupError) {
+    if (!failure) {
+      throw cleanupError;
+    }
+    failure.message += `\nCleanup also failed: ${cleanupError.message ?? String(cleanupError)}`;
   }
 }
 

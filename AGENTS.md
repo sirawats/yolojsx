@@ -7,7 +7,7 @@
 ## Build, Test, and Development Commands
 
 - `npm install` installs the locked dependencies. Supported Node versions are `^20.19.0` or `>=22.12.0`.
-- `node bin/yolojsx.js examples/Home.jsx` builds the example into `dist/`.
+- `node bin/yolojsx.js examples/Home.jsx` builds the example into `Home.html`; add `--out-dir dist` for directory output.
 - `npm test` runs every unit and integration test serially.
 - `npm run test:unit` or `npm run test:integration` runs one test group.
 - `npm run check` syntax-checks repository JavaScript.

@@ -31,7 +31,7 @@ test("accepts yes and repeats invalid answers", async () => {
     }),
     true,
   );
-  assert.match(sink.read(), /Type yes or no/);
+  assert.match(sink.read(), /Replace it\? \(yes\/no\):/);
   assert.match(sink.read(), /Please type yes or no/);
 });
 

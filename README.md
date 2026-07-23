@@ -239,6 +239,9 @@ Usage: yolojsx <entry.jsx> [options]
        yolojsx themes | yolojsx --themes
        yolojsx pack <directory> --output <file.html> [options]
 
+Build a JSX component into one compressed HTML file by default.
+
+Options:
       --output <path>   HTML output path (default: ./<EntryName>.html)
   -o, --out-dir <path> Build a directory instead of one HTML file
       --base <path>    Directory-mode public base path (default: ./)
@@ -247,8 +250,10 @@ Usage: yolojsx <entry.jsx> [options]
       --css <path>     Custom CSS loaded after the preset
       --single-file    Deprecated alias for the default file mode
       --force          Replace an existing protected output
-  -h, --help           Show help
+  -h, --help           Show this help
   -v, --version        Show the installed version
+
+Run `yolojsx themes` or `yolojsx --themes` to list available presets.
 ```
 
 `--output` and `--out-dir` conflict. `--base` requires `--out-dir`. Theme and CSS
