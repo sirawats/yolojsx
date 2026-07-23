@@ -1,69 +1,84 @@
-/* Package-owned semantic contract shared by every original yolojsx theme. */
+/* CLI-managed semantic contract shared by every original yolojsx theme. */
 @theme inline {
-  --color-yolo-canvas: var(--yolo-canvas);
-  --color-yolo-surface: var(--yolo-surface);
-  --color-yolo-surface-raised: var(--yolo-surface-raised);
-  --color-yolo-text: var(--yolo-text);
-  --color-yolo-text-muted: var(--yolo-text-muted);
-  --color-yolo-border: var(--yolo-border);
-  --color-yolo-primary: var(--yolo-primary);
-  --color-yolo-primary-text: var(--yolo-primary-text);
-  --color-yolo-focus: var(--yolo-focus);
-  --color-yolo-selection: var(--yolo-selection);
-  --color-yolo-selection-text: var(--yolo-selection-text);
-  --color-yolo-code-background: var(--yolo-code-background);
-  --color-yolo-success: var(--yolo-success);
-  --color-yolo-success-surface: var(--yolo-success-surface);
-  --color-yolo-warning: var(--yolo-warning);
-  --color-yolo-warning-surface: var(--yolo-warning-surface);
-  --color-yolo-danger: var(--yolo-danger);
-  --color-yolo-danger-surface: var(--yolo-danger-surface);
-  --color-yolo-info: var(--yolo-info);
-  --color-yolo-info-surface: var(--yolo-info-surface);
-  --font-yolo-sans: var(--yolo-font-sans);
-  --font-yolo-mono: var(--yolo-font-mono);
-  --radius-yolo-sm: var(--yolo-radius-sm);
-  --radius-yolo-md: var(--yolo-radius-md);
-  --radius-yolo-lg: var(--yolo-radius-lg);
-  --shadow-yolo-surface: var(--yolo-shadow-surface);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--foreground);
+  --color-muted: var(--code);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ring: var(--ring);
+  --color-selection: var(--selection);
+  --color-selection-foreground: var(--selection-foreground);
+  --color-code: var(--code);
+  --color-success: var(--success);
+  --color-success-background: var(--success-background);
+  --color-warning: var(--warning);
+  --color-warning-background: var(--warning-background);
+  --color-danger: var(--danger);
+  --color-danger-background: var(--danger-background);
+  --color-info: var(--info);
+  --color-info-background: var(--info-background);
+  --font-sans: var(--font-body);
+  --font-mono: var(--font-code);
+  --radius-sm: var(--theme-radius-sm);
+  --radius-md: var(--theme-radius-md);
+  --radius-lg: var(--theme-radius-lg);
+  --shadow-card: var(--card-shadow);
 }
 
 @layer base {
   html {
-    background: var(--yolo-canvas);
-    color: var(--yolo-text);
-    font-family: var(--yolo-font-sans);
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-body);
   }
 
   body {
     min-width: 320px;
     min-height: 100vh;
     margin: 0;
-    background: var(--yolo-canvas);
-    color: var(--yolo-text);
-    line-height: var(--yolo-line-height);
+    background: var(--background);
+    color: var(--foreground);
+    line-height: var(--body-line-height);
     text-rendering: optimizeLegibility;
   }
 
+  #root {
+    min-height: 100vh;
+  }
+
   h1, h2, h3, h4, h5, h6 {
-    color: var(--yolo-text);
-    font-weight: var(--yolo-heading-weight);
-    letter-spacing: var(--yolo-heading-tracking);
+    color: var(--foreground);
+    font-weight: var(--heading-weight);
+    letter-spacing: var(--heading-tracking);
     text-wrap: balance;
   }
 
   a {
-    color: var(--yolo-primary);
+    color: var(--primary);
     text-underline-offset: 0.16em;
   }
 
   code, kbd, pre, samp {
-    font-family: var(--yolo-font-mono);
+    font-family: var(--font-code);
   }
 
   :not(pre) > code, kbd {
-    border-radius: var(--yolo-radius-sm);
-    background: var(--yolo-code-background);
+    border-radius: var(--theme-radius-sm);
+    background: var(--code);
+  }
+
+  pre {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--theme-radius-md);
+    background: var(--code);
+    color: var(--foreground);
   }
 
   pre > code {
@@ -74,58 +89,47 @@
 
   blockquote {
     margin-inline: 0;
-    border-inline-start: 0.25rem solid var(--yolo-primary);
+    border-inline-start: 0.25rem solid var(--primary);
     padding-inline-start: 1rem;
-    color: var(--yolo-text-muted);
+    color: var(--muted-foreground);
   }
 
   hr {
     border: 0;
-    border-top: 1px solid var(--yolo-border);
+    border-top: 1px solid var(--border);
+  }
+
+  figcaption, small {
+    color: var(--muted-foreground);
   }
 
   button:not([class]), input:not([class]), select:not([class]), textarea:not([class]) {
-    min-height: var(--yolo-control-height);
-    border: 1px solid var(--yolo-border);
-    border-radius: var(--yolo-radius-md);
-    background: var(--yolo-surface);
-    color: var(--yolo-text);
+    min-height: var(--control-height);
+    border: 1px solid var(--border);
+    border-radius: var(--theme-radius-md);
+    background: var(--card);
+    color: var(--foreground);
     font: inherit;
   }
 
   button:not([class]) {
     padding-inline: 1rem;
-    background: var(--yolo-primary);
-    color: var(--yolo-primary-text);
-    font-weight: var(--yolo-heading-weight);
+    background: var(--primary);
+    color: var(--primary-foreground);
+    font-weight: var(--heading-weight);
   }
 
   ::selection {
-    background: var(--yolo-selection);
-    color: var(--yolo-selection-text);
+    background: var(--selection);
+    color: var(--selection-foreground);
   }
 
   :focus-visible {
-    outline: 2px solid var(--yolo-focus);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
-}
 
-@layer components {
-  .yolo-surface {
-    border: 1px solid var(--yolo-border);
-    border-radius: var(--yolo-radius-lg);
-    background: var(--yolo-surface);
-    box-shadow: var(--yolo-shadow-surface);
-    color: var(--yolo-text);
-  }
-
-  .yolo-muted {
-    color: var(--yolo-text-muted);
-  }
-
-  .yolo-reading {
-    max-inline-size: var(--yolo-content-measure);
-    margin-inline: auto;
+  table {
+    border-color: var(--border);
   }
 }

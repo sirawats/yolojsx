@@ -3,7 +3,7 @@ import { YoloJsxError } from "./errors.js";
 import { DEFAULT_THEME_ID, resolveTheme } from "./themes.js";
 
 export const USAGE = `Usage: yolojsx <entry.jsx> [options]
-       yolojsx themes
+       yolojsx themes | yolojsx --themes
        yolojsx pack <directory> --output <file.html> [options]
 
 Build a JSX component into one compressed HTML file by default.
@@ -13,13 +13,14 @@ Options:
   -o, --out-dir <path> Build a directory instead of one HTML file
       --base <path>    Directory-mode public base path (default: ./)
       --theme <preset> Global theme preset (default: default)
+      --themes          List available theme names
       --css <path>     Custom CSS loaded after the preset
       --single-file    Deprecated alias for the default file mode
       --force          Replace an existing protected output
   -h, --help           Show this help
   -v, --version        Show the installed version
 
-Run \`yolojsx themes\` to list available presets.`;
+Run \`yolojsx themes\` or \`yolojsx --themes\` to list available presets.`;
 
 function invalid(message) {
   return new YoloJsxError(message, { code: "INVALID_ARGUMENTS" });
@@ -44,7 +45,7 @@ export function parseArgs(argv) {
   const requestedAction = argv[0];
   const action = requestedAction === "pack"
     ? "pack"
-    : requestedAction === "themes"
+    : requestedAction === "themes" || requestedAction === "--themes"
       ? "themes"
       : "build";
   const options = {

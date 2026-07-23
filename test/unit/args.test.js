@@ -53,6 +53,7 @@ test("selects directory mode only from an explicit output directory", () => {
 test("parses deprecated single-file, theme discovery, and pack commands", () => {
   assert.equal(parseArgs(["Home.jsx", "--single-file"]).deprecatedSingleFile, true);
   assert.deepEqual(parseArgs(["themes"]), { action: "themes" });
+  assert.deepEqual(parseArgs(["--themes"]), { action: "themes" });
   assert.deepEqual(parseArgs(["pack", "dist", "--output=index.html"]), {
     action: "pack",
     inputDir: "dist",
@@ -76,9 +77,11 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
   assert.throws(() => parseArgs(["A.jsx", "--theme", "github", "--theme", "material"]), /only be specified once/);
   assert.throws(() => parseArgs(["A.jsx", "--theme", "missing"]), /yolojsx themes/);
   assert.throws(() => parseArgs(["themes", "--force"]), /does not accept/);
+  assert.throws(() => parseArgs(["--themes", "--force"]), /does not accept/);
   assert.throws(() => parseArgs(["pack", "dist"]), /requires --output/);
   assert.throws(() => parseArgs(["pack", "dist", "--output", "x.html", "--css", "x.css"]), /does not accept --css/);
   assert.match(USAGE, /HTML file by default/);
   assert.match(USAGE, /yolojsx themes/);
+  assert.match(USAGE, /--themes/);
   assert.match(USAGE, /--out-dir/);
 });

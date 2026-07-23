@@ -12,3 +12,14 @@
 - Ship pinned inspiration/license notices in `THIRD_PARTY_NOTICES.md`.
 - Add technical-specification, API-reference, calculator, SaaS, analytics, and
   editorial examples, with build coverage for their suggested themes.
+- **Breaking:** remove the public `yolo-*` Tailwind utilities, `--yolo-*` custom
+  properties, and `yolo-surface`, `yolo-muted`, and `yolo-reading` helpers.
+  Pages now inherit native document styling, Ant Design components use official
+  global and component tokens, and custom layouts can use conventional semantic
+  utilities such as `bg-background`, `bg-card`, `text-muted-foreground`, and
+  `border-border`.
+- Keep output modes, command-line theme IDs, and light/dark alias behavior
+  unchanged by the authoring migration. `--css` remains the explicit extension
+  point for application-wide CSS.
+- Print only canonical theme names from `yolojsx themes` and add
+  `yolojsx --themes` as an equivalent discovery command.

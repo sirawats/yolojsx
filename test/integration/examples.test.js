@@ -31,6 +31,9 @@ test('builds every documented example in file and directory modes', async (t) =>
     assert.equal(fileResult.exitCode, 0, `${filename} file mode: ${fileResult.stderr}`)
     const payload = readEmbeddedPayload(await readFile(fileOutput, 'utf8'))
     assert.match(payload.script, new RegExp(expectedText), filename)
+    assert.match(payload.script, /components/, filename)
+    assert.match(payload.styles.join('\n'), /--background:/, filename)
+    assert.doesNotMatch(payload.styles.join('\n'), /--yolo-|\.yolo-/, filename)
     if (hasCodePanel) {
       const css = payload.styles.join('\n')
       assert.match(
@@ -51,10 +54,13 @@ test('builds every documented example in file and directory modes', async (t) =>
     )
     const directoryScript = await readAsset(directoryOutput, '.js')
     assert.match(directoryScript, new RegExp(expectedText), filename)
+    assert.match(directoryScript, /components/, filename)
+    const directoryThemeCss = await readAsset(directoryOutput, '.css')
+    assert.match(directoryThemeCss, /--background:/, filename)
+    assert.doesNotMatch(directoryThemeCss, /--yolo-|\.yolo-/, filename)
     if (hasCodePanel) {
-      const directoryCss = await readAsset(directoryOutput, '.css')
       assert.match(
-        directoryCss,
+        directoryThemeCss,
         /pre>code\{(?=[^}]*color:inherit)(?=[^}]*background:(?:transparent|0 0))[^}]*\}/
       )
     }

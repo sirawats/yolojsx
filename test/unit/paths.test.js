@@ -16,7 +16,7 @@ test("resolves valid entry and output paths from cwd", async (t) => {
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
     "src/Home.jsx": "export default () => null;",
-    "styles/custom.css": ":root { --yolo-primary: red; }",
+    "styles/custom.css": ":root { --primary: red; }",
   });
 
   const entry = await resolveAndValidateEntry("src/Home.jsx", fixture);

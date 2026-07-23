@@ -85,6 +85,58 @@ const TYPOGRAPHY = Object.freeze({
   mono: "\"SFMono-Regular\", Consolas, \"Liberation Mono\", monospace",
 });
 
+export const THEME_CSS_PROPERTIES = Object.freeze({
+  colors: Object.freeze({
+    canvas: "--background",
+    surface: "--card",
+    surfaceRaised: "--popover",
+    text: "--foreground",
+    textMuted: "--muted-foreground",
+    border: "--border",
+    primary: "--primary",
+    primaryText: "--primary-foreground",
+    focus: "--ring",
+    selection: "--selection",
+    selectionText: "--selection-foreground",
+    codeBackground: "--code",
+  }),
+  status: Object.freeze({
+    success: Object.freeze({
+      foreground: "--success",
+      background: "--success-background",
+    }),
+    warning: Object.freeze({
+      foreground: "--warning",
+      background: "--warning-background",
+    }),
+    danger: Object.freeze({
+      foreground: "--danger",
+      background: "--danger-background",
+    }),
+    info: Object.freeze({
+      foreground: "--info",
+      background: "--info-background",
+    }),
+  }),
+  typography: Object.freeze({
+    sans: "--font-body",
+    mono: "--font-code",
+  }),
+  radius: Object.freeze({
+    small: "--theme-radius-sm",
+    medium: "--theme-radius-md",
+    large: "--theme-radius-lg",
+  }),
+  rhythm: Object.freeze({
+    lineHeight: "--body-line-height",
+    headingWeight: "--heading-weight",
+    letterSpacing: "--heading-tracking",
+    contentMeasure: "--content-measure",
+  }),
+  shadow: "--card-shadow",
+  controlHeight: "--control-height",
+});
+
 const VISUAL_PROFILES = Object.freeze({
   github: {
     typography: { sans: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif", mono: "ui-monospace, \"SFMono-Regular\", Consolas, monospace" },
@@ -120,15 +172,334 @@ const VISUAL_PROFILES = Object.freeze({
   },
 });
 
+const COMPONENT_PROFILES = Object.freeze({
+  default: Object.freeze({
+    buttonPadding: 16,
+    buttonShadow: "0 1px 2px rgb(15 23 42 / 0.14)",
+    cardPadding: 24,
+    cardHeaderHeight: 56,
+    menuItemHeight: 40,
+    menuItemMargin: 4,
+    segmentedPadding: 2,
+    tabGutter: 28,
+    titleMarginTop: "1.2em",
+    titleMarginBottom: "0.5em",
+    inputPaddingInline: 11,
+    inputPaddingBlock: 4,
+  }),
+  github: Object.freeze({
+    buttonPadding: 12,
+    buttonShadow: "0 1px 0 rgb(31 35 40 / 0.12)",
+    cardPadding: 16,
+    cardHeaderHeight: 44,
+    menuItemHeight: 32,
+    menuItemMargin: 2,
+    segmentedPadding: 2,
+    tabGutter: 24,
+    titleMarginTop: "1em",
+    titleMarginBottom: "0.4em",
+    inputPaddingInline: 10,
+    inputPaddingBlock: 3,
+  }),
+  material: Object.freeze({
+    buttonPadding: 24,
+    buttonShadow: "0 2px 4px rgb(29 27 32 / 0.2)",
+    cardPadding: 24,
+    cardHeaderHeight: 64,
+    menuItemHeight: 44,
+    menuItemMargin: 6,
+    segmentedPadding: 4,
+    tabGutter: 32,
+    titleMarginTop: "1.3em",
+    titleMarginBottom: "0.6em",
+    inputPaddingInline: 16,
+    inputPaddingBlock: 8,
+  }),
+  editor: Object.freeze({
+    buttonPadding: 14,
+    buttonShadow: "none",
+    cardPadding: 18,
+    cardHeaderHeight: 46,
+    menuItemHeight: 34,
+    menuItemMargin: 3,
+    segmentedPadding: 2,
+    tabGutter: 24,
+    titleMarginTop: "1em",
+    titleMarginBottom: "0.4em",
+    inputPaddingInline: 10,
+    inputPaddingBlock: 4,
+  }),
+  warm: Object.freeze({
+    buttonPadding: 18,
+    buttonShadow: "0 1px 3px rgb(60 56 54 / 0.16)",
+    cardPadding: 22,
+    cardHeaderHeight: 54,
+    menuItemHeight: 38,
+    menuItemMargin: 4,
+    segmentedPadding: 3,
+    tabGutter: 28,
+    titleMarginTop: "1.25em",
+    titleMarginBottom: "0.55em",
+    inputPaddingInline: 12,
+    inputPaddingBlock: 5,
+  }),
+  catppuccin: Object.freeze({
+    buttonPadding: 18,
+    buttonShadow: "0 2px 5px rgb(17 24 39 / 0.18)",
+    cardPadding: 22,
+    cardHeaderHeight: 54,
+    menuItemHeight: 38,
+    menuItemMargin: 4,
+    segmentedPadding: 3,
+    tabGutter: 28,
+    titleMarginTop: "1.15em",
+    titleMarginBottom: "0.5em",
+    inputPaddingInline: 12,
+    inputPaddingBlock: 5,
+  }),
+  minimal: Object.freeze({
+    buttonPadding: 14,
+    buttonShadow: "none",
+    cardPadding: 18,
+    cardHeaderHeight: 48,
+    menuItemHeight: 34,
+    menuItemMargin: 2,
+    segmentedPadding: 2,
+    tabGutter: 22,
+    titleMarginTop: "1.4em",
+    titleMarginBottom: "0.55em",
+    inputPaddingInline: 10,
+    inputPaddingBlock: 4,
+  }),
+  baseline: Object.freeze({
+    buttonPadding: 18,
+    buttonShadow: "0 1px 3px rgb(37 36 34 / 0.12)",
+    cardPadding: 24,
+    cardHeaderHeight: 56,
+    menuItemHeight: 40,
+    menuItemMargin: 4,
+    segmentedPadding: 3,
+    tabGutter: 30,
+    titleMarginTop: "1.3em",
+    titleMarginBottom: "0.55em",
+    inputPaddingInline: 12,
+    inputPaddingBlock: 5,
+  }),
+});
+
+export const ANT_DESIGN_COMPONENT_NAMES = Object.freeze([
+  "Button",
+  "Card",
+  "Input",
+  "Layout",
+  "Menu",
+  "Segmented",
+  "Tabs",
+  "Typography",
+]);
+
+const REQUIRED_COMPONENT_TOKENS = Object.freeze({
+  Button: Object.freeze([
+    "primaryColor",
+    "defaultColor",
+    "defaultBg",
+    "defaultBorderColor",
+    "defaultHoverBg",
+    "defaultHoverColor",
+    "defaultActiveBg",
+    "defaultActiveColor",
+    "defaultGhostColor",
+    "ghostBg",
+    "solidTextColor",
+    "textTextColor",
+    "textTextHoverColor",
+    "textTextActiveColor",
+    "defaultBgDisabled",
+  ]),
+  Card: Object.freeze(["headerBg", "bodyPadding", "headerPadding", "actionsBg"]),
+  Input: Object.freeze([
+    "paddingInline",
+    "paddingBlock",
+    "addonBg",
+    "hoverBorderColor",
+    "activeBorderColor",
+    "activeShadow",
+  ]),
+  Layout: Object.freeze(["bodyBg", "headerBg", "headerColor", "siderBg"]),
+  Menu: Object.freeze([
+    "itemColor",
+    "itemHoverColor",
+    "itemSelectedColor",
+    "itemBg",
+    "itemHoverBg",
+    "itemSelectedBg",
+  ]),
+  Segmented: Object.freeze([
+    "itemColor",
+    "itemHoverColor",
+    "itemSelectedBg",
+    "itemSelectedColor",
+    "trackBg",
+  ]),
+  Tabs: Object.freeze([
+    "cardBg",
+    "inkBarColor",
+    "itemColor",
+    "itemHoverColor",
+    "itemSelectedColor",
+  ]),
+  Typography: Object.freeze(["titleMarginTop", "titleMarginBottom"]),
+});
+
+function visualFamilyFor(id) {
+  if (id.startsWith("github-")) return "github";
+  if (id.startsWith("material-")) return "material";
+  if (id === "one-dark") return "editor";
+  if (id.startsWith("solarized-") || id.startsWith("gruvbox-") || id.startsWith("everforest-")) return "warm";
+  if (id.startsWith("catppuccin-")) return "catppuccin";
+  if (id.startsWith("obsidian-minimal-")) return "minimal";
+  if (id.startsWith("obsidian-baseline-")) return "baseline";
+  return "default";
+}
+
 function visualProfileFor(id) {
-  if (id.startsWith("github-")) return VISUAL_PROFILES.github;
-  if (id.startsWith("material-")) return VISUAL_PROFILES.material;
-  if (id === "one-dark") return VISUAL_PROFILES.editor;
-  if (id.startsWith("solarized-") || id.startsWith("gruvbox-") || id.startsWith("everforest-")) return VISUAL_PROFILES.warm;
-  if (id.startsWith("catppuccin-")) return VISUAL_PROFILES.catppuccin;
-  if (id.startsWith("obsidian-minimal-")) return VISUAL_PROFILES.minimal;
-  if (id.startsWith("obsidian-baseline-")) return VISUAL_PROFILES.baseline;
-  return VISUAL_PROFILES.default;
+  return VISUAL_PROFILES[visualFamilyFor(id)];
+}
+
+function componentProfileFor(id) {
+  return COMPONENT_PROFILES[visualFamilyFor(id)];
+}
+
+function createAntDesignComponents({
+  colors,
+  controlHeight,
+  radius,
+  shadow,
+  status,
+  visualProfile,
+  componentProfile,
+}) {
+  const radiusPixels = Number.parseFloat(radius.medium) * 16;
+  return {
+    Button: {
+      fontWeight: visualProfile.rhythm.headingWeight,
+      defaultShadow: componentProfile.buttonShadow,
+      primaryShadow: componentProfile.buttonShadow,
+      dangerShadow: componentProfile.buttonShadow,
+      primaryColor: colors.primaryText,
+      defaultColor: colors.text,
+      defaultBg: colors.surface,
+      defaultBorderColor: colors.border,
+      dangerColor: status.danger.foreground,
+      defaultHoverBg: colors.surfaceRaised,
+      defaultHoverColor: colors.primary,
+      defaultHoverBorderColor: colors.primary,
+      defaultActiveBg: colors.codeBackground,
+      defaultActiveColor: colors.primary,
+      defaultActiveBorderColor: colors.primary,
+      defaultGhostColor: colors.text,
+      ghostBg: "transparent",
+      defaultGhostBorderColor: colors.border,
+      solidTextColor: colors.primaryText,
+      textTextColor: colors.text,
+      textTextHoverColor: colors.primary,
+      textTextActiveColor: colors.primary,
+      textHoverBg: colors.codeBackground,
+      linkHoverBg: "transparent",
+      paddingInline: componentProfile.buttonPadding,
+      paddingInlineLG: componentProfile.buttonPadding + 4,
+      paddingInlineSM: Math.max(componentProfile.buttonPadding - 4, 8),
+      defaultBgDisabled: colors.codeBackground,
+      dashedBgDisabled: colors.codeBackground,
+    },
+    Card: {
+      headerBg: colors.surface,
+      headerHeight: componentProfile.cardHeaderHeight,
+      headerHeightSM: componentProfile.cardHeaderHeight - 8,
+      bodyPadding: componentProfile.cardPadding,
+      bodyPaddingSM: Math.max(componentProfile.cardPadding - 8, 12),
+      headerPadding: componentProfile.cardPadding,
+      headerPaddingSM: Math.max(componentProfile.cardPadding - 8, 12),
+      actionsBg: colors.surface,
+      extraColor: colors.textMuted,
+      boxShadowTertiary: shadow,
+    },
+    Input: {
+      paddingInline: componentProfile.inputPaddingInline,
+      paddingInlineSM: Math.max(componentProfile.inputPaddingInline - 2, 8),
+      paddingInlineLG: componentProfile.inputPaddingInline + 2,
+      paddingBlock: componentProfile.inputPaddingBlock,
+      paddingBlockSM: Math.max(componentProfile.inputPaddingBlock - 1, 2),
+      paddingBlockLG: componentProfile.inputPaddingBlock + 2,
+      addonBg: colors.codeBackground,
+      hoverBorderColor: colors.primary,
+      activeBorderColor: colors.primary,
+      activeShadow: `0 0 0 2px ${colors.selection}`,
+      hoverBg: colors.surface,
+      activeBg: colors.surface,
+    },
+    Layout: {
+      bodyBg: colors.canvas,
+      headerBg: colors.surface,
+      headerColor: colors.text,
+      headerHeight: Math.max(controlHeight + 24, 56),
+      headerPadding: "0 24px",
+      footerBg: colors.surface,
+      siderBg: colors.surface,
+      triggerBg: colors.surfaceRaised,
+      triggerColor: colors.text,
+      lightSiderBg: colors.surface,
+      lightTriggerBg: colors.surfaceRaised,
+      lightTriggerColor: colors.text,
+    },
+    Menu: {
+      groupTitleColor: colors.textMuted,
+      itemBorderRadius: radiusPixels,
+      subMenuItemBorderRadius: radiusPixels,
+      itemColor: colors.textMuted,
+      itemHoverColor: colors.text,
+      itemSelectedColor: colors.primary,
+      subMenuItemSelectedColor: colors.primary,
+      itemDisabledColor: colors.textMuted,
+      dangerItemColor: status.danger.foreground,
+      dangerItemHoverColor: status.danger.foreground,
+      dangerItemSelectedColor: status.danger.foreground,
+      dangerItemActiveBg: status.danger.background,
+      dangerItemSelectedBg: status.danger.background,
+      itemBg: colors.surface,
+      itemHoverBg: colors.codeBackground,
+      subMenuItemBg: colors.surface,
+      itemActiveBg: colors.codeBackground,
+      itemSelectedBg: colors.selection,
+      itemHeight: componentProfile.menuItemHeight,
+      itemMarginInline: componentProfile.menuItemMargin,
+      itemMarginBlock: componentProfile.menuItemMargin,
+      popupBg: colors.surfaceRaised,
+    },
+    Segmented: {
+      itemColor: colors.textMuted,
+      itemHoverColor: colors.text,
+      itemHoverBg: colors.surfaceRaised,
+      itemActiveBg: colors.codeBackground,
+      itemSelectedBg: colors.surface,
+      itemSelectedColor: colors.text,
+      trackPadding: componentProfile.segmentedPadding,
+      trackBg: colors.codeBackground,
+    },
+    Tabs: {
+      cardBg: colors.codeBackground,
+      inkBarColor: colors.primary,
+      horizontalItemGutter: componentProfile.tabGutter,
+      itemColor: colors.textMuted,
+      itemActiveColor: colors.primary,
+      itemHoverColor: colors.primary,
+      itemSelectedColor: colors.primary,
+    },
+    Typography: {
+      titleMarginTop: componentProfile.titleMarginTop,
+      titleMarginBottom: componentProfile.titleMarginBottom,
+    },
+  };
 }
 
 function originalAdaptation(source) {
@@ -153,6 +524,7 @@ function fixedTheme({
 }) {
   const status = appearance === "dark" ? DARK_STATUS : LIGHT_STATUS;
   const visualProfile = visualProfileFor(id);
+  const componentProfile = componentProfileFor(id);
   const semantic = {
     colors: {
       ...colors,
@@ -174,7 +546,8 @@ function fixedTheme({
     semantic,
     antDesign: {
       algorithm: appearance,
-      tokens: {
+      cssVar: true,
+      token: {
         colorPrimary: colors.primary,
         colorInfo: colors.primary,
         colorSuccess: status.success.foreground,
@@ -196,6 +569,15 @@ function fixedTheme({
         lineHeight: visualProfile.rhythm.lineHeight,
         boxShadow: shadow,
       },
+      components: createAntDesignComponents({
+        colors,
+        controlHeight,
+        radius,
+        shadow,
+        status,
+        visualProfile,
+        componentProfile,
+      }),
     },
     provenance: originalAdaptation(source),
   };
@@ -409,8 +791,40 @@ export function validateThemeCatalog(themes = THEMES) {
     requireContrast(theme, "primary control", colors.primaryText, colors.primary, 4.5);
     requireContrast(theme, "focus indicator", colors.focus, colors.canvas, 3);
     requireContrast(theme, "selection", colors.selectionText, colors.selection, 4.5);
-    if (!theme.antDesign?.algorithm || !theme.antDesign?.tokens) {
+    const antDesign = theme.antDesign;
+    if (
+      !["light", "dark"].includes(antDesign?.algorithm) ||
+      antDesign.cssVar !== true ||
+      !antDesign.token ||
+      !antDesign.components
+    ) {
       throw new Error(`${theme.id} is missing Ant Design configuration.`);
+    }
+    const componentNames = Object.keys(antDesign.components).sort();
+    if (
+      componentNames.length !== ANT_DESIGN_COMPONENT_NAMES.length ||
+      componentNames.some((name, index) => name !== [...ANT_DESIGN_COMPONENT_NAMES].sort()[index])
+    ) {
+      throw new Error(`${theme.id} has unsupported Ant Design component configuration.`);
+    }
+    for (const [componentName, requiredTokens] of Object.entries(REQUIRED_COMPONENT_TOKENS)) {
+      const component = antDesign.components[componentName];
+      for (const tokenName of requiredTokens) {
+        const value = component?.[tokenName];
+        if (
+          value === undefined ||
+          !["string", "number", "boolean"].includes(typeof value)
+        ) {
+          throw new Error(
+            `${theme.id} has an invalid Ant Design ${componentName}.${tokenName} token.`,
+          );
+        }
+      }
+      for (const value of Object.values(component)) {
+        if (!["string", "number", "boolean"].includes(typeof value)) {
+          throw new Error(`${theme.id} has a non-serializable Ant Design ${componentName} token.`);
+        }
+      }
     }
     for (const field of ["sans", "mono"]) {
       if (!theme.semantic.typography?.[field]) {
@@ -446,18 +860,7 @@ export function resolveTheme(themeId = DEFAULT_THEME_ID) {
 }
 
 export function renderThemeCatalog() {
-  const lines = [
-    "Available yolojsx themes (original adaptations; no upstream CSS is bundled):",
-    "",
-  ];
-  for (const theme of THEMES) {
-    const mode = `fixed ${theme.appearance}`;
-    const aliases = theme.aliases.length > 0 ? `; aliases: ${theme.aliases.join(", ")}` : "";
-    lines.push(`${theme.id} (${mode}${aliases})`);
-    lines.push(`  ${theme.description}`);
-    lines.push(`  Inspiration: ${theme.provenance.name} ${theme.provenance.revision} — ${theme.provenance.url}`);
-  }
-  return `${lines.join("\n")}\n`;
+  return `${THEMES.map((theme) => theme.id).join("\n")}\n`;
 }
 
 validateThemeCatalog();

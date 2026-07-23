@@ -81,8 +81,9 @@ function YoloJsxThemeBoundary() {
     : antdTheme.defaultAlgorithm;
   const theme = {
     algorithm,
-    cssVar: true,
-    token: selected.tokens,
+    cssVar: selected.cssVar,
+    token: selected.token,
+    components: selected.components,
   };
 
   return React.createElement(

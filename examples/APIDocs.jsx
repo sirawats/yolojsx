@@ -1,11 +1,15 @@
 import { useMemo, useState } from "react";
 import {
+  Avatar,
   Badge,
   Button,
   Card,
   Collapse,
   Descriptions,
+  Flex,
   Input,
+  Layout,
+  Menu,
   Segmented,
   Space,
   Tabs,
@@ -61,6 +65,31 @@ const result = await response.json();`,
 result = response.json()`,
 };
 
+const methodColor = {
+  GET: "green",
+  POST: "blue",
+  DELETE: "red",
+};
+
+const navigationItems = [
+  {
+    type: "group",
+    label: "Endpoints",
+    children: Object.entries(endpoints).map(([name, endpoint]) => ({
+      key: name,
+      label: <><Tag color={methodColor[endpoint.method]}>{endpoint.method}</Tag>{name}</>,
+    })),
+  },
+  {
+    type: "group",
+    label: "Guides",
+    children: ["Authentication", "Pagination", "Errors", "Webhooks"].map((name) => ({
+      key: `guide-${name.toLowerCase()}`,
+      label: <a href={`#${name.toLowerCase()}`}>{name}</a>,
+    })),
+  },
+];
+
 export default function APIDocs() {
   const [selected, setSelected] = useState("List events");
   const [language, setLanguage] = useState("cURL");
@@ -68,55 +97,40 @@ export default function APIDocs() {
   const code = useMemo(() => requestExamples[language](endpoint), [endpoint, language]);
 
   return (
-    <main className="min-h-screen bg-yolo-canvas text-yolo-text">
-      <header className="border-b border-yolo-border bg-yolo-surface px-5 py-3">
-        <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-4">
-          <div className="mr-auto flex items-center gap-3">
-            <div className="grid size-9 place-items-center rounded-lg bg-yolo-primary font-bold text-yolo-primary-text">O</div>
+    <Layout className="min-h-screen">
+      <Layout.Header className="border-b border-border">
+        <Flex className="mx-auto h-full max-w-[1500px]" align="center" gap="middle" wrap>
+          <Flex className="mr-auto" align="center" gap="small">
+            <Avatar shape="square">O</Avatar>
             <strong>Orbit API</strong>
             <Tag>v1.8</Tag>
-          </div>
+          </Flex>
           <Input.Search placeholder="Search documentation" className="max-w-sm" />
           <Button type="primary">Get API key</Button>
-        </div>
-      </header>
+        </Flex>
+      </Layout.Header>
 
-      <div className="mx-auto grid max-w-[1500px] lg:grid-cols-[250px_minmax(0,1fr)_minmax(340px,0.8fr)]">
-        <aside className="border-r border-yolo-border px-5 py-7 lg:min-h-[calc(100vh-65px)]">
-          <Typography.Text className="text-xs font-semibold uppercase tracking-wider text-yolo-text-muted">Endpoints</Typography.Text>
-          <div className="mt-3 grid gap-1">
-            {Object.entries(endpoints).map(([name, item]) => (
-              <button
-                key={name}
-                type="button"
-                onClick={() => setSelected(name)}
-                className={`flex cursor-pointer items-center gap-3 border-0 px-3 py-2.5 text-left ${selected === name ? "bg-yolo-code-background text-yolo-primary" : "bg-transparent text-yolo-text-muted"}`}
-              >
-                <span className={`w-12 font-yolo-mono text-[11px] font-bold ${item.method === "GET" ? "text-yolo-success" : item.method === "POST" ? "text-yolo-primary" : "text-yolo-danger"}`}>
-                  {item.method}
-                </span>
-                <span>{name}</span>
-              </button>
-            ))}
-          </div>
-          <Typography.Text className="mt-8 block text-xs font-semibold uppercase tracking-wider text-yolo-text-muted">Guides</Typography.Text>
-          <nav className="mt-3 grid gap-2 text-sm text-yolo-text-muted">
-            <a href="#authentication">Authentication</a>
-            <a href="#pagination">Pagination</a>
-            <a href="#errors">Errors</a>
-            <a href="#webhooks">Webhooks</a>
-          </nav>
-        </aside>
+      <Layout className="mx-auto w-full max-w-[1500px]">
+        <Layout.Sider width={250} breakpoint="lg" collapsedWidth={0} theme="light">
+          <Menu
+            mode="inline"
+            items={navigationItems}
+            selectedKeys={[selected]}
+            onClick={({ key }) => {
+              if (endpoints[key]) setSelected(key);
+            }}
+          />
+        </Layout.Sider>
 
-        <article className="min-w-0 px-6 py-8 xl:px-10">
+        <Layout.Content className="min-w-0 px-6 py-8 xl:px-10">
           <Space className="mb-4" wrap>
-            <Tag color={endpoint.method === "GET" ? "green" : endpoint.method === "POST" ? "blue" : "red"}>{endpoint.method}</Tag>
+            <Tag color={methodColor[endpoint.method]}>{endpoint.method}</Tag>
             <code className="px-2 py-1 text-sm">{endpoint.path}</code>
           </Space>
-          <Typography.Title className="!mb-3">{selected}</Typography.Title>
-          <Typography.Paragraph className="!text-lg text-yolo-text-muted">{endpoint.description}</Typography.Paragraph>
+          <Typography.Title>{selected}</Typography.Title>
+          <Typography.Paragraph type="secondary" className="text-lg">{endpoint.description}</Typography.Paragraph>
 
-          <Card className="yolo-surface mt-8" title="Request">
+          <Card className="mt-8" title="Request">
             <Descriptions
               column={1}
               items={[
@@ -127,7 +141,7 @@ export default function APIDocs() {
             />
           </Card>
 
-          <Typography.Title level={2} className="!mt-10">Response schema</Typography.Title>
+          <Typography.Title level={2} className="mt-10">Response schema</Typography.Title>
           <Collapse
             items={[
               { key: "data", label: <><Badge status="success" /> <code>data</code> · array</>, children: "The ordered collection of event objects." },
@@ -136,26 +150,26 @@ export default function APIDocs() {
             ]}
             defaultActiveKey={["data"]}
           />
-        </article>
+        </Layout.Content>
 
-        <aside className="border-l border-yolo-border bg-yolo-code-background p-5 xl:p-7">
+        <aside className="border-l border-border bg-card p-5 xl:p-7">
           <div className="sticky top-6">
             <div className="mb-4 flex items-center justify-between gap-3">
               <Segmented options={["cURL", "JavaScript", "Python"]} value={language} onChange={setLanguage} />
               <Button size="small">Copy</Button>
             </div>
-            <pre className="overflow-x-auto rounded-lg bg-[#111827] p-5 text-sm leading-6 text-[#dbeafe]"><code>{code}</code></pre>
+            <pre className="p-5 text-sm leading-6"><code>{code}</code></pre>
             <Tabs
               className="mt-6"
               defaultActiveKey="response"
               items={[
-                { key: "response", label: "200 Response", children: <pre className="overflow-x-auto rounded-lg bg-[#111827] p-5 text-sm leading-6 text-[#d1fae5]"><code>{endpoint.response}</code></pre> },
-                { key: "headers", label: "Headers", children: <pre className="rounded-lg bg-[#111827] p-5 text-sm text-[#dbeafe]"><code>{`x-request-id: req_7ab\nx-ratelimit-remaining: 998`}</code></pre> },
+                { key: "response", label: "200 Response", children: <pre className="p-5 text-sm leading-6"><code>{endpoint.response}</code></pre> },
+                { key: "headers", label: "Headers", children: <pre className="p-5 text-sm"><code>{`x-request-id: req_7ab\nx-ratelimit-remaining: 998`}</code></pre> },
               ]}
             />
           </div>
         </aside>
-      </div>
-    </main>
+      </Layout>
+    </Layout>
   );
 }

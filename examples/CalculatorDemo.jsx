@@ -9,6 +9,7 @@ import {
   Segmented,
   Slider,
   Statistic,
+  Tag,
   Typography,
 } from "antd";
 
@@ -23,7 +24,7 @@ function MetricInput({ label, value, onChange, min, max, step = 1, suffix }) {
     <div>
       <div className="mb-2 flex items-center justify-between gap-3">
         <Typography.Text strong>{label}</Typography.Text>
-        <Typography.Text className="text-yolo-text-muted">{value.toLocaleString()}{suffix}</Typography.Text>
+        <Typography.Text type="secondary">{value.toLocaleString()}{suffix}</Typography.Text>
       </div>
       <div className="grid grid-cols-[1fr_120px] gap-4">
         <Slider min={min} max={max} step={step} value={value} onChange={onChange} tooltip={{ formatter: null }} />
@@ -60,19 +61,15 @@ export default function CalculatorDemo() {
   const healthy = result.ratio >= 3;
 
   return (
-    <main className="min-h-screen bg-yolo-canvas px-5 py-10 text-yolo-text lg:px-10">
+    <main className="px-5 py-10 lg:px-10">
       <div className="mx-auto max-w-6xl">
         <header className="mb-8 flex flex-wrap items-end justify-between gap-5">
-          <div>
-            <div className="mb-3 inline-flex rounded-full bg-yolo-code-background px-3 py-1 text-xs font-semibold text-yolo-primary">INTERACTIVE MODEL</div>
-            <Typography.Title className="!mb-2 !text-4xl">SaaS unit economics calculator</Typography.Title>
-            <Typography.Paragraph className="!mb-0 !text-lg text-yolo-text-muted">Stress-test revenue, payback, and LTV:CAC assumptions.</Typography.Paragraph>
-          </div>
+          <div><Tag color="blue">Interactive model</Tag><Typography.Title className="text-4xl">SaaS unit economics calculator</Typography.Title><Typography.Paragraph type="secondary" className="text-lg">Stress-test revenue, payback, and LTV:CAC assumptions.</Typography.Paragraph></div>
           <Segmented options={Object.keys(scenarios)} value={scenario} onChange={setScenario} />
         </header>
 
         <div className="grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <Card className="yolo-surface" title="Model assumptions">
+          <Card title="Model assumptions">
             <div className="grid gap-7">
               <MetricInput label="Paying customers" value={customers} onChange={setCustomers} min={25} max={2500} step={25} />
               <MetricInput label="Monthly revenue per customer" value={revenue} onChange={setRevenue} min={10} max={500} suffix=" USD" />
@@ -83,16 +80,15 @@ export default function CalculatorDemo() {
           </Card>
 
           <div className="grid gap-6">
-            <section className="rounded-2xl bg-yolo-primary p-7 text-yolo-primary-text shadow-yolo-surface">
-              <div className="text-sm opacity-75">Projected annual recurring revenue</div>
-              <div className="mt-2 text-5xl font-semibold tracking-tight">${Math.round(result.annualRevenue).toLocaleString()}</div>
-              <div className="mt-6 grid grid-cols-2 gap-5 border-t border-current/20 pt-5">
-                <div><div className="text-xs opacity-70">Monthly revenue</div><strong className="text-xl">${Math.round(result.monthlyRevenue).toLocaleString()}</strong></div>
-                <div><div className="text-xs opacity-70">Gross profit</div><strong className="text-xl">${Math.round(result.grossProfit).toLocaleString()}</strong></div>
-              </div>
-            </section>
+            <Card title="Projected annual recurring revenue">
+              <Statistic value={Math.round(result.annualRevenue)} prefix="$" />
+              <Row className="mt-6" gutter={[20, 20]}>
+                <Col span={12}><Statistic title="Monthly revenue" value={Math.round(result.monthlyRevenue)} prefix="$" /></Col>
+                <Col span={12}><Statistic title="Gross profit" value={Math.round(result.grossProfit)} prefix="$" /></Col>
+              </Row>
+            </Card>
 
-            <Card className="yolo-surface" title="Efficiency scorecard">
+            <Card title="Efficiency scorecard">
               <Row gutter={[20, 20]}>
                 <Col span={12}><Statistic title="Lifetime value" value={Math.round(result.lifetimeValue)} prefix="$" /></Col>
                 <Col span={12}><Statistic title="LTV : CAC" value={result.ratio} precision={1} suffix="×" /></Col>

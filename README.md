@@ -39,8 +39,8 @@ import { Button, Card } from "antd";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-yolo-canvas p-8 text-yolo-text">
-      <Card className="yolo-surface mx-auto max-w-xl">
+    <main className="min-h-screen p-8">
+      <Card className="mx-auto max-w-xl">
         <h1>Ship a themed page</h1>
         <Button type="primary">Build it</Button>
       </Card>
@@ -115,6 +115,7 @@ explicitly:
 yolojsx Home.jsx --theme material       # material-light
 yolojsx Home.jsx --theme material-dark  # explicitly dark
 yolojsx themes
+# or: yolojsx --themes
 ```
 
 Fixed presets:
@@ -136,7 +137,17 @@ keeps generated output visually stable across machines and viewing environments.
 Themes affect more than color: their checked-in CSS defines typography fallbacks,
 reading rhythm, heading weight and tracking, control density, radii, shadows,
 surface hierarchy, selection, focus, code, links, and native controls. The same
-semantic mapping configures the matching fixed Ant Design algorithm and tokens.
+semantic mapping configures the matching fixed Ant Design algorithm plus official
+global and component tokens for Button, Card, Input, Layout, Menu, Segmented,
+Tabs, and Typography. Component spacing, elevation, typography, and interaction
+details therefore change with the selected visual family—not only its palette.
+
+Application JSX does not need a theme provider, a CSS import, or page-level theme
+classes. The generated application supplies Ant Design's `ConfigProvider`, while
+native document elements inherit the selected background, text, typography,
+focus, selection, link, and code styles automatically. Prefer ordinary Ant Design
+props such as `type="primary"`, `danger`, `disabled`, and
+`Typography.Text type="secondary"` for component meaning.
 
 These are original yolojsx adaptations, not exact reproductions or replacements
 for the referenced component libraries and products. No upstream or Obsidian CSS
@@ -161,7 +172,8 @@ Tailwind configuration:
 }
 
 :root {
-  --yolo-primary: #7346a8;
+  --primary: #7346a8;
+  --ring: #7346a8;
 }
 
 @layer components {
@@ -181,21 +193,57 @@ before custom CSS. Custom CSS can override semantic variables and rules, but it
 does not rewrite the generated Ant Design token object; wrap user code in another
 `ConfigProvider` when application-specific Ant configuration is needed.
 
-Useful semantic utilities and helpers include `bg-yolo-canvas`,
-`bg-yolo-surface`, `text-yolo-text`, `text-yolo-text-muted`, `border-yolo-border`,
-`text-yolo-primary`, `yolo-surface`, `yolo-muted`, and `yolo-reading`.
+The CLI exposes conventional semantic Tailwind names for the places where an
+application genuinely needs explicit styling:
+
+- Surfaces: `bg-background`, `bg-card`, `bg-popover`
+- Text: `text-foreground`, `text-muted-foreground`,
+  `text-primary-foreground`
+- Structure and focus: `border-border`, `ring-ring`, `shadow-card`
+- Accent and code: `bg-primary`, `text-primary`, `bg-code`
+- Status: `text-success`, `text-warning`, `text-danger`, `text-info`, with
+  matching `*-background` colors
+- Typography and shape: `font-sans`, `font-mono`, `rounded-sm`, `rounded-md`,
+  `rounded-lg`
+
+These utilities are escape hatches for custom layouts, not required theme
+plumbing. Let the document inherit its theme and let Ant Design style its own
+components whenever possible.
+
+### Migration from branded theme classes
+
+The former package-specific styling vocabulary is removed. Migrate authoring
+code as follows:
+
+| Legacy authoring | Preferred replacement |
+| --- | --- |
+| `bg-yolo-canvas`, `text-yolo-text` | Usually remove them; use `bg-background` or `text-foreground` only for an explicit nested region |
+| `bg-yolo-surface`, `yolo-surface` | Use an Ant Design `Card`, or `bg-card border-border shadow-card` for a custom surface |
+| `text-yolo-text-muted`, `yolo-muted` | Use `Typography.Text type="secondary"` or `text-muted-foreground` |
+| `border-yolo-border` | `border-border` |
+| `bg-yolo-primary`, `text-yolo-primary`, `text-yolo-primary-text` | Use Ant Design's `type="primary"` where applicable, or `bg-primary`, `text-primary`, and `text-primary-foreground` |
+| `bg-yolo-code` | Let native `pre` and `code` inherit their styling, or use `bg-code` |
+| `text-yolo-success`, `text-yolo-warning`, `text-yolo-danger`, `text-yolo-info` | Prefer the matching Ant Design status prop; otherwise use `text-success`, `text-warning`, `text-danger`, or `text-info` |
+| `font-yolo-body`, `font-yolo-code` | Usually remove them; use `font-sans` or `font-mono` when explicit |
+| `rounded-yolo-*`, `shadow-yolo-card` | `rounded-sm`, `rounded-md`, `rounded-lg`, or `shadow-card` |
+| `yolo-reading` | Use ordinary layout utilities such as `mx-auto max-w-3xl` |
+
+Use `--css` for deliberate application-wide stylesheet extensions; do not import
+theme CSS from JSX. Built-in Ant Design styling is generated from supported
+official tokens rather than `.ant-*` selector patches.
 
 ## CLI
 
 ```text
 Usage: yolojsx <entry.jsx> [options]
-       yolojsx themes
+       yolojsx themes | yolojsx --themes
        yolojsx pack <directory> --output <file.html> [options]
 
       --output <path>   HTML output path (default: ./<EntryName>.html)
   -o, --out-dir <path> Build a directory instead of one HTML file
       --base <path>    Directory-mode public base path (default: ./)
       --theme <preset> Global theme preset (default: default)
+      --themes          List available theme names
       --css <path>     Custom CSS loaded after the preset
       --single-file    Deprecated alias for the default file mode
       --force          Replace an existing protected output
@@ -204,7 +252,7 @@ Usage: yolojsx <entry.jsx> [options]
 ```
 
 `--output` and `--out-dir` conflict. `--base` requires `--out-dir`. Theme and CSS
-options apply to JSX builds, not `pack` or `themes`.
+options apply to JSX builds, not `pack`, `themes`, or `--themes`.
 
 ## Safe output replacement
 

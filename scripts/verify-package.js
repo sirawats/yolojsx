@@ -62,6 +62,7 @@ export default () => <main className="p-8"><Button>Package verification</Button>
 
   runCli(packageDirectory, ["--version"]);
   runCli(packageDirectory, ["themes"]);
+  runCli(packageDirectory, ["--themes"]);
   runCli(packageDirectory, ["Home.jsx"]);
   runCli(packageDirectory, [
     "Home.jsx",
@@ -97,6 +98,21 @@ export default () => <main className="p-8"><Button>Package verification</Button>
     if (/\.workspace|\.markdown-source-view|\.view-content/.test(stylesheet)) {
       throw new Error(`Packed theme asset contains an Obsidian selector: ${name}`);
     }
+    if (/--yolo-|\.yolo-/.test(stylesheet)) {
+      throw new Error(`Packed theme asset contains a removed branded styling API: ${name}`);
+    }
+    if (/\.ant-[a-z0-9_-]+/i.test(stylesheet)) {
+      throw new Error(`Packed theme asset patches an Ant Design selector: ${name}`);
+    }
+  }
+
+  const packagedExamples = (await readdir(path.join(packageDirectory, "examples")))
+    .filter((name) => name.endsWith(".jsx"));
+  for (const name of packagedExamples) {
+    const source = await readFile(path.join(packageDirectory, "examples", name), "utf8");
+    if (/import\s+[^;]*["'][^"']+\.css["']/.test(source) || /\byolo-(?:surface|muted|reading|canvas|text|primary|border)\b/.test(source)) {
+      throw new Error(`Packed example contains application theme plumbing: ${name}`);
+    }
   }
 
   const globalExecutable = path.join(globalBinDirectory, "yolojsx");
@@ -108,6 +124,7 @@ export default () => <main className="p-8"><Button>Package verification</Button>
   const npmExecutable = path.join(npmBinDirectory, "yolojsx");
   await symlink(path.join(packageDirectory, "bin/yolojsx.js"), npmExecutable, "file");
   run(npmExecutable, ["themes"], { cwd: workDirectory });
+  run(npmExecutable, ["--themes"], { cwd: workDirectory });
 
   const moduleUrl = pathToFileURL(path.join(packageDirectory, "src/single-file.js"));
   const { readEmbeddedPayload } = await import(moduleUrl.href);
@@ -117,6 +134,7 @@ export default () => <main className="p-8"><Button>Package verification</Button>
     );
     if (
       !payload.script.includes("Package verification") ||
+      !payload.script.includes("components") ||
       !payload.styles.join("\n").includes(".p-8{")
     ) {
       throw new Error(`Packed payload verification failed: ${name}`);
