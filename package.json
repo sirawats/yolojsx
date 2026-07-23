@@ -1,6 +1,6 @@
 {
   "name": "yolojsx",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Build a JSX component into portable compressed HTML or deployable React assets with Vite, Tailwind CSS, and Ant Design.",
   "type": "module",
   "bin": {
