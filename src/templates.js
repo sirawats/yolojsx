@@ -14,7 +14,7 @@ export function createHtml() {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>yolo-jsx</title>
+    <title>yolojsx</title>
   </head>
   <body>
     <div id="root"></div>
@@ -99,7 +99,7 @@ function YoloJsxThemeBoundary() {
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
-  throw new Error("yolo-jsx could not find the generated #root element.");
+  throw new Error("yolojsx could not find the generated #root element.");
 }
 
 const componentType = typeof EntryComponent;
@@ -119,7 +119,7 @@ export function createSingleFileHtml(encodedPayload, payloadVersion) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loading yolo-jsx application…</title>
+    <title>Loading yolojsx application…</title>
   </head>
   <body>
     <main id="yolojsx-status" style="font:16px/1.5 system-ui,sans-serif;padding:2rem">Loading application…</main>
@@ -131,7 +131,7 @@ export function createSingleFileHtml(encodedPayload, payloadVersion) {
           document.body.replaceChildren();
           const output = document.createElement("pre");
           output.style.cssText = "white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif;padding:2rem;color:#991b1b";
-          output.textContent = "Unable to load this yolo-jsx application.\\n" + message;
+          output.textContent = "Unable to load this yolojsx application.\\n" + message;
           document.body.append(output);
         };
 
@@ -159,7 +159,7 @@ export function createSingleFileHtml(encodedPayload, payloadVersion) {
             throw new Error("Unsupported packaged application version: " + payload.version);
           }
 
-          document.title = payload.title || "yolo-jsx";
+          document.title = payload.title || "yolojsx";
           if (payload.head) {
             document.head.insertAdjacentHTML("beforeend", payload.head);
           }

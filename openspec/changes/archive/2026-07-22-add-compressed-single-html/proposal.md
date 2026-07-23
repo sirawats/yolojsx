@@ -1,6 +1,6 @@
 ## Why
 
-`yolo-jsx` currently produces a directory that must be kept intact and served as multiple files. Users also need a portable artifact that can be shared and opened as one HTML file while retaining compression benefits without requiring a server.
+`yolojsx` currently produces a directory that must be kept intact and served as multiple files. Users also need a portable artifact that can be shared and opened as one HTML file while retaining compression benefits without requiring a server.
 
 ## What Changes
 

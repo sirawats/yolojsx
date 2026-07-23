@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the zero-configuration React, Tailwind CSS, and Ant Design environment supplied by `yolo-jsx`, including dependency-resolution and runtime compatibility guarantees.
+Define the zero-configuration React, Tailwind CSS, and Ant Design environment supplied by `yolojsx`, including dependency-resolution and runtime compatibility guarantees.
 
 ## Requirements
 
@@ -11,7 +11,7 @@ The CLI SHALL supply compatible React and React DOM runtime instances without re
 
 #### Scenario: React is not installed in the input directory
 - **WHEN** a valid entry uses React JSX and the input directory has no local React installation
-- **THEN** the build succeeds using the React runtime supplied by `yolo-jsx`
+- **THEN** the build succeeds using the React runtime supplied by `yolojsx`
 
 #### Scenario: One React instance
 - **WHEN** the generated mount module and user component are bundled
@@ -81,7 +81,7 @@ The supplied frontend stack SHALL integrate Tailwind and Ant Design using a decl
 - **THEN** both outputs apply equivalent global, Tailwind, and Ant Design theme semantics
 
 ### Requirement: Non-core dependency resolution
-The CLI SHALL preserve normal input-project resolution for bare imports that are not part of the stack guaranteed by `yolo-jsx`.
+The CLI SHALL preserve normal input-project resolution for bare imports that are not part of the stack guaranteed by `yolojsx`.
 
 #### Scenario: Locally installed user dependency
 - **WHEN** an entry imports a non-core package installed in its project context

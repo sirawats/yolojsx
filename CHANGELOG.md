@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Rename the npm package and executable from `yolo-jsx` to `yolojsx`.
+- Add open-source contribution, conduct, security, support, dependency-review,
+  issue, and pull-request guidance.
+- Add Linux and Windows CI across supported Node.js lines plus Dependabot update
+  configuration.
+- Add an explicit public npm registry target and a pre-publish readiness gate
+  that verifies repository identity, release metadata, and tracked-file hygiene.
 - Make one compressed `<EntryName>.html` the default JSX build output; use
   `--out-dir dist` for the former directory default.
 - Add 21 fixed global themes as original, checked-in yolojsx stylesheets with

@@ -27,7 +27,12 @@ export default function Home() {
   assert.match(css, /\.p-8\{/);
   assert.match(javascript, /Standalone/);
   assert.match(javascript, /anticon/);
-  assert.ok((await readdir(output)).includes(".yolojsx-output.json"));
+  const markerName = ".yolojsx-output.json";
+  assert.ok((await readdir(output)).includes(markerName));
+  const marker = JSON.parse(await readFile(path.join(output, markerName), "utf8"));
+  assert.equal(marker.tool, "yolojsx");
+  assert.equal(marker.formatVersion, 1);
+  assert.match(marker.packageVersion, /^\d+\.\d+\.\d+/);
 });
 
 test("preserves relative imports, assets, local packages, base, and config isolation", async (t) => {

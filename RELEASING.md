@@ -1,7 +1,11 @@
-# Releasing yolo-jsx
+# Releasing yolojsx
 
 The package is pre-1.0. Treat the CLI, output defaults, theme ids, semantic CSS
 variables, and managed-output marker as public interfaces.
+
+Before the first public repository or npm release, complete
+[OPEN_SOURCE_CHECKLIST.md](OPEN_SOURCE_CHECKLIST.md). For later releases, repeat
+its release-candidate, account-security, publication, and post-publication gates.
 
 ## Pre-release checklist
 
@@ -19,7 +23,7 @@ variables, and managed-output marker as public interfaces.
 12. Run `yolojsx pack dist --output packed.html` and confirm `dist/` is unchanged; exercise a rejected graph and check its directory-mode recommendation.
 13. Run `npm pack --dry-run`. Confirm the tarball includes `src/themes/*.css`, `THIRD_PARTY_NOTICES.md`, and no output, temporary files, credentials, or unrelated artifacts.
 14. Review the default themed/provider artifact size reported by `npm run verify:package`; investigate before increasing its 1,000,000-byte release budget.
-15. Install the tarball into an isolated prefix and test both executable names plus a global-bin and npm-exec/npx-equivalent layout.
+15. Install the tarball into an isolated prefix and test the executable through both a global-bin and npm-exec/npx-equivalent layout.
 16. Publish with an explicit pre-1.0 version, then verify the installed package can build the documented example in both output modes.
 
 If a release is broken, deprecate the affected version, restore the previous

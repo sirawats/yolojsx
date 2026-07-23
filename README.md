@@ -1,9 +1,9 @@
-# yolo-jsx
+# yolojsx
 
 Build one JSX component into a portable compressed HTML application—without
 setting up a frontend project first.
 
-`yolo-jsx` supplies React, Vite, Tailwind CSS, Ant Design, and an original global
+`yolojsx` supplies React, Vite, Tailwind CSS, Ant Design, and an original global
 theme catalog. A normal invocation writes one `<EntryName>.html` file that can
 open directly; directory output remains available explicitly.
 
@@ -15,7 +15,7 @@ open directly; directory output remains available explicitly.
 ## Install and run
 
 ```sh
-npm install --global yolo-jsx
+npm install --global yolojsx
 yolojsx Home.jsx
 # ./Home.html
 ```
@@ -23,10 +23,10 @@ yolojsx Home.jsx
 Or use an npm-exec installation:
 
 ```sh
-npx yolo-jsx Home.jsx
+npx yolojsx Home.jsx
 ```
 
-Both `yolojsx` and `yolo-jsx` are installed as executable names.
+The package installs the `yolojsx` executable.
 
 The default artifact contains a small loader and a base64-encoded gzip payload.
 A modern browser restores it with `DecompressionStream("gzip")`, including when
@@ -312,6 +312,13 @@ node bin/yolojsx.js examples/CalculatorDemo.jsx --theme material
 package-content inspection, and a smoke test against the extracted npm artifact,
 including theme assets and the default artifact-size budget. See
 [RELEASING.md](RELEASING.md).
+
+## Contributing and support
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development and pull-request guidance
+and [SUPPORT.md](SUPPORT.md) for usage help. Community participation follows
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report vulnerabilities privately using
+[SECURITY.md](SECURITY.md).
 
 ## License
 

@@ -23,7 +23,7 @@ import { renderThemeCatalog, resolveTheme } from "./themes.js";
 function assertSupportedNode(nodeVersion) {
   if (!semver.satisfies(nodeVersion, NODE_ENGINE)) {
     throw new YoloJsxError(
-      `Node.js ${nodeVersion} is not supported. yolo-jsx requires ${NODE_ENGINE}.`,
+      `Node.js ${nodeVersion} is not supported. yolojsx requires ${NODE_ENGINE}.`,
       { code: "UNSUPPORTED_NODE" },
     );
   }

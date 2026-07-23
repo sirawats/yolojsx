@@ -1,14 +1,14 @@
 ## ADDED Requirements
 
 ### Requirement: CLI invocation
-The package SHALL expose a `yolojsx` executable that accepts exactly one JSX entry path and SHALL support invocation after global installation and through `npx yolo-jsx`.
+The package SHALL expose a `yolojsx` executable that accepts exactly one JSX entry path and SHALL support invocation after global installation and through `npx yolojsx`.
 
 #### Scenario: Build through the global executable
 - **WHEN** a user runs `yolojsx Home.jsx` after installing the package globally
 - **THEN** the CLI builds `Home.jsx` as the application entry
 
 #### Scenario: Build through npx
-- **WHEN** a user runs `npx yolo-jsx Home.jsx`
+- **WHEN** a user runs `npx yolojsx Home.jsx`
 - **THEN** the package executes the same build behavior as the global executable
 
 #### Scenario: Missing entry argument

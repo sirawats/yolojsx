@@ -9,7 +9,7 @@ export default function Home() {
           <Typography.Text type="secondary">
             This page combines Tailwind CSS utilities with Ant Design components.
           </Typography.Text>
-          <Button type="primary">Hello from yolo-jsx</Button>
+          <Button type="primary">Hello from yolojsx</Button>
         </Space>
       </Card>
     </main>

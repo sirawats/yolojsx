@@ -4,7 +4,7 @@
 The CLI SHALL identify output directories it generated and SHALL obtain explicit overwrite confirmation before replacing an existing managed directory unless `--force` is supplied.
 
 #### Scenario: Rebuild managed output interactively
-- **WHEN** the selected output contains a valid `yolo-jsx` ownership marker and `--force` is absent
+- **WHEN** the selected output contains a valid `yolojsx` ownership marker and `--force` is absent
 - **THEN** the CLI prompts the user to type `yes` or `no` before replacing the directory
 
 #### Scenario: Confirm managed replacement

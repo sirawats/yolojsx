@@ -278,7 +278,7 @@ export async function normalizeBuildDirectory(inputDirectory) {
 
   return {
     version: SINGLE_FILE_PAYLOAD_VERSION,
-    title: titleMatch?.[1].trim() || "yolo-jsx",
+    title: titleMatch?.[1].trim() || "yolojsx",
     head,
     body,
     styles,
@@ -303,7 +303,7 @@ export function readEmbeddedPayload(html) {
     /<script id="yolojsx-payload" type="application\/octet-stream">([A-Za-z\d+/=]+)<\/script>/,
   );
   if (!match) {
-    throw packageError("HTML does not contain a yolo-jsx payload.");
+    throw packageError("HTML does not contain a yolojsx payload.");
   }
   return JSON.parse(gunzipSync(Buffer.from(match[1], "base64")).toString("utf8"));
 }

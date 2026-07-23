@@ -20,7 +20,7 @@ const DARK_STATUS = Object.freeze({
 const SOURCES = Object.freeze({
   default: {
     name: "yolojsx",
-    url: "https://github.com/sirawats/yolo-jsx",
+    url: "https://github.com/sirawats/yolojsx",
     revision: "0.1.0",
     license: "MIT",
   },

@@ -53,7 +53,7 @@ export async function inspectOutput(output, force) {
 
   if (!empty && !managed && !force) {
     throw new YoloJsxError(
-      `Output directory is not empty and is not managed by yolo-jsx: ${output}\nUse --force to replace it.`,
+      `Output directory is not empty and is not managed by yolojsx: ${output}\nUse --force to replace it.`,
       { code: "UNOWNED_OUTPUT" },
     );
   }

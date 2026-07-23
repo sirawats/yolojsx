@@ -1,0 +1,108 @@
+import { readFile, stat } from "node:fs/promises";
+import path from "node:path";
+import process from "node:process";
+import { fileURLToPath } from "node:url";
+import { run } from "./process.js";
+
+const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const requiredFiles = [
+  "CHANGELOG.md",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "DEPENDENCY_REVIEW.md",
+  "LICENSE",
+  "OPEN_SOURCE_CHECKLIST.md",
+  "README.md",
+  "RELEASING.md",
+  "SECURITY.md",
+  "SUPPORT.md",
+  ".github/dependabot.yml",
+  ".github/ISSUE_TEMPLATE/bug_report.yml",
+  ".github/ISSUE_TEMPLATE/config.yml",
+  ".github/ISSUE_TEMPLATE/feature_request.yml",
+  ".github/ISSUE_TEMPLATE/question.yml",
+  ".github/pull_request_template.md",
+  ".github/workflows/ci.yml",
+];
+const issues = [];
+
+async function fileExists(relative) {
+  try {
+    return (await stat(path.join(repository, relative))).isFile();
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return false;
+    }
+    throw error;
+  }
+}
+
+for (const file of requiredFiles) {
+  if (!(await fileExists(file))) {
+    issues.push(`Missing required repository file: ${file}`);
+  }
+}
+
+const packageJson = JSON.parse(
+  await readFile(path.join(repository, "package.json"), "utf8"),
+);
+for (const field of ["repository", "homepage", "bugs", "author"]) {
+  if (!packageJson[field]) {
+    issues.push(`package.json is missing ${field}.`);
+  }
+}
+if (packageJson.publishConfig?.registry !== "https://registry.npmjs.org/") {
+  issues.push("package.json publishConfig.registry must target the public npm registry.");
+}
+if (!/html/i.test(packageJson.description)) {
+  issues.push("package.json description should describe the default HTML output.");
+}
+for (const document of [
+  "CHANGELOG.md",
+  "CODE_OF_CONDUCT.md",
+  "CONTRIBUTING.md",
+  "DEPENDENCY_REVIEW.md",
+  "LICENSE",
+  "OPEN_SOURCE_CHECKLIST.md",
+  "README.md",
+  "RELEASING.md",
+  "SECURITY.md",
+  "SUPPORT.md",
+  "THIRD_PARTY_NOTICES.md",
+]) {
+  if (!packageJson.files?.includes(document)) {
+    issues.push(`package.json files allowlist omits ${document}.`);
+  }
+}
+
+const changelog = await readFile(path.join(repository, "CHANGELOG.md"), "utf8");
+const escapedVersion = packageJson.version.replaceAll(".", "\\.");
+const releaseHeading = new RegExp(
+  `^##\\s+(?:\\[)?${escapedVersion}(?:\\])?(?:\\s|$)`,
+  "m",
+);
+if (!releaseHeading.test(changelog)) {
+  issues.push(`CHANGELOG.md has no release heading for ${packageJson.version}.`);
+}
+
+const tracked = run("git", ["ls-files"], { cwd: repository }).stdout
+  .trim()
+  .split("\n")
+  .filter(Boolean);
+const forbiddenTracked = tracked.filter((file) =>
+  /(^|\/)(?:node_modules|dist)(?:\/|$)|\.tgz$|\.npmrc$|^[^/]+\.html$/i.test(file),
+);
+for (const file of forbiddenTracked) {
+  issues.push(`Generated or sensitive file is tracked: ${file}`);
+}
+
+if (issues.length > 0) {
+  process.stderr.write(
+    `Open-source readiness check found ${issues.length} blocker(s):\n${issues
+      .map((issue) => `- ${issue}`)
+      .join("\n")}\n`,
+  );
+  process.exitCode = 1;
+} else {
+  process.stdout.write("Open-source repository checks passed.\n");
+}

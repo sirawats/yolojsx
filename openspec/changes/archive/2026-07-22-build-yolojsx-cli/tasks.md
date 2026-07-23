@@ -1,6 +1,6 @@
 ## 1. Package Foundation
 
-- [x] 1.1 Initialize the ESM npm package with `yolo-jsx` metadata, `yolojsx` and `yolo-jsx` bin mappings, published-file allowlist, license, and the supported Node.js engine range.
+- [x] 1.1 Initialize the ESM npm package with `yolojsx` metadata, a `yolojsx` bin mapping, published-file allowlist, license, and the supported Node.js engine range.
 - [x] 1.2 Add a maintainable source layout for CLI parsing, build orchestration, dependency resolution, generated templates, output management, and errors.
 - [x] 1.3 Add compatible pinned ranges for Vite, its React integration, React, React DOM, Tailwind CSS and its Vite integration, and Ant Design.
 - [x] 1.4 Configure unit and integration test commands that run against isolated temporary fixtures.
@@ -30,7 +30,7 @@
 ## 5. Safe Output Management
 
 - [x] 5.1 Resolve the default `<cwd>/dist` and custom output paths and reject filesystem roots, the working directory, and directories containing the source entry.
-- [x] 5.2 Define and validate a `yolo-jsx` ownership marker that distinguishes managed output from unrelated non-empty directories.
+- [x] 5.2 Define and validate a `yolojsx` ownership marker that distinguishes managed output from unrelated non-empty directories.
 - [x] 5.3 Stage builds separately and replace managed output only after compilation succeeds so a failed rebuild preserves the last successful output.
 - [x] 5.4 Refuse unowned non-empty output by default and implement clearly reported `--force` replacement without weakening dangerous-path guards.
 

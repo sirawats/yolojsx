@@ -1,10 +1,10 @@
 ## Why
 
-Building a small React page currently requires creating and configuring an entire frontend project before a single JSX component can be compiled. `yolo-jsx` should provide an open-source, zero-configuration CLI that turns one JSX component into a deployable static application with React, Vite, Tailwind CSS, and Ant Design already available.
+Building a small React page currently requires creating and configuring an entire frontend project before a single JSX component can be compiled. `yolojsx` should provide an open-source, zero-configuration CLI that turns one JSX component into a deployable static application with React, Vite, Tailwind CSS, and Ant Design already available.
 
 ## What Changes
 
-- Add an npm-distributed CLI package named `yolo-jsx` with a `yolojsx` executable that works after global installation and through `npx yolo-jsx`.
+- Add an npm-distributed CLI package named `yolojsx` with a `yolojsx` executable that works after global installation and through `npx yolojsx`.
 - Accept a JSX entry file whose default export is a React component and build it into a deployable static application.
 - Generate the HTML document, React mounting entry, and stylesheet entry required by the build without modifying the input project.
 - Supply and consistently resolve React, Vite, Tailwind CSS, and Ant Design from the CLI package while preserving the input file's relative imports and locally installed non-core dependencies.

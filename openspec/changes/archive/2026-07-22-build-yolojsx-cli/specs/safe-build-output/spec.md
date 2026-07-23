@@ -22,7 +22,7 @@ The CLI SHALL accept `-o <path>` and `--out-dir <path>` and resolve relative val
 The CLI SHALL identify output directories it generated and SHALL replace stale contents in an identified managed directory during a later successful build.
 
 #### Scenario: Rebuild managed output
-- **WHEN** the selected output contains a valid `yolo-jsx` ownership marker from an earlier build
+- **WHEN** the selected output contains a valid `yolojsx` ownership marker from an earlier build
 - **THEN** the CLI may remove stale generated contents and replace them with the new successful build
 
 #### Scenario: First successful build

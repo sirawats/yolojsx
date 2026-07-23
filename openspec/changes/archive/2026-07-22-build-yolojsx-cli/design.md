@@ -29,13 +29,13 @@ Vite exposes a programmatic build API using inline configuration and treats HTML
 
 ### Package and command contract
 
-Publish the package as `yolo-jsx` and expose `yolojsx` as its primary `bin`. Global users run `yolojsx Home.jsx`; one-off users run `npx yolo-jsx Home.jsx`. A second `yolo-jsx` bin alias can be exposed for consistency without changing the primary documented command.
+Publish the package as `yolojsx` and expose `yolojsx` as its `bin`. Global users run `yolojsx Home.jsx`; one-off users run `npx yolojsx Home.jsx`.
 
 The CLI accepts one positional entry, `-o`/`--out-dir`, `--base`, and `--force`. Paths are resolved from the caller's current working directory. The package declares the minimum Node.js version required by the selected supported Vite release.
 
 Alternatives considered:
 
-- Naming both the package and executable `yolojsx` would make the `npx` form symmetrical but would not preserve the requested open-source project/package name.
+- Using the same `yolojsx` name for the package and executable keeps global and `npx` invocation symmetrical.
 - Exposing Vite's full CLI option surface would reduce implementation work but would make the supposedly zero-configuration contract unstable and harder to support.
 
 ### Build a generated application shell through Vite's JavaScript API
@@ -58,7 +58,7 @@ This intentionally narrow contract provides deterministic behavior and clear err
 
 ### Resolve advertised dependencies from the CLI package
 
-The inline Vite configuration or an internal resolver plugin maps core stack imports to the dependency instances owned by `yolo-jsx`, including React, React DOM, and Ant Design. React-related packages are deduplicated so the generated shell and user component cannot load separate React instances.
+The inline Vite configuration or an internal resolver plugin maps core stack imports to the dependency instances owned by `yolojsx`, including React, React DOM, and Ant Design. React-related packages are deduplicated so the generated shell and user component cannot load separate React instances.
 
 Relative imports remain anchored to the original input module. Bare imports outside the advertised stack resolve from the input project's context and fail with a normal actionable build error if they are not installed there. This creates a clear boundary between the self-contained stack and user-selected dependencies.
 
@@ -96,7 +96,6 @@ This is the initial release, so there is no compatibility migration. Implementat
 
 ## Open Questions
 
-- Confirm that the `yolo-jsx` npm package name is available before publishing.
+- Confirm that the `yolojsx` npm package name is available before publishing.
 - Decide whether `@ant-design/icons` belongs in the guaranteed stack or remains a separately installed user dependency.
 - Decide whether a conventional `public/` directory beside the input should be copied automatically or introduced later through an explicit option.
-
