@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createThemeRuntime } from "./theme-css.js";
 
 export const VIRTUAL_ENTRY_ID = "virtual:yolojsx-entry";
 export const RESOLVED_VIRTUAL_ENTRY_ID = `\0${VIRTUAL_ENTRY_ID}`;
@@ -29,16 +30,29 @@ import "${VIRTUAL_ENTRY_ID}";
 `;
 }
 
-export function createTailwindStyles(workspace, sourceDirectory, tailwindStylesheet) {
+export function createTailwindStyles(
+  workspace,
+  sourceDirectory,
+  tailwindStylesheet,
+  themeStylesheet,
+  customStylesheet,
+) {
   const source = toCssPath(path.relative(workspace, sourceDirectory) || ".");
   const stylesheet = toCssPath(tailwindStylesheet);
-  return `/* Tailwind's static layers load before Ant Design's runtime CSS-in-JS styles. */
+  const themeImport = toCssPath(themeStylesheet);
+  const customImport = customStylesheet
+    ? `@import "${toCssPath(customStylesheet)}";\n`
+    : "";
+  return `/* Stable package-owned cascade for Tailwind, Ant Design, and user CSS. */
+@layer theme, base, antd, components, utilities;
 @import "${stylesheet}" source(none);
-@source "${source}";
+@import "${themeImport}";
+${customImport}@source "${source}";
 `;
 }
 
-export function createEntryPlugin(entry) {
+export function createEntryPlugin(entry, selectedTheme) {
+  const runtime = createThemeRuntime(selectedTheme);
   return {
     name: "yolojsx-entry",
     resolveId(source) {
@@ -54,7 +68,33 @@ export function createEntryPlugin(entry) {
 
       return `import React from "react";
 import { createRoot } from "react-dom/client";
+import { StyleProvider } from "@ant-design/cssinjs";
+import { ConfigProvider, theme as antdTheme } from "antd";
 import EntryComponent from ${JSON.stringify(entry)};
+
+const themeRuntime = ${JSON.stringify(runtime)};
+
+function YoloJsxThemeBoundary() {
+  const selected = themeRuntime.config;
+  const algorithm = selected.algorithm === "dark"
+    ? antdTheme.darkAlgorithm
+    : antdTheme.defaultAlgorithm;
+  const theme = {
+    algorithm,
+    cssVar: true,
+    token: selected.tokens,
+  };
+
+  return React.createElement(
+    StyleProvider,
+    { layer: true },
+    React.createElement(
+      ConfigProvider,
+      { theme },
+      React.createElement(EntryComponent),
+    ),
+  );
+}
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -66,7 +106,7 @@ if (componentType !== "function" && componentType !== "object") {
   throw new TypeError("The JSX entry must default-export a React component.");
 }
 
-createRoot(rootElement).render(React.createElement(EntryComponent));
+createRoot(rootElement).render(React.createElement(YoloJsxThemeBoundary));
 `;
     },
   };

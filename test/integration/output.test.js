@@ -11,11 +11,11 @@ test("rebuilds managed output and protects unowned output", async (t) => {
     "Home.jsx": `export default () => <div className="p-4">First</div>;`,
   });
 
-  const first = await invoke(["Home.jsx"], { cwd: fixture });
+  const first = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
   assert.equal(first.exitCode, 0, first.stderr);
   await writeFixture(path.join(fixture, "dist"), { "stale.txt": "stale" });
 
-  const declined = await invoke(["Home.jsx"], {
+  const declined = await invoke(["Home.jsx", "--out-dir", "dist"], {
     cwd: fixture,
     confirmReplacement: async () => false,
   });
@@ -23,7 +23,7 @@ test("rebuilds managed output and protects unowned output", async (t) => {
   assert.match(declined.stderr, /Cancelled/);
   assert.ok((await readdir(path.join(fixture, "dist"))).includes("stale.txt"));
 
-  const rebuild = await invoke(["Home.jsx"], {
+  const rebuild = await invoke(["Home.jsx", "--out-dir", "dist"], {
     cwd: fixture,
     confirmReplacement: async () => true,
   });
@@ -86,7 +86,7 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
     "Home.jsx": `export default () => <div>Last good build</div>;`,
   });
 
-  const first = await invoke(["Home.jsx"], { cwd: fixture });
+  const first = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
   assert.equal(first.exitCode, 0, first.stderr);
   const previousHtml = await readFile(path.join(fixture, "dist/index.html"), "utf8");
   const previousJs = await readAsset(path.join(fixture, "dist"), ".js");
@@ -94,7 +94,7 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
   await writeFixture(fixture, {
     "Home.jsx": `export default function Broken( {`,
   });
-  const failed = await invoke(["Home.jsx"], {
+  const failed = await invoke(["Home.jsx", "--out-dir", "dist"], {
     cwd: fixture,
     confirmReplacement: async () => true,
   });

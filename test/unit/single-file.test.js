@@ -48,6 +48,19 @@ test("keeps payload source unable to terminate the outer script", async (t) => {
   assert.match(readEmbeddedPayload(artifact.html).script, /bad\(\)/);
 });
 
+test("does not mistake application scopes for resource URL schemes", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head></head><body><script type="module" src="app.js"></script></body></html>`,
+    "app.js": `const scopes=["events:read","tokens:write"];document.body.dataset.scopes=scopes.join(",");`,
+  });
+
+  const payload = await normalizeBuildDirectory(fixture);
+  assert.match(payload.script, /events:read/);
+  assert.match(payload.script, /tokens:write/);
+});
+
 test("rejects incompatible build resource shapes", async (t) => {
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));

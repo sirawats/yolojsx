@@ -65,12 +65,20 @@ async function listFiles(root, directory = root, files = new Map()) {
   return files;
 }
 
-function resolveFileReference(reference, fromRelative, files) {
+function resolveFileReference(
+  reference,
+  fromRelative,
+  files,
+  { rejectUnsupportedScheme = true } = {},
+) {
   if (!reference || isEmbeddedOrRemote(reference)) {
     return undefined;
   }
   if (/^[a-z][a-z\d+.-]*:/i.test(reference)) {
-    throw packageError(`Unsupported resource URL: ${reference}`);
+    if (rejectUnsupportedScheme) {
+      throw packageError(`Unsupported resource URL: ${reference}`);
+    }
+    return undefined;
   }
 
   const clean = cleanReference(reference);
@@ -168,7 +176,9 @@ async function inlineJavaScriptAssets(source, scriptRelative, files) {
       if (isEmbeddedOrRemote(reference)) {
         return match[0];
       }
-      const relative = resolveFileReference(reference, scriptRelative, files);
+      const relative = resolveFileReference(reference, scriptRelative, files, {
+        rejectUnsupportedScheme: false,
+      });
       if (!relative || /\.(?:js|mjs|css)$/i.test(relative)) {
         return match[0];
       }

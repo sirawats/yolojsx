@@ -1,0 +1,38 @@
+@import "./foundation.css";
+
+/* Original yolojsx theme: material-light. No upstream CSS is included. */
+:root {
+  color-scheme: light;
+  --yolo-canvas: #fffbfe;
+  --yolo-surface: #fffbfe;
+  --yolo-surface-raised: #f3edf7;
+  --yolo-text: #1d1b20;
+  --yolo-text-muted: #49454f;
+  --yolo-border: #79747e;
+  --yolo-primary: #6750a4;
+  --yolo-primary-text: #ffffff;
+  --yolo-focus: #6750a4;
+  --yolo-selection: #eaddff;
+  --yolo-selection-text: #21005d;
+  --yolo-code-background: #f3edf7;
+  --yolo-success: #14532d;
+  --yolo-success-surface: #dcfce7;
+  --yolo-warning: #713f12;
+  --yolo-warning-surface: #fef3c7;
+  --yolo-danger: #7f1d1d;
+  --yolo-danger-surface: #fee2e2;
+  --yolo-info: #1e3a8a;
+  --yolo-info-surface: #dbeafe;
+  --yolo-font-sans: Roboto, "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --yolo-font-mono: "Roboto Mono", ui-monospace, monospace;
+  --yolo-radius-sm: 0.5rem;
+  --yolo-radius-md: 0.75rem;
+  --yolo-radius-lg: 1.25rem;
+  --yolo-shadow-surface: 0 3px 10px rgb(29 27 32 / 0.16);
+  --yolo-control-height: 40px;
+  --yolo-line-height: 1.55;
+  --yolo-heading-weight: 500;
+  --yolo-heading-tracking: -0.006em;
+  --yolo-content-measure: 76rem;
+}
+

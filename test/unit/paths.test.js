@@ -3,6 +3,7 @@ import { rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
+  resolveAndValidateCss,
   resolveAndValidateEntry,
   resolveAndValidateHtmlOutput,
   resolveAndValidateInputDirectory,
@@ -13,11 +14,19 @@ import { makeFixture, writeFixture } from "../helpers.js";
 test("resolves valid entry and output paths from cwd", async (t) => {
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));
-  await writeFixture(fixture, { "src/Home.jsx": "export default () => null;" });
+  await writeFixture(fixture, {
+    "src/Home.jsx": "export default () => null;",
+    "styles/custom.css": ":root { --yolo-primary: red; }",
+  });
 
   const entry = await resolveAndValidateEntry("src/Home.jsx", fixture);
   const output = await resolveAndValidateOutput("site", fixture, entry);
   assert.equal(output, path.join(fixture, "site"));
+  assert.equal(
+    await resolveAndValidateCss("styles/custom.css", fixture),
+    path.join(fixture, "styles/custom.css"),
+  );
+  assert.equal(await resolveAndValidateCss(undefined, fixture), undefined);
 });
 
 test("resolves pack inputs and single-file output names", async (t) => {
@@ -61,6 +70,8 @@ test("rejects invalid entries and dangerous output paths", async (t) => {
     resolveAndValidateEntry("src/Home.tsx", fixture),
     /must be a .jsx file/,
   );
+  await assert.rejects(resolveAndValidateCss("src/Home.jsx", fixture), /must be a .css/);
+  await assert.rejects(resolveAndValidateCss("missing.css", fixture), /not a readable file/);
   const entry = await resolveAndValidateEntry("src/Home.jsx", fixture);
   await assert.rejects(
     resolveAndValidateOutput(".", fixture, entry),

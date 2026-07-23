@@ -2,7 +2,9 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
+  stat,
   symlink,
   writeFile,
 } from "node:fs/promises";
@@ -16,6 +18,7 @@ const temporary = await mkdtemp(path.join(os.tmpdir(), "yolojsx-package-verify-"
 const packDirectory = path.join(temporary, "pack");
 const extractDirectory = path.join(temporary, "extract");
 const workDirectory = path.join(temporary, "work");
+const globalBinDirectory = path.join(temporary, "global", "bin");
 
 function runCli(packageDirectory, args, expectedStatus = 0) {
   return run(process.execPath, [path.join(packageDirectory, "bin/yolojsx.js"), ...args], {
@@ -29,6 +32,7 @@ try {
     mkdir(packDirectory),
     mkdir(extractDirectory),
     mkdir(workDirectory),
+    mkdir(globalBinDirectory, { recursive: true }),
   ]);
 
   const packed = run(
@@ -57,25 +61,57 @@ export default () => <main className="p-8"><Button>Package verification</Button>
   );
 
   runCli(packageDirectory, ["--version"]);
+  runCli(packageDirectory, ["themes"]);
   runCli(packageDirectory, ["Home.jsx"]);
-  runCli(packageDirectory, ["Home.jsx", "--single-file"]);
   runCli(packageDirectory, [
     "Home.jsx",
-    "--single-file",
     "--output",
     "index.html",
   ]);
+  runCli(packageDirectory, ["Home.jsx", "--out-dir", "dist"]);
   runCli(packageDirectory, ["pack", "dist", "--output", "packed.html"]);
 
-  const refused = runCli(packageDirectory, ["Home.jsx", "--single-file"], 1);
+  const refused = runCli(packageDirectory, ["Home.jsx"], 1);
   if (!refused.stderr.includes("--force")) {
     throw new Error("Non-interactive overwrite did not provide --force guidance.");
   }
-  runCli(packageDirectory, ["Home.jsx", "--single-file", "--force"]);
+  runCli(packageDirectory, ["Home.jsx", "--force"]);
+  const legacy = runCli(packageDirectory, [
+    "Home.jsx",
+    "--single-file",
+    "--output",
+    "legacy.html",
+  ]);
+  if (!legacy.stderr.includes("deprecated")) {
+    throw new Error("The compatibility alias did not emit a deprecation warning.");
+  }
+
+  const themeFiles = (await readdir(path.join(packageDirectory, "src/themes")))
+    .filter((name) => name.endsWith(".css"));
+  if (themeFiles.length !== 22 || !themeFiles.includes("foundation.css")) {
+    throw new Error(`Packed theme catalog is incomplete: ${themeFiles.length} CSS files.`);
+  }
+  await readFile(path.join(packageDirectory, "THIRD_PARTY_NOTICES.md"), "utf8");
+  for (const name of themeFiles) {
+    const stylesheet = await readFile(path.join(packageDirectory, "src/themes", name), "utf8");
+    if (/\.workspace|\.markdown-source-view|\.view-content/.test(stylesheet)) {
+      throw new Error(`Packed theme asset contains an Obsidian selector: ${name}`);
+    }
+  }
+
+  const globalExecutable = path.join(globalBinDirectory, "yolojsx");
+  await symlink(path.join(packageDirectory, "bin/yolojsx.js"), globalExecutable, "file");
+  run(globalExecutable, ["--version"], { cwd: workDirectory });
+
+  const npmBinDirectory = path.join(workDirectory, "node_modules", ".bin");
+  await mkdir(npmBinDirectory, { recursive: true });
+  const npmExecutable = path.join(npmBinDirectory, "yolojsx");
+  await symlink(path.join(packageDirectory, "bin/yolojsx.js"), npmExecutable, "file");
+  run(npmExecutable, ["themes"], { cwd: workDirectory });
 
   const moduleUrl = pathToFileURL(path.join(packageDirectory, "src/single-file.js"));
   const { readEmbeddedPayload } = await import(moduleUrl.href);
-  for (const name of ["Home.html", "index.html", "packed.html"]) {
+  for (const name of ["Home.html", "index.html", "legacy.html", "packed.html"]) {
     const payload = readEmbeddedPayload(
       await readFile(path.join(workDirectory, name), "utf8"),
     );
@@ -86,6 +122,17 @@ export default () => <main className="p-8"><Button>Package verification</Button>
       throw new Error(`Packed payload verification failed: ${name}`);
     }
   }
+
+  const artifactBytes = (await stat(path.join(workDirectory, "Home.html"))).size;
+  const artifactBudget = 1_000_000;
+  if (artifactBytes > artifactBudget) {
+    throw new Error(
+      `Default themed artifact is ${artifactBytes} bytes, above the ${artifactBudget}-byte release budget.`,
+    );
+  }
+  process.stdout.write(
+    `Default themed/provider artifact: ${artifactBytes} bytes (budget ${artifactBudget}).\n`,
+  );
 
   process.stdout.write("Packed artifact verification passed.\n");
 } finally {

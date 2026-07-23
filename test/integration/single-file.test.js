@@ -12,7 +12,7 @@ test("builds a default and explicitly named single HTML file", async (t) => {
     "pages/Home.jsx": `import { Button } from "antd";export default () => <main className="p-8"><Button>Single artifact</Button></main>;`,
   });
 
-  const defaultBuild = await invoke(["pages/Home.jsx", "--single-file"], {
+  const defaultBuild = await invoke(["pages/Home.jsx"], {
     cwd: fixture,
   });
   assert.equal(defaultBuild.exitCode, 0, defaultBuild.stderr);
@@ -25,7 +25,7 @@ test("builds a default and explicitly named single HTML file", async (t) => {
   assert.ok(!(await readdir(fixture)).includes("dist"));
 
   const explicitBuild = await invoke(
-    ["pages/Home.jsx", "--single-file", "--output", "public/index.html"],
+    ["pages/Home.jsx", "--output", "public/index.html"],
     { cwd: fixture },
   );
   assert.equal(explicitBuild.exitCode, 0, explicitBuild.stderr);
@@ -38,7 +38,7 @@ test("packs an existing build without changing its input", async (t) => {
   await writeFixture(fixture, {
     "Home.jsx": `export default () => <div className="font-bold">Packed existing build</div>;`,
   });
-  const build = await invoke(["Home.jsx"], { cwd: fixture });
+  const build = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
   assert.equal(build.exitCode, 0, build.stderr);
 
   const beforeEntries = await readdir(path.join(fixture, "dist"), { recursive: true });
@@ -68,12 +68,12 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
     "Home.html": "previous artifact",
   });
 
-  const refused = await invoke(["Home.jsx", "--single-file"], { cwd: fixture });
+  const refused = await invoke(["Home.jsx"], { cwd: fixture });
   assert.equal(refused.exitCode, 1);
   assert.match(refused.stderr, /non-interactive.*--force/s);
   assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
 
-  const declined = await invoke(["Home.jsx", "--single-file"], {
+  const declined = await invoke(["Home.jsx"], {
     cwd: fixture,
     confirmReplacement: async () => false,
   });
@@ -82,7 +82,7 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
 
   await writeFixture(fixture, { "Home.jsx": "export default function Broken( {" });
-  const failed = await invoke(["Home.jsx", "--single-file"], {
+  const failed = await invoke(["Home.jsx"], {
     cwd: fixture,
     confirmReplacement: async () => true,
   });
@@ -95,7 +95,7 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   await writeFixture(fixture, {
     "Home.jsx": `export default () => <div>Confirmed replacement</div>;`,
   });
-  const confirmed = await invoke(["Home.jsx", "--single-file"], {
+  const confirmed = await invoke(["Home.jsx"], {
     cwd: fixture,
     confirmReplacement: async () => true,
   });
@@ -108,7 +108,7 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   await writeFixture(fixture, {
     "Home.jsx": `export default () => <div>Forced replacement</div>;`,
   });
-  const replaced = await invoke(["Home.jsx", "--single-file", "--force"], {
+  const replaced = await invoke(["Home.jsx", "--force"], {
     cwd: fixture,
   });
   assert.equal(replaced.exitCode, 0, replaced.stderr);
@@ -120,6 +120,19 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   assert.ok(
     !(await readdir(fixture)).some((name) => name.includes("yolojsx-backup")),
   );
+});
+
+test("accepts the deprecated single-file alias with a migration warning", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "Legacy.jsx": `export default () => <div>Legacy alias</div>;`,
+  });
+
+  const result = await invoke(["Legacy.jsx", "--single-file"], { cwd: fixture });
+  assert.equal(result.exitCode, 0, result.stderr);
+  assert.match(result.stderr, /--single-file is deprecated/);
+  assert.ok(await readFile(path.join(fixture, "Legacy.html"), "utf8"));
 });
 
 test("rejects unsafe pack destinations and unsupported chunks", async (t) => {

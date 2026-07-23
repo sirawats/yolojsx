@@ -9,6 +9,7 @@ const PACKAGE_IMPORTS = [
   "react-dom",
   "react-dom/client",
   "antd",
+  "@ant-design/cssinjs",
   "tailwindcss",
 ];
 

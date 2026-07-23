@@ -41,10 +41,10 @@ The CLI SHALL accept an existing `.jsx` module whose default export is a React c
 - **THEN** the CLI exits unsuccessfully and reports the entry-module problem
 
 ### Requirement: Deployable static application
-The standard directory-build form SHALL produce a static application containing an HTML entry and all JavaScript, CSS, and module-graph assets required to render the component.
+The explicit directory-build form SHALL produce a static application containing an HTML entry and all JavaScript, CSS, and module-graph assets required to render the component.
 
 #### Scenario: Successful production directory build
-- **WHEN** a valid component is built without `--single-file`
+- **WHEN** a valid component is built with `--out-dir dist`
 - **THEN** the output contains an `index.html` that references production assets within the output directory
 
 #### Scenario: Relative module and asset imports
@@ -56,36 +56,52 @@ The standard directory-build form SHALL produce a static application containing 
 - **THEN** generated asset references use a relative base suitable for serving the output beneath an arbitrary path
 
 #### Scenario: Custom public base
-- **WHEN** the user supplies `--base /application/` for a directory build
+- **WHEN** the user supplies `--out-dir dist --base /application/`
 - **THEN** generated public asset references use `/application/` as the build base
 
 ### Requirement: Direct single-file build selection
-The JSX build form SHALL accept `--single-file` to build and package the component as one HTML file without retaining an intermediate output directory.
+The JSX build form SHALL build and package the component as one HTML file by default without retaining an intermediate output directory, SHALL accept `--output` to select its destination, and SHALL temporarily accept `--single-file` as a deprecated compatibility alias for the default mode.
 
 #### Scenario: Default single-file name
-- **WHEN** a user runs `yolojsx Home.jsx --single-file` from a working directory
+- **WHEN** a user runs `yolojsx Home.jsx` from a working directory
 - **THEN** the CLI creates `Home.html` in that working directory
 
 #### Scenario: Nested entry default name
-- **WHEN** a user runs `yolojsx pages/Dashboard.jsx --single-file`
+- **WHEN** a user runs `yolojsx pages/Dashboard.jsx`
 - **THEN** the CLI creates `Dashboard.html` in the invocation working directory
 
 #### Scenario: Explicit single-file name
-- **WHEN** a user runs `yolojsx Home.jsx --single-file --output index.html`
+- **WHEN** a user runs `yolojsx Home.jsx --output index.html`
 - **THEN** the CLI creates `index.html` at the path resolved from the invocation working directory
 
+#### Scenario: Deprecated explicit selection
+- **WHEN** a user runs `yolojsx Home.jsx --single-file`
+- **THEN** the CLI creates `Home.html` and writes a deprecation warning identifying the now-default behavior
+
 #### Scenario: No retained intermediate directory
-- **WHEN** a direct single-file build succeeds
+- **WHEN** a default HTML-file build succeeds
 - **THEN** temporary Vite output is cleaned and no `dist` directory is created solely for that build
 
 ### Requirement: Single-file option compatibility
-The CLI SHALL reject option combinations whose directory-output and file-output meanings conflict.
+The CLI SHALL distinguish default HTML-file mode from explicit directory mode and SHALL reject option combinations whose meanings conflict.
 
-#### Scenario: Output without single-file mode
+#### Scenario: Output in default mode
 - **WHEN** a JSX build uses `--output` without `--single-file`
-- **THEN** the CLI exits unsuccessfully and explains that `--output` selects a single HTML artifact
+- **THEN** the CLI selects that destination for the default HTML artifact
 
-#### Scenario: Directory output with single-file mode
+#### Scenario: Directory output selection
+- **WHEN** a JSX build supplies `--out-dir public/app`
+- **THEN** the CLI selects directory mode instead of creating a sibling HTML artifact
+
+#### Scenario: File and directory output conflict
+- **WHEN** a JSX build combines `--output` with `--out-dir`
+- **THEN** the CLI exits unsuccessfully and identifies the conflicting output modes
+
+#### Scenario: Base without directory mode
+- **WHEN** a JSX build supplies `--base /application/` without `--out-dir`
+- **THEN** the CLI exits unsuccessfully and explains that `--base` is available only for directory builds
+
+#### Scenario: Deprecated selector conflicts with directory mode
 - **WHEN** a JSX build combines `--single-file` with `--out-dir` or `--base`
 - **THEN** the CLI exits unsuccessfully and identifies the conflicting options
 
@@ -101,7 +117,7 @@ The CLI SHALL build with its controlled inline configuration and SHALL NOT load 
 - **THEN** the generated application uses the CLI's configuration without executing or merging the unrelated file
 
 ### Requirement: Build diagnostics
-The CLI SHALL report input validation and compiler failures with a non-zero exit status and SHALL retain original source paths in actionable diagnostics.
+The CLI SHALL report input validation, compiler, and packaging failures with a non-zero exit status, SHALL retain original source paths in actionable diagnostics, and SHALL report the resolved file or directory destination after success.
 
 #### Scenario: JSX syntax error
 - **WHEN** the input module or a local dependency contains invalid JSX syntax
@@ -109,7 +125,11 @@ The CLI SHALL report input validation and compiler failures with a non-zero exit
 
 #### Scenario: Successful build summary
 - **WHEN** a build completes successfully
-- **THEN** the CLI exits successfully and reports the resolved output directory
+- **THEN** the CLI exits successfully and reports the resolved output file or directory
+
+#### Scenario: Default packaging limitation
+- **WHEN** a default HTML-file build cannot represent an application that uses an unsupported chunk, worker, runtime-loaded resource, or relative runtime fetch
+- **THEN** the CLI identifies the incompatible feature and recommends retrying with `--out-dir dist`
 
 ### Requirement: Temporary workspace cleanup
 The CLI SHALL avoid modifying the input source tree and SHALL remove its temporary generated application files after both successful and failed builds.

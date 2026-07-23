@@ -6,12 +6,16 @@ Define output path selection, ownership tracking, staged replacement, and safegu
 
 ## Requirements
 
-### Requirement: Default output directory
-The CLI SHALL use a `dist` directory beneath the invocation working directory when no output option is provided.
+### Requirement: Default HTML output
+The CLI SHALL derive the default HTML destination from the JSX entry basename and place it beneath the invocation working directory when neither `--output` nor `--out-dir` is provided.
 
 #### Scenario: Default output selection
 - **WHEN** a user runs `yolojsx Home.jsx` from `/workspace/site` without an output option
-- **THEN** the resolved output directory is `/workspace/site/dist`
+- **THEN** the resolved HTML destination is `/workspace/site/Home.html`
+
+#### Scenario: Nested entry output selection
+- **WHEN** a user runs `yolojsx pages/Dashboard.jsx` from `/workspace/site` without an output option
+- **THEN** the resolved HTML destination is `/workspace/site/Dashboard.html`
 
 ### Requirement: Configurable output directory
 The CLI SHALL accept `-o <path>` and `--out-dir <path>` and resolve relative values from the invocation working directory.

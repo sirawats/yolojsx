@@ -6,6 +6,7 @@ import { confirmReplacement as promptForReplacement } from "./confirmation.js";
 import { NODE_ENGINE, PACKAGE_VERSION } from "./constants.js";
 import { formatError, YoloJsxError } from "./errors.js";
 import {
+  resolveAndValidateCss,
   resolveAndValidateEntry,
   resolveAndValidateHtmlOutput,
   resolveAndValidateInputDirectory,
@@ -17,6 +18,7 @@ import {
   inspectOutput,
 } from "./output.js";
 import { createSingleFileArtifact } from "./single-file.js";
+import { renderThemeCatalog, resolveTheme } from "./themes.js";
 
 function assertSupportedNode(nodeVersion) {
   if (!semver.satisfies(nodeVersion, NODE_ENGINE)) {
@@ -48,6 +50,10 @@ export async function runCli(
     }
     if (options.action === "version") {
       stdout.write(`${PACKAGE_VERSION}\n`);
+      return 0;
+    }
+    if (options.action === "themes") {
+      stdout.write(renderThemeCatalog());
       return 0;
     }
 
@@ -82,8 +88,16 @@ export async function runCli(
     }
 
     const entry = await resolveAndValidateEntry(options.entry, cwd);
+    const customCss = await resolveAndValidateCss(options.css, cwd);
+    const theme = resolveTheme(options.theme);
 
-    if (options.singleFile) {
+    if (options.deprecatedSingleFile) {
+      stderr.write(
+        "Warning: --single-file is deprecated because HTML file output is now the default.\n",
+      );
+    }
+
+    if (options.outputMode === "file") {
       const output = await resolveAndValidateHtmlOutput(options.output, cwd, {
         entry,
       });
@@ -101,10 +115,21 @@ export async function runCli(
       if (outputState.exists && options.force) {
         stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
       }
-      const artifact = await withTemporaryApplicationBuild(
-        { entry, base: "./", singleFile: true },
-        createSingleFileArtifact,
-      );
+      let artifact;
+      try {
+        artifact = await withTemporaryApplicationBuild(
+          { entry, base: "./", singleFile: true, theme, customCss },
+          createSingleFileArtifact,
+        );
+      } catch (error) {
+        if (error?.code === "PACK_FAILED") {
+          throw new YoloJsxError(
+            `${formatError(error)}\nTry \`--out-dir dist\` for a directory build that supports this application graph.`,
+            { code: error.code },
+          );
+        }
+        throw error;
+      }
       await commitFileOutput(artifact.html, output);
       stdout.write(
         `Built ${entry}\nOutput: ${output}\nSize: ${artifact.bytes} bytes\n`,
@@ -130,7 +155,13 @@ export async function runCli(
       stderr.write(`Warning: replacing unowned output directory: ${output}\n`);
     }
 
-    await buildApplication({ entry, output, base: options.base });
+    await buildApplication({
+      entry,
+      output,
+      base: options.base,
+      theme,
+      customCss,
+    });
     stdout.write(`Built ${entry}\nOutput: ${output}\n`);
     return 0;
   } catch (error) {

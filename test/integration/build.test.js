@@ -14,7 +14,7 @@ export default function Home() {
 }`,
   });
 
-  const result = await invoke(["Home.jsx"], { cwd: fixture });
+  const result = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
   assert.equal(result.exitCode, 0, result.stderr);
   assert.match(result.stdout, /Output: .*dist/);
 

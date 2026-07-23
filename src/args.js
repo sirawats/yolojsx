@@ -1,55 +1,71 @@
-import {
-  DEFAULT_BASE,
-  DEFAULT_OUT_DIR,
-  PACKAGE_VERSION,
-} from "./constants.js";
+import { DEFAULT_BASE, PACKAGE_VERSION } from "./constants.js";
 import { YoloJsxError } from "./errors.js";
+import { DEFAULT_THEME_ID, resolveTheme } from "./themes.js";
 
 export const USAGE = `Usage: yolojsx <entry.jsx> [options]
+       yolojsx themes
        yolojsx pack <directory> --output <file.html> [options]
 
-Build a JSX component into a deployable React application.
+Build a JSX component into one compressed HTML file by default.
 
 Options:
-  -o, --out-dir <path>  Output directory (default: ./dist)
-      --base <path>     Public base path (default: ./)
-      --single-file    Create one compressed HTML file
-      --output <path>  Single HTML output path
-      --force           Replace an existing protected output
-  -h, --help            Show this help
-  -v, --version         Show the installed version`;
+      --output <path>   HTML output path (default: ./<EntryName>.html)
+  -o, --out-dir <path> Build a directory instead of one HTML file
+      --base <path>    Directory-mode public base path (default: ./)
+      --theme <preset> Global theme preset (default: default)
+      --css <path>     Custom CSS loaded after the preset
+      --single-file    Deprecated alias for the default file mode
+      --force          Replace an existing protected output
+  -h, --help           Show this help
+  -v, --version        Show the installed version
+
+Run \`yolojsx themes\` to list available presets.`;
+
+function invalid(message) {
+  return new YoloJsxError(message, { code: "INVALID_ARGUMENTS" });
+}
 
 function readOptionValue(argv, index, option) {
   const value = argv[index + 1];
   if (!value || value.startsWith("-")) {
-    throw new YoloJsxError(`${option} requires a value.`, {
-      code: "INVALID_ARGUMENTS",
-    });
+    throw invalid(`${option} requires a value.`);
   }
   return value;
 }
 
+function setOnce(seen, name) {
+  if (seen.has(name)) {
+    throw invalid(`${name} may only be specified once.`);
+  }
+  seen.add(name);
+}
+
 export function parseArgs(argv) {
-  const action = argv[0] === "pack" ? "pack" : "build";
+  const requestedAction = argv[0];
+  const action = requestedAction === "pack"
+    ? "pack"
+    : requestedAction === "themes"
+      ? "themes"
+      : "build";
   const options = {
+    action,
     entry: undefined,
     inputDir: undefined,
-    outDir: DEFAULT_OUT_DIR,
+    outDir: undefined,
     base: DEFAULT_BASE,
-    singleFile: false,
     output: undefined,
+    theme: DEFAULT_THEME_ID,
+    css: undefined,
     force: false,
-    action,
+    singleFile: false,
   };
   const positionals = [];
+  const seen = new Set();
   let parseOptions = true;
-  let outDirProvided = false;
-  let baseProvided = false;
-  const startIndex = action === "pack" ? 1 : 0;
+  const startIndex = action === "build" ? 0 : 1;
 
   for (let index = startIndex; index < argv.length; index += 1) {
     const arg = argv[index];
-
     if (parseOptions && arg === "--") {
       parseOptions = false;
       continue;
@@ -61,94 +77,74 @@ export function parseArgs(argv) {
       return { ...options, action: "version", version: PACKAGE_VERSION };
     }
     if (parseOptions && arg === "--force") {
+      setOnce(seen, "--force");
       options.force = true;
       continue;
     }
     if (parseOptions && arg === "--single-file") {
+      setOnce(seen, "--single-file");
       options.singleFile = true;
       continue;
     }
-    if (parseOptions && arg === "--output") {
-      options.output = readOptionValue(argv, index, arg);
-      index += 1;
-      continue;
-    }
-    if (parseOptions && arg.startsWith("--output=")) {
-      options.output = arg.slice("--output=".length);
-      if (!options.output) {
-        throw new YoloJsxError("--output requires a value.", {
-          code: "INVALID_ARGUMENTS",
-        });
+
+    const valueOptions = [
+      ["--output", "output"],
+      ["--out-dir", "outDir"],
+      ["--base", "base"],
+      ["--theme", "theme"],
+      ["--css", "css"],
+    ];
+    let matched = false;
+    for (const [name, property] of valueOptions) {
+      const shortMatch = name === "--out-dir" && arg === "-o";
+      if (arg === name || shortMatch) {
+        setOnce(seen, name);
+        options[property] = readOptionValue(argv, index, arg);
+        index += 1;
+        matched = true;
+        break;
       }
-      continue;
-    }
-    if (parseOptions && (arg === "--out-dir" || arg === "-o")) {
-      options.outDir = readOptionValue(argv, index, arg);
-      outDirProvided = true;
-      index += 1;
-      continue;
-    }
-    if (parseOptions && arg.startsWith("--out-dir=")) {
-      options.outDir = arg.slice("--out-dir=".length);
-      if (!options.outDir) {
-        throw new YoloJsxError("--out-dir requires a value.", {
-          code: "INVALID_ARGUMENTS",
-        });
+      if (arg.startsWith(`${name}=`)) {
+        setOnce(seen, name);
+        options[property] = arg.slice(name.length + 1);
+        if (!options[property]) {
+          throw invalid(`${name} requires a value.`);
+        }
+        matched = true;
+        break;
       }
-      outDirProvided = true;
-      continue;
     }
-    if (parseOptions && arg === "--base") {
-      options.base = readOptionValue(argv, index, arg);
-      baseProvided = true;
-      index += 1;
-      continue;
-    }
-    if (parseOptions && arg.startsWith("--base=")) {
-      options.base = arg.slice("--base=".length);
-      if (!options.base) {
-        throw new YoloJsxError("--base requires a value.", {
-          code: "INVALID_ARGUMENTS",
-        });
-      }
-      baseProvided = true;
+    if (matched) {
       continue;
     }
     if (parseOptions && arg.startsWith("-")) {
-      throw new YoloJsxError(`Unknown option: ${arg}`, {
-        code: "INVALID_ARGUMENTS",
-      });
+      throw invalid(`Unknown option: ${arg}`);
     }
-
     positionals.push(arg);
   }
 
+  if (action === "themes") {
+    if (positionals.length > 0 || seen.size > 0) {
+      throw invalid("The themes command does not accept arguments or build options.");
+    }
+    return { action: "themes" };
+  }
+
   if (positionals.length !== 1) {
-    const reason =
-      positionals.length === 0
-        ? action === "pack"
-          ? "A build directory is required."
-          : "A JSX entry file is required."
-        : action === "pack"
-          ? "Exactly one build directory is supported."
-          : "Exactly one JSX entry file is supported.";
-    throw new YoloJsxError(`${reason}\n\n${USAGE}`, {
-      code: "INVALID_ARGUMENTS",
-    });
+    const reason = positionals.length === 0
+      ? action === "pack" ? "A build directory is required." : "A JSX entry file is required."
+      : action === "pack" ? "Exactly one build directory is supported." : "Exactly one JSX entry file is supported.";
+    throw invalid(`${reason}\n\n${USAGE}`);
   }
 
   if (action === "pack") {
-    if (options.singleFile || outDirProvided || baseProvided) {
-      throw new YoloJsxError(
-        "The pack command does not accept --single-file, --out-dir, or --base.",
-        { code: "INVALID_ARGUMENTS" },
-      );
+    const rejected = ["--single-file", "--out-dir", "--base", "--theme", "--css"]
+      .filter((name) => seen.has(name));
+    if (rejected.length > 0) {
+      throw invalid(`The pack command does not accept ${rejected.join(", ")}.`);
     }
     if (!options.output) {
-      throw new YoloJsxError(
-        `The pack command requires --output <file.html>.\n\n${USAGE}`,
-        { code: "INVALID_ARGUMENTS" },
-      );
+      throw invalid(`The pack command requires --output <file.html>.\n\n${USAGE}`);
     }
     return {
       action: "pack",
@@ -158,26 +154,27 @@ export function parseArgs(argv) {
     };
   }
 
-  if (options.output && !options.singleFile) {
-    throw new YoloJsxError("--output requires --single-file for JSX builds.", {
-      code: "INVALID_ARGUMENTS",
-    });
+  if (options.outDir && options.output) {
+    throw invalid("--output cannot be combined with --out-dir.");
   }
-  if (options.singleFile && (outDirProvided || baseProvided)) {
-    throw new YoloJsxError(
-      "--single-file cannot be combined with --out-dir or --base.",
-      { code: "INVALID_ARGUMENTS" },
-    );
+  if (seen.has("--base") && !options.outDir) {
+    throw invalid("--base requires directory mode selected with --out-dir.");
   }
+  if (options.singleFile && (options.outDir || seen.has("--base"))) {
+    throw invalid("--single-file cannot be combined with --out-dir or --base.");
+  }
+  resolveTheme(options.theme);
 
-  options.entry = positionals[0];
   return {
     action: "build",
-    entry: options.entry,
+    entry: positionals[0],
+    outputMode: options.outDir ? "directory" : "file",
     outDir: options.outDir,
     base: options.base,
-    singleFile: options.singleFile,
     output: options.output,
+    theme: options.theme,
+    css: options.css,
     force: options.force,
+    deprecatedSingleFile: options.singleFile,
   };
 }

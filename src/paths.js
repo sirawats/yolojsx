@@ -43,6 +43,36 @@ export async function resolveAndValidateEntry(entryArgument, cwd) {
   return realpath(entry);
 }
 
+export async function resolveAndValidateCss(cssArgument, cwd) {
+  if (!cssArgument) {
+    return undefined;
+  }
+  const stylesheet = path.resolve(cwd, cssArgument);
+  if (path.extname(stylesheet).toLowerCase() !== ".css") {
+    throw new YoloJsxError(`Custom stylesheet must be a .css file: ${stylesheet}`, {
+      code: "INVALID_CSS",
+    });
+  }
+  try {
+    const stylesheetStat = await stat(stylesheet);
+    if (!stylesheetStat.isFile()) {
+      throw new YoloJsxError(`Custom stylesheet is not a file: ${stylesheet}`, {
+        code: "INVALID_CSS",
+      });
+    }
+    await access(stylesheet, fsConstants.R_OK);
+  } catch (error) {
+    if (error instanceof YoloJsxError) {
+      throw error;
+    }
+    throw new YoloJsxError(`Custom stylesheet is not a readable file: ${stylesheet}`, {
+      code: "INVALID_CSS",
+      cause: error,
+    });
+  }
+  return realpath(stylesheet);
+}
+
 export async function resolveAndValidateOutput(outArgument, cwd, entry) {
   const output = path.resolve(cwd, outArgument);
   const root = path.parse(output).root;
