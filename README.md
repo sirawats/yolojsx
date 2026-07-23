@@ -311,7 +311,9 @@ node bin/yolojsx.js examples/CalculatorDemo.jsx --theme material
 `npm run verify` runs unit and integration coverage, syntax checks,
 package-content inspection, and a smoke test against the extracted npm artifact,
 including theme assets and the default artifact-size budget. See
-[RELEASING.md](RELEASING.md).
+[RELEASING.md](RELEASING.md). First-time npm maintainers can follow
+[NPM_PUBLISHING_GUIDE.md](NPM_PUBLISHING_GUIDE.md), which separates safe dry
+runs from the live publication command.
 
 ## Contributing and support
 

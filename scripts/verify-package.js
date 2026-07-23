@@ -37,7 +37,7 @@ try {
 
   const packed = run(
     npmCommand,
-    ["pack", "--json", "--pack-destination", packDirectory],
+    ["pack", "--json", "--dry-run=false", "--pack-destination", packDirectory],
     {
       cwd: repository,
       env: { npm_config_cache: path.join(temporary, "npm-cache") },

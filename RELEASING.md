@@ -6,6 +6,9 @@ variables, and managed-output marker as public interfaces.
 Before the first public repository or npm release, complete
 [OPEN_SOURCE_CHECKLIST.md](OPEN_SOURCE_CHECKLIST.md). For later releases, repeat
 its release-candidate, account-security, publication, and post-publication gates.
+If npm distribution is unfamiliar, follow
+[NPM_PUBLISHING_GUIDE.md](NPM_PUBLISHING_GUIDE.md) before this maintainer
+checklist.
 
 ## Pre-release checklist
 

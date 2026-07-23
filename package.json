@@ -12,6 +12,7 @@
     "examples",
     "README.md",
     "RELEASING.md",
+    "NPM_PUBLISHING_GUIDE.md",
     "OPEN_SOURCE_CHECKLIST.md",
     "CONTRIBUTING.md",
     "CODE_OF_CONDUCT.md",
@@ -27,6 +28,7 @@
     "test:unit": "node --test --test-concurrency=1 test/unit/*.test.js",
     "test:integration": "node --test --test-concurrency=1 test/integration/*.test.js",
     "check": "node scripts/check-syntax.js",
+    "check:licenses": "node scripts/check-licenses.js",
     "pack:check": "node scripts/pack-check.js",
     "readiness": "node scripts/check-readiness.js",
     "verify:package": "node scripts/verify-package.js",
@@ -42,6 +44,15 @@
     "cli"
   ],
   "license": "MIT",
+  "author": "sirawats",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sirawats/yolojsx.git"
+  },
+  "homepage": "https://github.com/sirawats/yolojsx#readme",
+  "bugs": {
+    "url": "https://github.com/sirawats/yolojsx/issues"
+  },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },

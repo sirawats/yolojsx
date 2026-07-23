@@ -17,7 +17,8 @@ the final release record require maintainer or platform action.
 Already confirmed:
 
 - [x] MIT license is declared in `package.json` and shipped as `LICENSE`.
-- [x] README, changelog, release guide, examples, and third-party notices exist.
+- [x] README, changelog, beginner npm publishing guide, release guide, examples,
+  and third-party notices exist.
 - [x] Supported Node.js versions and executable names are declared.
 - [x] Package contents use an explicit `files` allowlist.
 - [x] The CLI entry point is executable in Git.
@@ -35,7 +36,7 @@ Already confirmed:
 
 First-public-release blockers:
 
-- [ ] Add `repository`, `homepage`, `bugs`, and maintainer identity metadata to
+- [x] Add `repository`, `homepage`, `bugs`, and maintainer identity metadata to
   `package.json`.
 - [x] Add `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `SECURITY.md`.
 - [ ] Decide whether `.agent/`, `.claude/`, `.codex/`, `AGENTS.md`, and archived
@@ -78,6 +79,8 @@ First-public-release blockers:
   browser requirements, security implications, and license.
 - [x] `CHANGELOG.md` records user-visible and breaking changes.
 - [x] `RELEASING.md` documents maintainer release and recovery procedures.
+- [x] `NPM_PUBLISHING_GUIDE.md` explains npm concepts, safe dry runs, first and
+  later releases, account security, verification, and recovery for beginners.
 - [x] Add `CONTRIBUTING.md` with setup, tests, style, issue, and pull-request
   expectations.
 - [x] Add `CODE_OF_CONDUCT.md` with enforcement expectations and private
@@ -124,9 +127,9 @@ First-public-release blockers:
   dependencies, and `files` are present.
 - [x] The package is not marked `"private": true`.
 - [x] `yolojsx` points to the intended executable.
-- [ ] Add a canonical `repository` URL.
-- [ ] Add `homepage` and `bugs` URLs.
-- [ ] Add `author` or `contributors` with the level of public identity the
+- [x] Add a canonical `repository` URL.
+- [x] Add `homepage` and `bugs` URLs.
+- [x] Add `author` or `contributors` with the level of public identity the
   maintainers intend to expose.
 - [x] Set an explicit `publishConfig.registry` for
   `https://registry.npmjs.org/` to prevent publishing to the wrong registry.
@@ -138,8 +141,8 @@ First-public-release blockers:
   checklist documentation through the explicit package allowlist.
 - [x] Verify all runtime imports are in `dependencies`, while development-only
   tools are not accidentally required at runtime.
-- [ ] Confirm the selected version follows SemVer and cannot collide with an
-  already-published immutable npm version.
+- [x] Confirm `0.1.0` follows SemVer and cannot collide with an
+  already-published immutable npm version because `yolojsx` is unregistered.
 
 ## 5. Package contents and install behavior
 
@@ -202,15 +205,15 @@ Date:
 ```
 
 - [ ] Working tree is clean and the release commit is pushed.
-- [ ] Version and changelog are final; no release remains under only
+- [x] Version and changelog are final; no release remains under only
   `Unreleased`.
 - [ ] `npm ci` succeeds from a clean clone.
 - [ ] `npm run verify` succeeds on the release commit.
-- [ ] `npm audit` has no unreviewed findings.
-- [ ] `npm pack --dry-run` contains only intended files.
+- [x] `npm audit` has no unreviewed findings.
+- [x] `npm pack --dry-run` contains only intended files.
 - [ ] The isolated tarball installation and browser smoke tests pass.
 - [x] The registry returns E404 for `yolojsx`, so version `0.1.0` is unused.
-- [ ] `npm publish --dry-run` passes against the intended registry.
+- [x] `npm publish --dry-run` passes against the intended registry.
 - [ ] The intended dist-tag is explicit: stable releases normally use `latest`;
   prereleases should use a tag such as `next`.
 - [ ] A second maintainer or reviewer approves the tarball manifest, version,
