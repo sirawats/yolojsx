@@ -1,6 +1,6 @@
 {
   "name": "yolojsx",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "description": "Build a JSX component into portable compressed HTML or deployable React assets with Vite, Tailwind CSS, and Ant Design.",
   "type": "module",
   "bin": {
@@ -11,14 +11,6 @@
     "src",
     "examples",
     "README.md",
-    "RELEASING.md",
-    "NPM_PUBLISHING_GUIDE.md",
-    "OPEN_SOURCE_CHECKLIST.md",
-    "CONTRIBUTING.md",
-    "CODE_OF_CONDUCT.md",
-    "SECURITY.md",
-    "SUPPORT.md",
-    "DEPENDENCY_REVIEW.md",
     "CHANGELOG.md",
     "THIRD_PARTY_NOTICES.md",
     "LICENSE"
@@ -31,8 +23,10 @@
     "check:licenses": "node scripts/check-licenses.js",
     "pack:check": "node scripts/pack-check.js",
     "readiness": "node scripts/check-readiness.js",
+    "lint:branch": "node scripts/check-branch-name.js",
     "verify:package": "node scripts/verify-package.js",
     "verify": "node scripts/verify.js",
+    "prepare": "node .husky/install.mjs",
     "prepublishOnly": "npm run verify && npm run readiness"
   },
   "keywords": [
@@ -69,5 +63,10 @@
     "semver": "^7.8.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.1.5"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
+    "husky": "^9.1.7"
   }
 }

@@ -5,8 +5,8 @@ It explains what npm publishing changes, which commands are safe to practice,
 and how to release `yolojsx` without accidentally replacing or exposing
 anything.
 
-Read [RELEASING.md](RELEASING.md) and complete
-[OPEN_SOURCE_CHECKLIST.md](OPEN_SOURCE_CHECKLIST.md) alongside this guide.
+Read [RELEASING.md](../../RELEASING.md) and complete the
+[first-public-release checklist](first-public-release.md) alongside this guide.
 
 ## The one rule to remember
 
@@ -123,6 +123,21 @@ An `E404` response is expected before the package's first publication. After
 the first release, confirm that the version in `package.json` is absent from the
 returned list.
 
+The remaining command examples use the `VERSION` shell variable so they cannot
+become stale when `package.json` changes. Set it once in each new terminal:
+
+```sh
+VERSION="$(node -p "require('./package.json').version")"
+echo "$VERSION"
+```
+
+The printed value must match the release being prepared. In PowerShell, use:
+
+```powershell
+$VERSION = node -p "require('./package.json').version"
+$VERSION
+```
+
 For a later patch release, this command updates `package.json` and
 `package-lock.json` without creating a Git commit or tag:
 
@@ -164,6 +179,10 @@ inspection, and smoke tests against an extracted package. The
 `prepublishOnly` lifecycle runs verification and readiness again before npm is
 allowed to publish.
 
+Readiness covers local package metadata and files only. It does not verify
+GitHub settings, npm account security, maintainer approval, or private reporting
+channels; the first-public-release checklist covers those external steps.
+
 Do not bypass a failing gate with `--ignore-scripts`. Fix the failure or stop
 the release.
 
@@ -193,7 +212,7 @@ The final output should contain wording similar to:
 
 ```text
 Publishing to https://registry.npmjs.org/ with tag latest ... (dry-run)
-+ yolojsx@0.1.0
++ yolojsx@<version>
 ```
 
 The `(dry-run)` text is essential. This command is safe to repeat because npm
@@ -204,17 +223,43 @@ archive:
 
 ```sh
 npm pack
-tar -tzf yolojsx-0.1.0.tgz
+tar -tzf "yolojsx-$VERSION.tgz"
 ```
 
 The archive is generated output. Inspect it, then remove it before committing.
 Do not edit the archive; fix the source package and create it again.
 
-## Step 5: Obtain approval
+## Step 5: Obtain and record approval
 
-Record the release candidate before publishing:
+Approval in this section means a documented human decision that the exact
+release candidate may be published. It is a project safeguard, not an npm
+command, and it does not change the npm registry.
+
+### 5.1 Freeze the candidate
+
+Approval must refer to one exact Git commit and package version. Commit and push
+all intended release changes, wait for CI to pass, and then collect the
+candidate identity:
+
+```sh
+git status --short
+git rev-parse HEAD
+git log -1 --oneline
+echo "$VERSION"
+```
+
+`git status --short` must print nothing. If a file changes after approval,
+create a new commit, repeat the dry run, and approve the new commit instead.
+
+### 5.2 Create an approval record
+
+Create a GitHub issue, pull request, or other durable release record that the
+maintainers can review later. Copy this template:
 
 ```text
+Release approval: yolojsx <version>
+
+Status: PENDING
 Version:
 Commit SHA:
 Git tag to create:
@@ -222,21 +267,89 @@ Registry: https://registry.npmjs.org/
 Dist-tag: latest
 Maintainer:
 Reviewer:
+Approval method: independent review / solo-maintainer exception
 Date:
+Dry-run package size:
+Dry-run unpacked size:
+Dry-run total files:
+Dry-run shasum:
+Dry-run integrity:
+Dependency audit date:
+Dependency audit result:
+License report summary:
+Reviewed license exceptions:
+
+Checks:
+- [ ] Working tree is clean.
+- [ ] Release commit is pushed.
+- [ ] CI passes for this exact commit.
+- [ ] package.json, package-lock.json, and CHANGELOG.md use the same version.
+- [ ] The registry does not already contain this version.
+- [ ] npm run readiness passes.
+- [ ] npm publish --dry-run passes.
+- [ ] The dry-run tarball contains only intended files.
+- [ ] npm audit and npm run check:licenses results are recorded.
+- [ ] License and third-party notices were reviewed.
+- [ ] npm whoami reports the intended maintainer.
+
+Decision: APPROVED / REJECTED
+Decision by:
+Decision date:
+Notes:
 ```
 
-At minimum, confirm:
+Copy the package size, file count, shasum, and integrity from the final
+`npm publish --dry-run` output. Never put an npm token, password, one-time
+password, or recovery code in the approval record.
 
-- the Git working tree is clean;
-- the release commit is pushed and CI is green;
-- the version and changelog agree;
-- the registry does not already contain that version;
-- the dry-run tarball contains only intended files;
-- the package license and third-party notices were reviewed;
-- npm shows the intended account;
-- the maintainer deliberately approves a public release.
+### 5.3 Choose a reviewer path
 
-Pause here if any item is uncertain.
+Independent review is recommended. Ask another maintainer or trusted reviewer
+to compare the recorded commit, changelog, package metadata, license material,
+and dry-run file list. They do not need npm account access to review the
+candidate.
+
+For a solo-maintainer project, npm's normal direct publishing flow does not
+require a named second reviewer. Do not invent one. Record:
+
+```text
+Reviewer: self (solo maintainer)
+Approval method: solo-maintainer exception
+Notes: No independent reviewer was available; the maintainer performed a
+second review of the frozen candidate and accepts the release risk.
+```
+
+Leave any separate checklist requirement for a second reviewer unchecked, or
+document a deliberate project-policy waiver. npm authentication and 2FA remain
+required regardless of the reviewer path.
+
+### 5.4 Record the decision
+
+The reviewer or solo maintainer should write an explicit decision tied to the
+frozen commit:
+
+```text
+APPROVED: I reviewed commit <full SHA>, package version <version>, the npm
+publish dry-run output, package contents, release notes, license, and notices.
+I approve publishing yolojsx@<version> to the public npm registry with the
+latest dist-tag.
+```
+
+Change the record's status and decision to `APPROVED`. Approval is complete only
+when every required check is satisfied and the statement identifies the exact
+commit and version. Pause if any item is uncertain.
+
+### 5.5 Optional registry-enforced approval
+
+npm staged publishing is a separate advanced workflow. It can place a package
+in a non-public staging area and require a later authenticated approval. If the
+project adopts staged publishing, follow npm's current
+[staged publishing documentation](https://docs.npmjs.com/staged-publishing)
+and document the stage ID in the approval record.
+
+Do not mix the staged and direct workflows. `npm stage approve` is a live action
+that makes the staged package public; it is not the project-only approval
+described above. The next section assumes the normal direct publishing flow.
 
 ## Step 6: Publish the first version
 
@@ -255,7 +368,7 @@ Do not add `--force`, do not use `--ignore-scripts`, and do not rerun the comman
 after an ambiguous failure until checking the registry:
 
 ```sh
-npm view yolojsx@0.1.0
+npm view "yolojsx@$VERSION"
 ```
 
 If the version is visible, the publication succeeded even if the terminal
@@ -266,8 +379,8 @@ connection ended before printing a success message.
 Inspect registry metadata:
 
 ```sh
-npm view yolojsx@0.1.0
-npm view yolojsx@0.1.0 bin engines repository license dist-tags
+npm view "yolojsx@$VERSION"
+npm view "yolojsx@$VERSION" bin engines repository license dist-tags
 npm dist-tag ls yolojsx
 ```
 
@@ -276,7 +389,7 @@ package:
 
 ```sh
 npm init -y
-npm install yolojsx@0.1.0
+npm install "yolojsx@$VERSION"
 npx yolojsx --version
 npx yolojsx themes
 ```
@@ -290,8 +403,8 @@ npx yolojsx Home.jsx --out-dir dist
 ```
 
 Open the generated HTML and serve the directory build as described in
-`RELEASING.md`. Also inspect the package page on npmjs.com for correct README,
-license, repository, issue, and provenance information.
+[RELEASING.md](../../RELEASING.md). Also inspect the package page on npmjs.com
+for correct README, license, repository, issue, and provenance information.
 
 Only after registry installation and smoke tests pass should you create the
 matching signed Git tag, GitHub release, and announcement.
@@ -331,7 +444,7 @@ Inspect or deliberately change tags with:
 
 ```sh
 npm dist-tag ls yolojsx
-npm dist-tag add yolojsx@0.1.1 latest
+npm dist-tag add "yolojsx@$VERSION" latest
 ```
 
 Changing a dist-tag does not change package files; it changes which already
@@ -355,7 +468,10 @@ Publish a corrected patch version and move the appropriate dist-tag. Warn users
 about the bad version:
 
 ```sh
-npm deprecate yolojsx@0.1.0 "Use 0.1.1; 0.1.0 has a known release issue."
+BAD_VERSION="0.1.2"
+FIXED_VERSION="0.1.3"
+npm deprecate "yolojsx@$BAD_VERSION" \
+  "Use $FIXED_VERSION; $BAD_VERSION has a known release issue."
 ```
 
 Deprecation leaves the version installable but displays the warning. Avoid
@@ -367,8 +483,8 @@ dependent packages.
 
 Stop the release. Revoke or rotate the credential in npm immediately, review
 account sessions and package access, scan Git history, and follow
-`SECURITY.md`. Deleting a token from the latest commit does not remove it from
-Git history.
+[SECURITY.md](../../SECURITY.md). Deleting a token from the latest commit does
+not remove it from Git history.
 
 ### Common errors
 

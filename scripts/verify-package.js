@@ -47,6 +47,32 @@ try {
   run("tar", ["-xzf", path.join(packDirectory, filename), "-C", extractDirectory]);
 
   const packageDirectory = path.join(extractDirectory, "package");
+  const packagedRootFiles = new Set(await readdir(packageDirectory));
+  for (const name of [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "THIRD_PARTY_NOTICES.md",
+  ]) {
+    if (!packagedRootFiles.has(name)) {
+      throw new Error(`Packed artifact omits required document: ${name}`);
+    }
+  }
+  for (const name of [
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "DEPENDENCY_REVIEW.md",
+    "NPM_PUBLISHING_GUIDE.md",
+    "OPEN_SOURCE_CHECKLIST.md",
+    "RELEASING.md",
+    "SECURITY.md",
+    "SUPPORT.md",
+    "docs",
+  ]) {
+    if (packagedRootFiles.has(name)) {
+      throw new Error(`Packed artifact includes repository-only material: ${name}`);
+    }
+  }
   await symlink(
     path.join(repository, "node_modules"),
     path.join(packageDirectory, "node_modules"),

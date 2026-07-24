@@ -4,16 +4,15 @@ The package is pre-1.0. Treat the CLI, output defaults, theme ids, semantic CSS
 variables, and managed-output marker as public interfaces.
 
 Before the first public repository or npm release, complete
-[OPEN_SOURCE_CHECKLIST.md](OPEN_SOURCE_CHECKLIST.md). For later releases, repeat
-its release-candidate, account-security, publication, and post-publication gates.
-If npm distribution is unfamiliar, follow
-[NPM_PUBLISHING_GUIDE.md](NPM_PUBLISHING_GUIDE.md) before this maintainer
-checklist.
+[the first-public-release checklist](docs/maintainers/first-public-release.md).
+If npm distribution is unfamiliar, follow the
+[beginner npm publishing guide](docs/maintainers/npm-publishing.md) before this
+maintainer checklist.
 
 ## Pre-release checklist
 
 1. Recheck npm package-name availability and current dependency/Node engine compatibility.
-2. Run a clean `npm install`, review dependency and lockfile changes, then run `npm run verify`.
+2. Run a clean `npm install`, review dependency and lockfile changes, then run `npm audit`, `npm run check:licenses`, and `npm run verify`; record the dated audit summaries, reviewed license exceptions, and accepted findings with the release candidate.
 3. Confirm `yolojsx examples/Home.jsx` creates `Home.html`; open it through `file://` in a browser with gzip `DecompressionStream` support.
 4. Run `yolojsx examples/Home.jsx --out-dir dist`, serve it, and verify Tailwind utilities, global theme styles, and Ant Design components.
 5. Exercise an unsuffixed light alias such as `--theme material`, its explicit `material-dark` counterpart, the `onedark` alias, and `--css` with a relative local image or font in both modes; confirm system color preference never changes the selected theme.

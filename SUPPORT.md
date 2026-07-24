@@ -23,6 +23,7 @@ guaranteed.
 
 ## Security and conduct
 
-Do not use public support channels for vulnerabilities or private conduct
-reports. Follow [SECURITY.md](SECURITY.md) or
-[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+Do not include vulnerabilities or confidential conduct details in public
+support channels. Follow [SECURITY.md](SECURITY.md) for vulnerabilities and
+[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for the available conduct-reporting
+options and confidentiality limitation.

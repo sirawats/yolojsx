@@ -44,6 +44,19 @@ Use `node bin/yolojsx.js examples/Home.jsx` for a manual default-output smoke
 test. It creates `Home.html`, which is ignored. Use `--out-dir dist` to exercise
 directory output.
 
+## Dependency changes
+
+- Use a dependency only when the standard library or existing packages do not
+  provide a clearer solution.
+- Explain why each new package is needed, review its maintenance and release
+  history, and include the lockfile change.
+- Run `npm audit`, `npm run check:licenses`, and `npm run verify`.
+- Review direct and transitive licenses; record accepted findings with the
+  release candidate.
+- Do not use `npm audit fix --force` without reviewing its API and behavior
+  changes.
+- Treat Dependabot updates like normal pull requests; do not auto-merge them.
+
 ## Code style
 
 - Use native ECMAScript modules and explicit `.js` import extensions.
@@ -53,6 +66,16 @@ directory output.
 - Use `camelCase` for variables and functions and `UPPER_SNAKE_CASE` for
   constants.
 - Match surrounding code; no formatter or linter is currently configured.
+
+## Commits and branches
+
+Use Conventional Commit messages such as `feat: add a theme` or
+`fix(cli): preserve the output marker`. Name branches `type/lowercase-description`;
+accepted types are `build`, `chore`, `ci`, `docs`, `feat`, `feature`, `fix`,
+`hotfix`, `perf`, `refactor`, `release`, `revert`, `style`, and `test`.
+
+`npm install` installs Git hooks that check commit messages and branch names
+locally. Git hooks are feedback, not a security boundary, and can be bypassed.
 
 ## Tests
 
