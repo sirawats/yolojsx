@@ -311,16 +311,21 @@ node bin/yolojsx.js examples/CalculatorDemo.jsx --theme material
 `npm run verify` runs unit and integration coverage, syntax checks,
 package-content inspection, and a smoke test against the extracted npm artifact,
 including theme assets and the default artifact-size budget. See
-[RELEASING.md](RELEASING.md). First-time npm maintainers can follow
-[NPM_PUBLISHING_GUIDE.md](NPM_PUBLISHING_GUIDE.md), which separates safe dry
-runs from the live publication command.
+[RELEASING.md](https://github.com/sirawats/yolojsx/blob/master/RELEASING.md).
+First-time npm maintainers can follow the
+[npm publishing guide](https://github.com/sirawats/yolojsx/blob/master/docs/maintainers/npm-publishing.md),
+which separates safe dry runs from the live publication command.
 
 ## Contributing and support
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development and pull-request guidance
-and [SUPPORT.md](SUPPORT.md) for usage help. Community participation follows
-[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md). Report vulnerabilities privately using
-[SECURITY.md](SECURITY.md).
+See
+[CONTRIBUTING.md](https://github.com/sirawats/yolojsx/blob/master/CONTRIBUTING.md)
+for development and pull-request guidance and
+[SUPPORT.md](https://github.com/sirawats/yolojsx/blob/master/SUPPORT.md) for
+usage help. Community participation follows
+[CODE_OF_CONDUCT.md](https://github.com/sirawats/yolojsx/blob/master/CODE_OF_CONDUCT.md).
+Report vulnerabilities privately using
+[SECURITY.md](https://github.com/sirawats/yolojsx/blob/master/SECURITY.md).
 
 ## License
 

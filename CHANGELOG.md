@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-## 0.1.0 - 2026-07-23
+## 0.1.2 - 2026-07-23
 
 - Add a beginner-focused npm publishing guide with safe dry-run, account
   security, release, verification, upgrade, dist-tag, and recovery procedures.

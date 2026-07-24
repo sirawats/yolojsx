@@ -29,18 +29,26 @@ release channels, and other spaces where someone represents the project.
 
 ## Reporting and enforcement
 
-Report conduct concerns privately through the channel described in
-[SECURITY.md](SECURITY.md), and identify the report as a code-of-conduct matter.
-Do not include sensitive details in a public issue.
+For a non-sensitive conduct concern about this project, open a
+[public issue](https://github.com/sirawats/yolojsx/issues/new) with a concise
+description. Do not include private information, threats, or details that could
+expose another person.
 
-Maintainers will protect reporter privacy as far as practical, consider relevant
-context, and avoid conflicts of interest. Responses may include clarification,
-a private warning, temporary participation restrictions, removal of content, or
-a permanent ban. Retaliation may result in immediate restriction.
+For harassment or other behavior that may violate GitHub's platform policies,
+use GitHub's
+[abuse-reporting tools](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam).
+Security vulnerabilities are separate; report them through
+[SECURITY.md](SECURITY.md), not as conduct matters.
 
-The repository owner must enable a private reporting channel before public
-launch. Until that channel exists, the code of conduct is not operationally
-complete.
+This solo-maintainer project does not currently accept confidential conduct
+reports. If a concern requires confidentiality, do not publish its details in an
+issue or misuse vulnerability reporting; use GitHub's reporting tools when they
+apply.
+
+The maintainer will consider relevant context and avoid conflicts of interest.
+Responses may include clarification, a warning, temporary participation
+restrictions, removal of content, or a permanent ban. Retaliation may result in
+immediate restriction.
 
 ## Attribution
 

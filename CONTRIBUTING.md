@@ -44,6 +44,19 @@ Use `node bin/yolojsx.js examples/Home.jsx` for a manual default-output smoke
 test. It creates `Home.html`, which is ignored. Use `--out-dir dist` to exercise
 directory output.
 
+## Dependency changes
+
+- Use a dependency only when the standard library or existing packages do not
+  provide a clearer solution.
+- Explain why each new package is needed, review its maintenance and release
+  history, and include the lockfile change.
+- Run `npm audit`, `npm run check:licenses`, and `npm run verify`.
+- Review direct and transitive licenses; record accepted findings with the
+  release candidate.
+- Do not use `npm audit fix --force` without reviewing its API and behavior
+  changes.
+- Treat Dependabot updates like normal pull requests; do not auto-merge them.
+
 ## Code style
 
 - Use native ECMAScript modules and explicit `.js` import extensions.

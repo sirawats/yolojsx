@@ -7,23 +7,15 @@ import { run } from "./process.js";
 const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const requiredFiles = [
   "CHANGELOG.md",
-  "CODE_OF_CONDUCT.md",
-  "CONTRIBUTING.md",
-  "DEPENDENCY_REVIEW.md",
   "LICENSE",
-  "NPM_PUBLISHING_GUIDE.md",
-  "OPEN_SOURCE_CHECKLIST.md",
   "README.md",
-  "RELEASING.md",
-  "SECURITY.md",
-  "SUPPORT.md",
-  ".github/dependabot.yml",
-  ".github/ISSUE_TEMPLATE/bug_report.yml",
-  ".github/ISSUE_TEMPLATE/config.yml",
-  ".github/ISSUE_TEMPLATE/feature_request.yml",
-  ".github/ISSUE_TEMPLATE/question.yml",
-  ".github/pull_request_template.md",
-  ".github/workflows/ci.yml",
+  "THIRD_PARTY_NOTICES.md",
+];
+const expectedPackageFiles = [
+  "bin",
+  "src",
+  "examples",
+  ...requiredFiles,
 ];
 const issues = [];
 
@@ -58,22 +50,14 @@ if (packageJson.publishConfig?.registry !== "https://registry.npmjs.org/") {
 if (!/html/i.test(packageJson.description)) {
   issues.push("package.json description should describe the default HTML output.");
 }
-for (const document of [
-  "CHANGELOG.md",
-  "CODE_OF_CONDUCT.md",
-  "CONTRIBUTING.md",
-  "DEPENDENCY_REVIEW.md",
-  "LICENSE",
-  "NPM_PUBLISHING_GUIDE.md",
-  "OPEN_SOURCE_CHECKLIST.md",
-  "README.md",
-  "RELEASING.md",
-  "SECURITY.md",
-  "SUPPORT.md",
-  "THIRD_PARTY_NOTICES.md",
-]) {
-  if (!packageJson.files?.includes(document)) {
-    issues.push(`package.json files allowlist omits ${document}.`);
+for (const file of expectedPackageFiles) {
+  if (!packageJson.files?.includes(file)) {
+    issues.push(`package.json files allowlist omits ${file}.`);
+  }
+}
+for (const file of packageJson.files || []) {
+  if (!expectedPackageFiles.includes(file)) {
+    issues.push(`package.json files allowlist contains unexpected entry: ${file}.`);
   }
 }
 
@@ -100,11 +84,11 @@ for (const file of forbiddenTracked) {
 
 if (issues.length > 0) {
   process.stderr.write(
-    `Open-source readiness check found ${issues.length} blocker(s):\n${issues
+    `Local release checks found ${issues.length} blocker(s):\n${issues
       .map((issue) => `- ${issue}`)
       .join("\n")}\n`,
   );
   process.exitCode = 1;
 } else {
-  process.stdout.write("Open-source repository checks passed.\n");
+  process.stdout.write("Local release checks passed.\n");
 }

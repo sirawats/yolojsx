@@ -11,14 +11,6 @@
     "src",
     "examples",
     "README.md",
-    "RELEASING.md",
-    "NPM_PUBLISHING_GUIDE.md",
-    "OPEN_SOURCE_CHECKLIST.md",
-    "CONTRIBUTING.md",
-    "CODE_OF_CONDUCT.md",
-    "SECURITY.md",
-    "SUPPORT.md",
-    "DEPENDENCY_REVIEW.md",
     "CHANGELOG.md",
     "THIRD_PARTY_NOTICES.md",
     "LICENSE"
@@ -69,5 +61,10 @@
     "semver": "^7.8.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.1.5"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "husky": "^9.1.7"
   }
 }
