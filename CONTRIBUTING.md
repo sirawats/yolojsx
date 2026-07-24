@@ -67,6 +67,16 @@ directory output.
   constants.
 - Match surrounding code; no formatter or linter is currently configured.
 
+## Commits and branches
+
+Use Conventional Commit messages such as `feat: add a theme` or
+`fix(cli): preserve the output marker`. Name branches `type/lowercase-description`;
+accepted types are `build`, `chore`, `ci`, `docs`, `feat`, `feature`, `fix`,
+`hotfix`, `perf`, `refactor`, `release`, `revert`, `style`, and `test`.
+
+`npm install` installs Git hooks that check commit messages and branch names
+locally. Git hooks are feedback, not a security boundary, and can be bypassed.
+
 ## Tests
 
 Tests use `node:test` and `node:assert/strict`.

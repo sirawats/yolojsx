@@ -23,8 +23,10 @@
     "check:licenses": "node scripts/check-licenses.js",
     "pack:check": "node scripts/pack-check.js",
     "readiness": "node scripts/check-readiness.js",
+    "lint:branch": "node scripts/check-branch-name.js",
     "verify:package": "node scripts/verify-package.js",
     "verify": "node scripts/verify.js",
+    "prepare": "node .husky/install.mjs",
     "prepublishOnly": "npm run verify && npm run readiness"
   },
   "keywords": [
@@ -63,8 +65,8 @@
     "vite": "^8.1.5"
   },
   "devDependencies": {
-    "@commitlint/cli": "^21.2.1",
-    "@commitlint/config-conventional": "^21.2.0",
+    "@commitlint/cli": "^20.5.3",
+    "@commitlint/config-conventional": "^20.5.3",
     "husky": "^9.1.7"
   }
 }
