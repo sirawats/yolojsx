@@ -1,14 +1,50 @@
+import { StyleProvider } from "@ant-design/cssinjs";
 import { useState } from "react";
-import { Avatar, Badge, Button, Card, Col, Row, Segmented, Space, Tag, Typography } from "antd";
+import { createPortal } from "react-dom";
+import {
+  Avatar,
+  Badge,
+  Button,
+  Card,
+  Col,
+  ConfigProvider,
+  Row,
+  Segmented,
+  Space,
+  Tag,
+  Typography,
+  theme as antdTheme,
+} from "antd";
+import { THEMES, renderThemeCss } from "../src/themes.js";
 
-const THEMES = [
-  { name: "Default", id: "default", desc: "Clean, neutral baseline with Ant Design defaults." },
-  { name: "GitHub", id: "github-light", desc: "Sleek developer aesthetics modeled after GitHub." },
-  { name: "Material", id: "material-light", desc: "Vibrant surfaces & bold typography." },
-  { name: "Catppuccin", id: "catppuccin-latte", desc: "Soothing pastel palette for modern UI." },
-  { name: "One Dark", id: "one-dark", desc: "Popular dark mode color scheme for code & dashboards." },
-  { name: "Everforest", id: "everforest-light", desc: "Warm, natural organic tones." },
-];
+const EXAMPLES = Object.entries(
+  import.meta.glob("../examples/*.jsx", { eager: true, import: "default" }),
+).map(([file, component]) => {
+  const name = file.split("/").pop();
+  return {
+    id: name,
+    label: name.slice(0, -4),
+    component,
+  };
+}).sort((left, right) => left.label.localeCompare(right.label));
+
+const THEME_FAMILIES = THEMES.reduce((families, preset) => {
+  const family = families.find(({ id }) =>
+    preset.id === id || preset.id.startsWith(`${id}-`)
+  );
+  if (family) {
+    family.presets.push(preset);
+    return families;
+  }
+  const id = preset.aliases.find((alias) => preset.id.startsWith(`${alias}-`)) ?? preset.id;
+  families.push({
+    id,
+    name: preset.name.split(" ").slice(0, id.split("-").length).join(" "),
+    presets: [preset],
+  });
+  return families;
+}, []);
+const FAMILIES_PER_PAGE = 4;
 
 const FEATURES = [
   {
@@ -61,12 +97,51 @@ export default function App() {
 
 export default function Website() {
   const [copied, setCopied] = useState(false);
-  const [activeTheme, setActiveTheme] = useState("default");
+  const [activeExampleId, setActiveExampleId] = useState(EXAMPLES[0].id);
+  const [activeThemeId, setActiveThemeId] = useState(THEMES[0].id);
+  const [familyPageIndex, setFamilyPageIndex] = useState(0);
+  const [previewMode, setPreviewMode] = useState("desktop");
+  const [previewDocument, setPreviewDocument] = useState();
 
   const copyCommand = () => {
     navigator.clipboard?.writeText("npx yolojsx Home.jsx");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const activeExample = EXAMPLES.find(({ id }) => id === activeExampleId) ?? EXAMPLES[0];
+  const activeTheme = THEMES.find(({ id }) => id === activeThemeId) ?? THEMES[0];
+  const activeFamily = THEME_FAMILIES.find(({ presets }) =>
+    presets.some(({ id }) => id === activeTheme.id)
+  ) ?? THEME_FAMILIES[0];
+  const familyPageCount = Math.ceil(THEME_FAMILIES.length / FAMILIES_PER_PAGE);
+  const visibleFamilies = THEME_FAMILIES.slice(
+    familyPageIndex * FAMILIES_PER_PAGE,
+    (familyPageIndex + 1) * FAMILIES_PER_PAGE,
+  );
+  const ActiveExample = activeExample.component;
+  const previewTheme = {
+    ...activeTheme.antDesign,
+    algorithm: activeTheme.appearance === "dark"
+      ? antdTheme.darkAlgorithm
+      : antdTheme.defaultAlgorithm,
+  };
+  const changeFamilyPage = (offset) => {
+    const nextPage = (familyPageIndex + offset + familyPageCount) % familyPageCount;
+    setFamilyPageIndex(nextPage);
+    setActiveThemeId(THEME_FAMILIES[nextPage * FAMILIES_PER_PAGE].presets[0].id);
+  };
+  const loadPreview = (event) => {
+    const frameDocument = event.currentTarget.contentDocument;
+    const base = frameDocument.createElement("base");
+    base.href = document.baseURI;
+    const styles = [...document.head.querySelectorAll(
+      'link[rel="stylesheet"], style:not([data-rc-order])',
+    )].map((node) => node.cloneNode(true));
+    frameDocument.head.replaceChildren(base, ...styles);
+    frameDocument.body.style.margin = "0";
+    frameDocument.body.style.overflowX = "hidden";
+    setPreviewDocument(frameDocument);
   };
 
   return (
@@ -81,7 +156,7 @@ export default function Website() {
           </div>
           <Space size="medium">
             <a href="#features" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Features</a>
-            <a href="#themes" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Themes</a>
+            <a href="#showcase" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Showcase</a>
             <a href="#quickstart" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Quickstart</a>
             <Button
               type="primary"
@@ -116,8 +191,8 @@ export default function Website() {
           </div>
 
           <Space size="large" wrap>
-            <Button type="primary" size="large" href="#quickstart">
-              Get Started
+            <Button type="primary" size="large" href="#showcase">
+              Explore Showcase
             </Button>
             <Button size="large" href="https://github.com/sirawats/yolojsx" target="_blank" rel="noopener noreferrer">
               View on GitHub
@@ -151,36 +226,146 @@ export default function Website() {
         </div>
       </section>
 
-      {/* Theme Catalog Preview */}
-      <section id="themes" className="px-6 py-20">
-        <div className="mx-auto max-w-6xl">
+      {/* Interactive Showcase */}
+      <section id="showcase" className="px-6 py-20">
+        <div className="mx-auto max-w-7xl">
           <div className="text-center mb-12">
-            <Tag color="purple" className="mb-3">Design Token Systems</Tag>
-            <Typography.Title level={2}>20+ Built-in Theme Presets</Typography.Title>
+            <Tag color="purple" className="mb-3">Live Showcase</Tag>
+            <Typography.Title level={2}>Examples, in every theme</Typography.Title>
             <Typography.Text type="secondary" className="text-base">
-              Themes seamlessly configure Tailwind CSS variables and matching Ant Design tokens.
+              Preview every packaged example with the complete theme catalog.
             </Typography.Text>
           </div>
 
-          <Row gutter={[20, 20]}>
-            {THEMES.map((theme) => (
-              <Col xs={24} sm={12} md={8} key={theme.id}>
-                <Card
-                  className={`h-full cursor-pointer transition-all ${activeTheme === theme.id ? "border-primary shadow-card" : "border-border"}`}
-                  onClick={() => setActiveTheme(theme.id)}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <Typography.Title level={5} className="m-0">{theme.name}</Typography.Title>
-                    <Tag color="geekblue">{theme.id}</Tag>
+          <Card className="border-border shadow-card">
+            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)]">
+              <nav aria-label="Examples" className="border-b border-border pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-4">
+                <div className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Examples ({EXAMPLES.length})
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-1">
+                  {EXAMPLES.map(({ id, label }) => {
+                    const isActive = id === activeExample.id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        aria-pressed={isActive}
+                        onClick={() => setActiveExampleId(id)}
+                        className={`rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                          isActive
+                            ? "bg-primary font-semibold text-primary-foreground"
+                            : "bg-code text-foreground hover:bg-border"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </nav>
+
+              <div className="min-w-0">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <strong>{activeExample.label}</strong>
+                  <div className="flex items-center gap-2">
+                    <Segmented
+                      size="small"
+                      options={["Desktop", "Mobile"]}
+                      value={previewMode === "desktop" ? "Desktop" : "Mobile"}
+                      onChange={(value) => setPreviewMode(value.toLowerCase())}
+                    />
+                    <Tag color="geekblue">{activeTheme.id}</Tag>
                   </div>
-                  <Typography.Text type="secondary" className="text-xs block mb-4">{theme.desc}</Typography.Text>
-                  <code className="text-xs bg-code px-2 py-1 rounded text-primary block truncate">
-                    yolojsx App.jsx --theme {theme.id}
-                  </code>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                </div>
+                <div className="flex justify-center">
+                  <iframe
+                    title={`${activeExample.label} ${previewMode} preview`}
+                    srcDoc="<!doctype html><html><head></head><body></body></html>"
+                    onLoad={loadPreview}
+                    className="block w-full rounded-xl border border-border bg-background"
+                    style={{
+                      aspectRatio: previewMode === "desktop" ? "16 / 9" : "6 / 13",
+                      maxWidth: previewMode === "mobile" ? "390px" : "none",
+                    }}
+                  />
+                </div>
+                {previewDocument && createPortal(
+                  <>
+                    <style>{renderThemeCss(activeTheme)}</style>
+                    <StyleProvider container={previewDocument.head} layer>
+                      <ConfigProvider theme={previewTheme}>
+                        <div
+                          style={{
+                            width: "calc(100% / 0.7)",
+                            transform: "scale(0.7)",
+                            transformOrigin: "top left",
+                          }}
+                        >
+                          <ActiveExample />
+                        </div>
+                      </ConfigProvider>
+                    </StyleProvider>
+                  </>,
+                  previewDocument.body,
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-4 border-t border-border pt-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+              <div className="flex flex-wrap items-center gap-2">
+                <Button size="small" onClick={() => changeFamilyPage(-1)} aria-label="Previous theme families">
+                  ←
+                </Button>
+                {visibleFamilies.map((family) => {
+                  const isActive = family.id === activeFamily.id;
+                  return (
+                    <button
+                      key={family.id}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setActiveThemeId(family.presets[0].id)}
+                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                        isActive
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-code text-foreground hover:bg-border"
+                      }`}
+                    >
+                      {family.name}
+                    </button>
+                  );
+                })}
+                <Button size="small" onClick={() => changeFamilyPage(1)} aria-label="Next theme families">
+                  →
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {familyPageIndex + 1}/{familyPageCount}
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-semibold text-muted-foreground">Variant</span>
+                {activeFamily.presets.map((preset) => {
+                  const isActive = preset.id === activeTheme.id;
+                  return (
+                    <button
+                      key={preset.id}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setActiveThemeId(preset.id)}
+                      className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+                        isActive
+                          ? "bg-foreground font-bold text-background"
+                          : "bg-code text-muted-foreground hover:bg-border hover:text-foreground"
+                      }`}
+                    >
+                      {preset.name.slice(activeFamily.name.length).trim() || preset.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </Card>
         </div>
       </section>
 

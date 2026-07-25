@@ -21,7 +21,7 @@ import {
 import { resolveFoundationStylesheet } from "./theme-css.js";
 import { renderThemeCss } from "./themes.js";
 
-async function createWorkspace(entry, theme, customCss) {
+async function createWorkspace(entry, sourceDirectory, theme, customCss) {
   const temporaryWorkspace = await mkdtemp(
     path.join(os.tmpdir(), "yolojsx-work-"),
   );
@@ -35,7 +35,7 @@ async function createWorkspace(entry, theme, customCss) {
       path.join(workspace, "styles.css"),
       createTailwindStyles(
         workspace,
-        path.dirname(entry),
+        sourceDirectory,
         resolvePackageImport("tailwindcss/index.css"),
         resolveFoundationStylesheet(),
         themeCssPath,
@@ -58,13 +58,20 @@ function asBuildError(error) {
 }
 
 export async function withTemporaryApplicationBuild(
-  { entry, base, singleFile = false, theme, customCss },
+  {
+    entry,
+    sourceDirectory = path.dirname(entry),
+    base,
+    singleFile = false,
+    theme,
+    customCss,
+  },
   consume,
 ) {
   let workspace;
 
   try {
-    workspace = await createWorkspace(entry, theme, customCss);
+    workspace = await createWorkspace(entry, sourceDirectory, theme, customCss);
     const workspaceOutput = path.join(workspace, "dist");
 
     await build({
@@ -110,13 +117,20 @@ export async function withTemporaryApplicationBuild(
   }
 }
 
-export async function buildApplication({ entry, output, base, theme, customCss }) {
+export async function buildApplication({
+  entry,
+  sourceDirectory,
+  output,
+  base,
+  theme,
+  customCss,
+}) {
   let stage;
 
   try {
     stage = await createOutputStage(output);
     await withTemporaryApplicationBuild(
-      { entry, base, theme, customCss },
+      { entry, sourceDirectory, base, theme, customCss },
       async (workspaceOutput) => {
         await cp(workspaceOutput, stage, { recursive: true });
         await writeOutputMarker(stage);

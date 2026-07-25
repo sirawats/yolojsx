@@ -39,13 +39,13 @@ test("preserves relative imports, assets, local packages, base, and config isola
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
-    "Home.jsx": `import Child from "./components/Child.jsx";
-import logo from "./logo.svg";
+    "pages/Home.jsx": `import Child from "../components/Child.jsx";
+import logo from "../logo.svg";
 import message from "local-message";
 export default function Home() {
   return <><img src={logo} /><Child />{message}</>;
 }`,
-    "components/Child.jsx": `export default function Child() { return <div className="font-bold">Relative child</div>; }`,
+    "components/Child.jsx": `export default function Child() { return <div className="font-bold tracking-[0.17em]">Relative child</div>; }`,
     "logo.svg": `<svg xmlns="http://www.w3.org/2000/svg"><text>fixture-logo</text></svg>`,
     "node_modules/local-message/package.json": `{"name":"local-message","version":"1.0.0","type":"module","exports":"./index.js"}`,
     "node_modules/local-message/index.js": `export default "Local dependency";`,
@@ -53,7 +53,7 @@ export default function Home() {
   });
 
   const result = await invoke(
-    ["Home.jsx", "--out-dir", "site", "--base", "/application/"],
+    ["pages/Home.jsx", "--out-dir", "site", "--base", "/application/"],
     { cwd: fixture },
   );
   assert.equal(result.exitCode, 0, result.stderr);
@@ -64,6 +64,7 @@ export default function Home() {
   const javascript = await readAsset(output, ".js");
   assert.match(html, /\/application\/assets\/index-/);
   assert.match(css, /\.font-bold\{/);
+  assert.ok(css.includes(".tracking-\\[0\\.17em\\]"));
   assert.match(javascript, /Relative child/);
   assert.match(javascript, /Local dependency/);
   assert.match(javascript, /data:image\/svg\+xml;base64/);
