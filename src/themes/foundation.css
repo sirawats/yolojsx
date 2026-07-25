@@ -16,12 +16,16 @@
   --color-selection-foreground: var(--selection-foreground);
   --color-code: var(--code);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-success-background: var(--success-background);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-warning-background: var(--warning-background);
   --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
   --color-danger-background: var(--danger-background);
   --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-info-background: var(--info-background);
   --font-sans: var(--font-body);
   --font-mono: var(--font-code);

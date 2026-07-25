@@ -16,6 +16,7 @@ import {
   theme as antdTheme,
 } from "antd";
 import { THEMES, renderThemeCss } from "../src/themes.js";
+import logo from "../assets/yolo_chihuahua_sticker.png";
 
 const EXAMPLES = Object.entries(
   import.meta.glob("../examples/*.jsx", { eager: true, import: "default" }),
@@ -141,6 +142,22 @@ export default function Website() {
     frameDocument.head.replaceChildren(base, ...styles);
     frameDocument.body.style.margin = "0";
     frameDocument.body.style.overflowX = "hidden";
+    frameDocument.addEventListener("click", (e) => {
+      const anchor = e.target.closest("a");
+      if (!anchor) return;
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+      e.preventDefault();
+      if (href.startsWith("#")) {
+        const targetId = href.slice(1);
+        if (targetId) {
+          const el = frameDocument.getElementById(targetId);
+          el?.scrollIntoView({ behavior: "smooth" });
+        }
+      } else if (anchor.target === "_blank" || href.startsWith("http://") || href.startsWith("https://")) {
+        window.open(href, "_blank", "noopener,noreferrer");
+      }
+    });
     setPreviewDocument(frameDocument);
   };
 
@@ -150,7 +167,7 @@ export default function Website() {
       <nav className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3 font-bold text-xl">
-            <Avatar shape="square" style={{ backgroundColor: "#1677ff" }}>Y</Avatar>
+            <Avatar src={logo} shape="square" size="large" className="bg-transparent" />
             <span>yolojsx</span>
             <Tag color="blue">v0.1.2</Tag>
           </div>
@@ -174,7 +191,8 @@ export default function Website() {
       <section className="relative px-6 pt-20 pb-24 text-center overflow-hidden">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-primary opacity-10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl">
-          <Badge count="Open Source CLI Tool" style={{ backgroundColor: "#52c41a" }} className="mb-6" />
+          <img src={logo} alt="yolojsx logo" className="mx-auto mb-2 h-36 w-36 object-contain drop-shadow-md" />
+          <Badge count="Open Source CLI Tool" style={{ backgroundColor: "#57b926ff" }} className="mb-6" />
           <Typography.Title className="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
             Build React JSX into portable HTML apps.
           </Typography.Title>
@@ -420,8 +438,9 @@ export default function Website() {
       {/* Footer */}
       <footer className="border-t border-border px-6 py-10 text-center text-muted-foreground text-sm">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
-            © {new Date().getFullYear()} <strong>yolojsx</strong>. Released under the MIT License.
+          <div className="flex items-center gap-2">
+            <img src={logo} alt="yolojsx logo" className="h-6 w-6 object-contain" />
+            <span>© {new Date().getFullYear()} <strong>yolojsx</strong>. Released under the MIT License.</span>
           </div>
           <Space size="large">
             <a href="https://github.com/sirawats/yolojsx" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">

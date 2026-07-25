@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/yolo_chihuahua_sticker.png" alt="yolojsx logo" width="160" />
+</p>
+
 # yolojsx
 
 Build one JSX component into a portable compressed HTML application—without setting up a frontend project first.

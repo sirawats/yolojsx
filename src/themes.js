@@ -56,19 +56,23 @@ export const THEME_CSS_PROPERTIES = Object.freeze({
   }),
   status: Object.freeze({
     success: Object.freeze({
-      foreground: "--success",
+      seed: "--success",
+      foreground: "--success-foreground",
       background: "--success-background",
     }),
     warning: Object.freeze({
-      foreground: "--warning",
+      seed: "--warning",
+      foreground: "--warning-foreground",
       background: "--warning-background",
     }),
     danger: Object.freeze({
-      foreground: "--danger",
+      seed: "--danger",
+      foreground: "--danger-foreground",
       background: "--danger-background",
     }),
     info: Object.freeze({
-      foreground: "--info",
+      seed: "--info",
+      foreground: "--info-foreground",
       background: "--info-background",
     }),
   }),
@@ -567,13 +571,17 @@ export function renderThemeCss(theme) {
   --selection: ${colors.selection};
   --selection-foreground: ${colors.selectionText};
   --code: ${colors.codeBackground};
-  --success: ${status.success.foreground};
+  --success: ${status.success.seed};
+  --success-foreground: ${status.success.foreground};
   --success-background: ${status.success.background};
-  --warning: ${status.warning.foreground};
+  --warning: ${status.warning.seed};
+  --warning-foreground: ${status.warning.foreground};
   --warning-background: ${status.warning.background};
-  --danger: ${status.danger.foreground};
+  --danger: ${status.danger.seed};
+  --danger-foreground: ${status.danger.foreground};
   --danger-background: ${status.danger.background};
-  --info: ${status.info.foreground};
+  --info: ${status.info.seed};
+  --info-foreground: ${status.info.foreground};
   --info-background: ${status.info.background};
   --font-body: ${typography.sans};
   --font-code: ${typography.mono};
