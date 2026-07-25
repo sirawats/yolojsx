@@ -34,11 +34,13 @@ export function createTailwindStyles(
   workspace,
   sourceDirectory,
   tailwindStylesheet,
+  foundationStylesheet,
   themeStylesheet,
   customStylesheet,
 ) {
   const source = toCssPath(path.relative(workspace, sourceDirectory) || ".");
   const stylesheet = toCssPath(tailwindStylesheet);
+  const foundationImport = toCssPath(foundationStylesheet);
   const themeImport = toCssPath(themeStylesheet);
   const customImport = customStylesheet
     ? `@import "${toCssPath(customStylesheet)}";\n`
@@ -46,6 +48,7 @@ export function createTailwindStyles(
   return `/* Stable package-owned cascade for Tailwind, Ant Design, and user CSS. */
 @layer theme, base, antd, components, utilities;
 @import "${stylesheet}" source(none);
+@import "${foundationImport}";
 @import "${themeImport}";
 ${customImport}@source "${source}";
 `;

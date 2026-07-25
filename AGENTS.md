@@ -24,10 +24,3 @@ Use two-space indentation, double quotes, semicolons, trailing commas in multili
 
 Tests use Node's built-in `node:test` runner and `node:assert/strict`. Name files `*.test.js` and write behavior-focused names. Add unit tests for pure logic and integration tests for CLI builds, diagnostics, filesystem safety, or generated assets. Clean fixtures with `t.after(...)`. Run `npm run verify` before submitting; no numeric coverage threshold is enforced.
 
-## Commit & Pull Request Guidelines
-
-Git history is not available in this checkout, so no repository-specific commit convention can be inferred. Use short, imperative subjects such as `Add base-path validation`, and keep unrelated changes separate. Pull requests should explain user-visible behavior, list verification commands, link relevant issues or OpenSpec changes, and update `README.md` when CLI behavior changes. Include terminal output for CLI changes; screenshots are only useful for generated UI regressions.
-
-## Safety & Release Notes
-
-Preserve output safeguards and the `.yolojsx-output.json` ownership marker. Never weaken destructive-path checks without dedicated tests. Full isolated dependency installation is a release check, not part of the edit-test loop; follow `RELEASING.md` before publishing.

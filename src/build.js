@@ -18,23 +18,27 @@ import {
   createMainModule,
   createTailwindStyles,
 } from "./templates.js";
-import { resolveThemeStylesheet } from "./theme-css.js";
+import { resolveFoundationStylesheet } from "./theme-css.js";
+import { renderThemeCss } from "./themes.js";
 
 async function createWorkspace(entry, theme, customCss) {
   const temporaryWorkspace = await mkdtemp(
     path.join(os.tmpdir(), "yolojsx-work-"),
   );
   const workspace = await realpath(temporaryWorkspace);
+  const themeCssPath = path.join(workspace, "theme.css");
   await Promise.all([
     writeFile(path.join(workspace, "index.html"), createHtml(), "utf8"),
     writeFile(path.join(workspace, "main.jsx"), createMainModule(), "utf8"),
+    writeFile(themeCssPath, renderThemeCss(theme), "utf8"),
     writeFile(
       path.join(workspace, "styles.css"),
       createTailwindStyles(
         workspace,
         path.dirname(entry),
         resolvePackageImport("tailwindcss/index.css"),
-        resolveThemeStylesheet(theme),
+        resolveFoundationStylesheet(),
+        themeCssPath,
         customCss,
       ),
       "utf8",

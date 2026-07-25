@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { createThemeRuntime, resolveThemeStylesheet } from "../../src/theme-css.js";
+import { createThemeRuntime, resolveFoundationStylesheet } from "../../src/theme-css.js";
 import {
   ANT_DESIGN_COMPONENT_NAMES,
   FIXED_THEMES,
   THEME_CSS_PROPERTIES,
   THEMES,
   renderThemeCatalog,
+  renderThemeCss,
   resolveTheme,
   validateThemeCatalog,
 } from "../../src/themes.js";
@@ -23,9 +24,8 @@ test("validates the complete immutable theme catalog", async () => {
   assert.ok(THEMES.every(Object.isFrozen));
   assert.equal(resolveTheme("onedark").id, "one-dark");
   for (const theme of THEMES) {
-    const stylesheet = await readFile(resolveThemeStylesheet(theme), "utf8");
+    const stylesheet = renderThemeCss(theme);
     assert.match(stylesheet, new RegExp(`Original yolojsx theme: ${theme.id}`));
-    assert.match(stylesheet, /@import "\.\/foundation\.css"/);
     for (const [key, property] of Object.entries(THEME_CSS_PROPERTIES.colors)) {
       const value = theme.semantic.colors[key];
       assert.match(
@@ -70,7 +70,7 @@ test("family aliases always resolve to fixed light presets", async () => {
   };
   for (const [alias, canonical] of Object.entries(aliases)) {
     const theme = resolveTheme(alias);
-    const css = await readFile(resolveThemeStylesheet(theme), "utf8");
+    const css = renderThemeCss(theme);
     assert.equal(theme.id, canonical);
     assert.equal(theme.appearance, "light");
     assert.equal(createThemeRuntime(theme).config.algorithm, "light");
@@ -80,9 +80,9 @@ test("family aliases always resolve to fixed light presets", async () => {
 });
 
 test("stored presets include typography, density, and original semantic values", async () => {
-  const material = await readFile(resolveThemeStylesheet(resolveTheme("material-light")), "utf8");
-  const github = await readFile(resolveThemeStylesheet(resolveTheme("github-light")), "utf8");
-  const foundation = await readFile(resolveThemeStylesheet(resolveTheme("default")).replace("default.css", "foundation.css"), "utf8");
+  const material = renderThemeCss(resolveTheme("material-light"));
+  const github = renderThemeCss(resolveTheme("github-light"));
+  const foundation = await readFile(resolveFoundationStylesheet(), "utf8");
   assert.match(material, /Roboto/);
   assert.match(material, /--control-height: 40px/);
   assert.match(github, /BlinkMacSystemFont/);
