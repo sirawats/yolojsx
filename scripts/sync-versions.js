@@ -2,6 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
+import { format } from "prettier";
 
 const repository = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -52,7 +53,11 @@ export async function syncVersions(root = repository, { check = false } = {}) {
       for (const fields of staleFields) {
         setValue(document, fields, version);
       }
-      await writeFile(file, `${JSON.stringify(document, null, 2)}\n`, "utf8");
+      await writeFile(
+        file,
+        await format(JSON.stringify(document), { parser: "json" }),
+        "utf8",
+      );
       changed.push(target.file);
     }
   }

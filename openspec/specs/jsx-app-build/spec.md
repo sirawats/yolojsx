@@ -32,7 +32,7 @@ The package SHALL expose a `yolojsx` executable that supports a JSX build form a
 
 ### Requirement: JSX component entry
 
-The CLI SHALL accept an existing `.jsx` module whose default export is a React component and SHALL render that component into a generated application root.
+The CLI SHALL accept an existing `.jsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `YOLOJSX` metadata export containing `title` and `icon` to the generated document.
 
 #### Scenario: Default-exported component
 
@@ -48,6 +48,16 @@ The CLI SHALL accept an existing `.jsx` module whose default export is a React c
 
 - **WHEN** the entry cannot be built as a default-exported React component
 - **THEN** the CLI exits unsuccessfully and reports the entry-module problem
+
+#### Scenario: Application title and icon
+
+- **WHEN** the entry exports `YOLOJSX` with a title and an imported local, remote, or data URL icon
+- **THEN** the generated application uses that title and icon in the browser tab
+
+#### Scenario: No application metadata
+
+- **WHEN** the entry does not export `YOLOJSX`
+- **THEN** the generated application keeps the `yolojsx` title and adds no favicon
 
 ### Requirement: Deployable static application
 

@@ -8,6 +8,12 @@ import {
   Timeline,
   Typography,
 } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "RFC 042 — Session Architecture v2",
+  icon,
+};
 
 const requirements = [
   {

@@ -12,6 +12,12 @@
 ```jsx
 import { Button, Card, Typography } from "antd";
 import { LuDownload } from "react-icons/lu";
+import icon from "./icon.png";
+
+export const YOLOJSX = {
+  title: "Release readiness",
+  icon,
+};
 
 export default function Report() {
   return (
@@ -29,6 +35,10 @@ export default function Report() {
   );
 }
 ```
+
+Use the optional `YOLOJSX` export when the artifact needs a meaningful
+browser-tab title or favicon. Keep it to `title` and `icon`; `icon` may be an
+imported local image or a remote/data URL.
 
 ## Stack responsibilities
 

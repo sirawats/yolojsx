@@ -9,13 +9,7 @@
   "homepage": "https://github.com/sirawats/yolojsx",
   "repository": "https://github.com/sirawats/yolojsx",
   "license": "MIT",
-  "keywords": [
-    "jsx",
-    "react",
-    "portable-html",
-    "reports",
-    "developer-tools"
-  ],
+  "keywords": ["jsx", "react", "portable-html", "reports", "developer-tools"],
   "skills": "./skills/",
   "interface": {
     "displayName": "yolojsx",
@@ -23,9 +17,7 @@
     "longDescription": "Create readable, interactive reports, guides, demos, comparisons, and small tools with the yolojsx supplied frontend stack.",
     "developerName": "sirawats",
     "category": "Developer Tools",
-    "capabilities": [
-      "Instructions"
-    ],
+    "capabilities": ["Instructions"],
     "websiteURL": "https://github.com/sirawats/yolojsx",
     "defaultPrompt": [
       "Create a portable interactive report from my content.",

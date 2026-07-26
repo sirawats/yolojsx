@@ -73,7 +73,7 @@ export function createEntryPlugin(entry, selectedTheme) {
 import { createRoot } from "react-dom/client";
 import { StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, theme as antdTheme } from "antd";
-import EntryComponent from ${JSON.stringify(entry)};
+import EntryComponent, * as EntryModule from ${JSON.stringify(entry)};
 
 const themeRuntime = ${JSON.stringify(runtime)};
 
@@ -108,6 +108,17 @@ if (!rootElement) {
 const componentType = typeof EntryComponent;
 if (componentType !== "function" && componentType !== "object") {
   throw new TypeError("The JSX entry must default-export a React component.");
+}
+
+const metadata = EntryModule.YOLOJSX;
+if (metadata?.title) {
+  document.title = metadata.title;
+}
+if (metadata?.icon) {
+  const icon = document.createElement("link");
+  icon.rel = "icon";
+  icon.href = metadata.icon;
+  document.head.append(icon);
 }
 
 createRoot(rootElement).render(React.createElement(YoloJsxThemeBoundary));

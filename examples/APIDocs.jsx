@@ -16,6 +16,12 @@ import {
   Tag,
   Typography,
 } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "Orbit API Reference",
+  icon,
+};
 
 const endpoints = {
   "List events": {

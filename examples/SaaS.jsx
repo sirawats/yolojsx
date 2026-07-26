@@ -10,6 +10,12 @@ import {
   Tag,
   Typography,
 } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "Nimbus — Calm Teamwork",
+  icon,
+};
 
 const plans = [
   {

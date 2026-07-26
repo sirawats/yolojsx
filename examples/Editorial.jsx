@@ -1,4 +1,10 @@
 import { Avatar, Card, Divider, Tag } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "Field Notes — Creative Infrastructure",
+  icon,
+};
 
 export default function Editorial() {
   return (

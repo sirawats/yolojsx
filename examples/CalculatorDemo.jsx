@@ -12,6 +12,12 @@ import {
   Tag,
   Typography,
 } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "SaaS Unit Economics Calculator",
+  icon,
+};
 
 const scenarios = {
   Conservative: 0.8,

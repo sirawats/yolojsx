@@ -109,6 +109,12 @@ package.
 
 ```jsx
 import { Button, Card } from "antd";
+import icon from "./icon.png";
+
+export const YOLOJSX = {
+  title: "Release report",
+  icon,
+};
 
 export default function Home() {
   return (
@@ -121,6 +127,10 @@ export default function Home() {
   );
 }
 ```
+
+The optional `YOLOJSX` export sets the browser-tab title and favicon. `icon` can
+be an imported local image or a remote/data URL. Without it, the title remains
+`yolojsx` and no favicon is added.
 
 Relative imports remain relative to the entry. Other bare packages resolve from the input project's `node_modules`. The CLI supplies and deduplicates React, React DOM, Ant Design, and Tailwind build support; `@ant-design/icons` is not part of the guaranteed stack.
 

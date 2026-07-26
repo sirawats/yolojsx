@@ -15,8 +15,14 @@ import {
   Typography,
   theme as antdTheme,
 } from "antd";
+import { version } from "../package.json";
 import { THEMES, renderThemeCss } from "../src/themes.js";
 import logo from "../assets/yolo_chihuahua_sticker.png";
+
+export const YOLOJSX = {
+  title: "yolojsx — Build React JSX into portable HTML apps",
+  icon: logo,
+};
 
 const RAW_EXAMPLES = import.meta.glob("../examples/*.jsx", {
   eager: true,
@@ -309,7 +315,7 @@ export default function Website() {
               className="bg-transparent"
             />
             <span>yolojsx</span>
-            <Tag color="blue">v0.1.2</Tag>
+            <Tag color="blue">v{version}</Tag>
           </div>
           <Space size="medium">
             <a

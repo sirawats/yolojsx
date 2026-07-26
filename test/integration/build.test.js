@@ -9,9 +9,12 @@ test("builds a standalone React, Tailwind, and Ant Design app", async (t) => {
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
     "Home.jsx": `import { Button } from "antd";
+import icon from "./icon.svg";
+export const YOLOJSX = { title: "Fixture application", icon };
 export default function Home() {
   return <main className="min-h-screen p-8"><Button type="primary">Standalone</Button></main>;
 }`,
+    "icon.svg": `<svg xmlns="http://www.w3.org/2000/svg"><text>fixture-icon</text></svg>`,
   });
 
   const result = await invoke(["Home.jsx", "--out-dir", "dist"], {
@@ -28,6 +31,8 @@ export default function Home() {
   assert.match(css, /\.min-h-screen\{/);
   assert.match(css, /\.p-8\{/);
   assert.match(javascript, /Standalone/);
+  assert.match(javascript, /Fixture application/);
+  assert.match(javascript, /data:image\/svg\+xml;base64/);
   assert.match(javascript, /anticon/);
   const markerName = ".yolojsx-output.json";
   assert.ok((await readdir(output)).includes(markerName));

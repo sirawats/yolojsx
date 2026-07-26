@@ -1,4 +1,10 @@
 import { Button, Card, Space, Typography } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "yolojsx — Build First, Configure Never",
+  icon,
+};
 
 export default function Home() {
   return (

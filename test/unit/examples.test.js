@@ -21,6 +21,8 @@ test("packaged examples rely on CLI-managed theme styling", async () => {
       path.join(examplesDirectory, filename),
       "utf8",
     );
+    assert.match(source, /export const YOLOJSX = \{/, filename);
+    assert.match(source, /import icon from "\.\/favicon\.svg";/, filename);
     assert.doesNotMatch(source, /import\s+[^;]*["'][^"']+\.css["']/, filename);
     assert.doesNotMatch(
       source,

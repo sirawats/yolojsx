@@ -11,6 +11,12 @@ import {
   Tag,
   Typography,
 } from "antd";
+import icon from "./favicon.svg";
+
+export const YOLOJSX = {
+  title: "Platform Operations Analytics",
+  icon,
+};
 
 const incidents = [
   {
