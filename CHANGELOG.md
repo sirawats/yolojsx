@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add a canonical yolojsx AI-agent skill and Git-installable adapters for Codex,
+  Claude Code, Antigravity/Gemini CLI, and OpenCode without adding plugin files
+  to the npm package.
+- Synchronize npm and plugin manifest versions through `npm version`, and reject
+  version drift during repository verification.
+
 ## 0.1.2 - 2026-07-23
 
 - Add a beginner-focused npm publishing guide with safe dry-run, account

@@ -26,6 +26,7 @@ Build one JSX component into a portable compressed HTML application—without se
 
 - [Requirements](#requirements)
 - [Install and Run](#install-and-run)
+- [AI Agent Skill](#ai-agent-skill)
 - [Component Contract](#component-contract)
 - [Output Modes](#output-modes)
 - [Themes](#themes)
@@ -57,6 +58,52 @@ npx yolojsx Home.jsx
 ```
 
 The default artifact contains a small loader and a base64-encoded gzip payload. A modern browser restores it with `DecompressionStream("gzip")`, including when opened through `file://`; no adjacent asset directory or server is required.
+
+## AI Agent Skill
+
+The repository includes a yolojsx authoring skill for AI agents. Install it
+directly from Git:
+
+### Codex
+
+```sh
+codex plugin marketplace add sirawats/yolojsx
+codex plugin add yolojsx@yolojsx
+```
+
+### Claude Code
+
+```text
+/plugin marketplace add sirawats/yolojsx
+/plugin install yolojsx@yolojsx
+```
+
+### Antigravity or Gemini CLI
+
+```sh
+agy plugin install https://github.com/sirawats/yolojsx
+# Gemini CLI:
+gemini extensions install https://github.com/sirawats/yolojsx
+```
+
+### OpenCode
+
+Clone the repository, then add its adapter to your project or global
+`opencode.json`:
+
+```sh
+git clone https://github.com/sirawats/yolojsx.git /path/to/yolojsx
+```
+
+```json
+{
+  "plugin": ["/absolute/path/to/yolojsx/.opencode/plugins/yolojsx.mjs"]
+}
+```
+
+All adapters load the canonical `skills/yolojsx` skill from the clone. Plugin
+files are distributed through Git and are not included in the yolojsx npm
+package.
 
 ## Component Contract
 

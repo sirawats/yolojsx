@@ -7,6 +7,7 @@ const repository = path.resolve(
   "..",
 );
 const commands = [
+  ["run", "version:check"],
   ["run", "format:check"],
   ["run", "lint"],
   ["test"],

@@ -1,0 +1,36 @@
+{
+  "name": "yolojsx",
+  "version": "0.1.3",
+  "description": "Build portable interactive HTML applications from compact JSX with yolojsx.",
+  "author": {
+    "name": "sirawats",
+    "url": "https://github.com/sirawats"
+  },
+  "homepage": "https://github.com/sirawats/yolojsx",
+  "repository": "https://github.com/sirawats/yolojsx",
+  "license": "MIT",
+  "keywords": [
+    "jsx",
+    "react",
+    "portable-html",
+    "reports",
+    "developer-tools"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "yolojsx",
+    "shortDescription": "Build portable HTML applications from JSX.",
+    "longDescription": "Create readable, interactive reports, guides, demos, comparisons, and small tools with the yolojsx supplied frontend stack.",
+    "developerName": "sirawats",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Instructions"
+    ],
+    "websiteURL": "https://github.com/sirawats/yolojsx",
+    "defaultPrompt": [
+      "Create a portable interactive report from my content.",
+      "Build a small browser tool with yolojsx.",
+      "Turn these choices into an interactive comparison."
+    ]
+  }
+}

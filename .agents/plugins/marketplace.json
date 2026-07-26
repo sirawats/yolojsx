@@ -1,0 +1,21 @@
+{
+  "name": "yolojsx",
+  "interface": {
+    "displayName": "yolojsx"
+  },
+  "plugins": [
+    {
+      "name": "yolojsx",
+      "source": {
+        "source": "url",
+        "url": "https://github.com/sirawats/yolojsx.git",
+        "ref": "master"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}
