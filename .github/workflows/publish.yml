@@ -1,13 +1,17 @@
-name: Publish dry run
+name: Publish npm package
 
 on:
-  workflow_dispatch:
+  release:
+    types:
+      - published
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
-  dry-run:
+  publish:
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
 
     steps:
@@ -19,6 +23,8 @@ jobs:
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
 
+      - name: Check release version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+
       - run: npm ci
-      - run: npm run verify
-      - run: npm publish --dry-run --access public
+      - run: npm publish --access public --tag latest --provenance
