@@ -28,20 +28,44 @@ Apply these in order:
    small developer tools as common patterns, not fixed templates.
 2. Read [references/authoring.md](references/authoring.md) before creating or
    revising JSX.
-3. Prefer one self-contained `.jsx` entry with a default-exported component.
+3. Read the closest complete example from the routing guide below. Read a second
+   only when the requested artifact combines two patterns.
+4. Prefer one self-contained `.jsx` entry with a default-exported component.
    Split local components only when repetition or complexity makes the entry
    harder to understand.
-4. Use static markup for static content. Add React state only for interaction
+5. Use static markup for static content. Add React state only for interaction
    that improves exploration, comparison, validation, or task completion.
-5. Let the selected yolojsx theme handle global styling. Use Ant Design for
+6. Let the selected yolojsx theme handle global styling. Use Ant Design for
    interactive components and Tailwind utilities for layout and focused
    adjustments.
-6. When the user wants a built artifact, needs an output-mode decision, or has a
+7. When the user wants a built artifact, needs an output-mode decision, or has a
    CLI/build failure, read [references/cli.md](references/cli.md), run the
    smallest relevant build, and fix actionable diagnostics.
-7. Check the rendered information structure and interactive states. At minimum,
+8. Check the rendered information structure and interactive states. At minimum,
    verify the JSX builds successfully; do not claim visual correctness from a
    source-only review.
+
+## Example routing
+
+Reuse the selected example's composition, interaction, accessibility, and
+supplied-stack patterns. Replace its subject matter and data; do not clone its
+branding or content.
+
+- API reference, request explorer, copyable or highlighted code:
+  [examples/APIDocs.jsx](examples/APIDocs.jsx)
+- Operational dashboard, metrics, filters, charts, or status tables:
+  [examples/Analytics.jsx](examples/Analytics.jsx)
+- Long-form article, report, or highly readable narrative:
+  [examples/Editorial.jsx](examples/Editorial.jsx)
+- Product landing page, feature presentation, or interactive pricing:
+  [examples/SaaS.jsx](examples/SaaS.jsx)
+- Form, calculator, validation, derived totals, or breakdown table:
+  [examples/TaxCalculator.jsx](examples/TaxCalculator.jsx)
+- RFC, technical specification, requirements matrix, or implementation plan:
+  [examples/Techspec.jsx](examples/Techspec.jsx)
+
+The copied examples are complete runnable references. Their shared
+[examples/favicon.svg](examples/favicon.svg) supports the metadata import.
 
 ## Guardrails
 

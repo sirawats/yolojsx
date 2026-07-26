@@ -66,8 +66,9 @@ practices.
 - `scripts/` contains development and release verification tools.
 - Tests use Node's built-in runner and are split between `test/unit/` and
   `test/integration/`; shared fixture helpers live in `test/helpers.js`.
-- `examples/` contains standalone JSX inputs. `website/index.jsx` is the project
-  website and imports the example and theme catalogs dynamically.
+- `examples/` contains the canonical standalone JSX inputs;
+  `skills/yolojsx/examples/` is their exact skill-side copy. `website/index.jsx`
+  is the project website and imports the example and theme catalogs dynamically.
 - Public requirements live in `openspec/specs/`; active change artifacts live in
   `openspec/changes/`; completed records under `openspec/changes/archive/` are
   historical and should not be edited.
@@ -81,7 +82,7 @@ practices.
 - `npm run dev` starts Vite with hot reload for `website/index.jsx`. Do not start
   this persistent server automatically; the user runs it when needed. To serve a
   custom entry, run `node scripts/dev.js <entry>`.
-- `node bin/yolojsx.js examples/Home.jsx` performs a manual CLI smoke test.
+- `node bin/yolojsx.js examples/TaxCalculator.jsx` performs a manual CLI smoke test.
   `--out-dir dist` exercises directory output.
 - `npm run test:unit` and `npm run test:integration` run focused test groups;
   `npm test` runs both serially.
@@ -133,9 +134,12 @@ Run it locally before handing work off.
 
 - The website derives examples with `import.meta.glob("../examples/*.jsx")` and
   themes from `THEMES`; do not duplicate either catalog manually.
+- After editing `examples/`, copy the whole catalog into the skill with
+  `cp -r examples/. skills/yolojsx/examples/`. Keep both directories identical;
+  remove any skill-side file whose canonical example was deleted.
 - Keep showcase controls keyboard accessible and responsive. Test website changes
   with a production-style CLI build in addition to formatting and linting.
-- Use `examples/Home.jsx` for the smallest smoke test and broader examples only
+- Use `examples/TaxCalculator.jsx` for the smallest smoke test and broader examples only
   when their behavior is relevant.
 
 ## Testing and Documentation

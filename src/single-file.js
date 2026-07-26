@@ -203,7 +203,11 @@ async function inlineJavaScriptAssets(source, scriptRelative, files) {
 
   const unsupported = [
     [/(?:^|[;{}])\s*import\s*(?:\(|["'{*])/m, "additional JavaScript imports"],
-    [/\bnew\s+(?:Shared)?Worker\s*\(/, "web workers"],
+    // Prism bundles a dormant worker helper using `<identifier>.filename`.
+    [
+      /\bnew\s+(?:Shared)?Worker\s*\(\s*(?![A-Za-z_$][\w$]*\.filename\b)/,
+      "web workers",
+    ],
     [/\bserviceWorker\s*\.\s*register\s*\(/, "service workers"],
     [/\.wasm(?:[?"'])/i, "runtime-loaded WASM"],
     [/\bfetch\s*\(\s*["'](?!https?:|data:|\/\/)/i, "runtime-relative fetches"],

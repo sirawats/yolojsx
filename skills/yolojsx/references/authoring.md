@@ -36,8 +36,17 @@ export default function Report() {
 ```
 
 Use the optional `YOLOJSX` export when the artifact needs a meaningful
-browser-tab title or favicon. Keep it to `title` and `icon`; `icon` may be an
-imported local image or a remote/data URL.
+browser-tab title, favicon, or PrismJS token theme. `icon` may be an imported
+local image or a remote/data URL. When rendering HTML from `Prism.highlight()`,
+select one supplied Prism theme by name:
+
+```jsx
+export const YOLOJSX = { prismTheme: "prism" };
+```
+
+`prism` selects PrismJS's default theme. Run `yolojsx prism-themes` to discover
+all names supplied by PrismJS and `prism-themes`. Unknown names use `prism` and
+produce a CLI warning.
 
 ## Stack responsibilities
 
@@ -56,6 +65,39 @@ imported local image or a remote/data URL.
 - **PrismJS:** syntax highlighting for code that benefits from language-aware
   tokens. Import only the language definitions used by the artifact. Keep plain
   `<pre><code>` for short or language-neutral snippets.
+
+## PrismJS highlighting
+
+Import PrismJS and each language definition the artifact renders. Use the same
+language name for the grammar lookup, `Prism.highlight()` call, and
+`language-${lang}` classes on both `<pre>` and `<code>`:
+
+```jsx
+import Prism from "prismjs";
+import "prismjs/components/prism-json";
+
+export const YOLOJSX = { prismTheme: "prism" };
+
+const lang = "json";
+const source = `{"status":"ready"}`;
+const highlighted = Prism.highlight(source, Prism.languages[lang], lang);
+
+export default function CodeSample() {
+  return (
+    <pre className={`language-${lang} overflow-x-auto`} tabIndex={0}>
+      <code
+        className={`language-${lang}`}
+        dangerouslySetInnerHTML={{ __html: highlighted }}
+      />
+    </pre>
+  );
+}
+```
+
+The language module must be imported before reading `Prism.languages[lang]`.
+For a dynamic language selector, import every offered grammar and handle a
+missing grammar before calling `Prism.highlight()`. Insert only HTML returned by
+Prism into `dangerouslySetInnerHTML`; do not append unescaped HTML.
 
 ## Theme usage
 

@@ -29,6 +29,25 @@ The CLI SHALL make the supported Ant Design package available to input modules w
 - **WHEN** the entry imports and renders a component from `antd`
 - **THEN** the build succeeds and the rendered application includes the component's required runtime styling
 
+### Requirement: Supplied React Icons and Prism packages
+
+The CLI SHALL supply supported `react-icons` collection imports, PrismJS runtime and language-module imports, and Prism theme stylesheets without requiring those packages to be installed beside the input file.
+
+#### Scenario: Entry uses supplied icons and highlighted code
+
+- **WHEN** an entry imports React Icons and PrismJS from the supplied stack
+- **THEN** the build resolves those imports and includes their rendered output
+
+#### Scenario: Entry selects a discovered Prism theme
+
+- **WHEN** an entry names a theme discovered from the supplied `prism-themes` package in `YOLOJSX.prismTheme`
+- **THEN** the build resolves and includes only that theme stylesheet
+
+#### Scenario: Entry selects an unknown Prism theme
+
+- **WHEN** an entry names a Prism theme that is not installed
+- **THEN** the build includes PrismJS's default stylesheet and reports the fallback as a warning
+
 ### Requirement: Supplied Ant Design theme integration
 
 The CLI SHALL supply one compatible Ant Design runtime graph and SHALL apply each selected preset through the generated `StyleProvider` and `ConfigProvider` boundary using official Ant Design algorithms, global tokens, CSS-variable configuration, and component tokens without requiring those packages to be installed beside the input file.

@@ -96,6 +96,9 @@ test("rejects CSS root escapes, workers, and non-local entries", async (t) => {
   await writeFixture(fixture, { "app.css": "body{color:red}" });
   await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
 
+  await writeFixture(fixture, { "app.js": `new Worker(workerUrl);` });
+  await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
+
   await writeFixture(fixture, {
     "index.html": `<!doctype html><html><head></head><body><script src="https://example.com/app.js"></script></body></html>`,
   });

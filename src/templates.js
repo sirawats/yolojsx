@@ -1,4 +1,5 @@
 import path from "node:path";
+import { DEFAULT_PRISM_THEME } from "./prism-themes.js";
 import { createThemeRuntime } from "./theme-css.js";
 
 export const VIRTUAL_ENTRY_ID = "virtual:yolojsx-entry";
@@ -6,6 +7,38 @@ export const RESOLVED_VIRTUAL_ENTRY_ID = `\0${VIRTUAL_ENTRY_ID}`;
 
 function toCssPath(value) {
   return value.replaceAll(path.sep, "/").replaceAll('"', '\\"');
+}
+
+function findPrismThemeValue(program) {
+  for (const statement of program.body) {
+    const declaration =
+      statement.type === "ExportNamedDeclaration"
+        ? statement.declaration
+        : undefined;
+    if (declaration?.type !== "VariableDeclaration") continue;
+    for (const item of declaration.declarations) {
+      if (
+        item.id?.type !== "Identifier" ||
+        item.id.name !== "YOLOJSX" ||
+        item.init?.type !== "ObjectExpression"
+      ) {
+        continue;
+      }
+      return item.init.properties.find(
+        (property) =>
+          property.type === "Property" &&
+          !property.computed &&
+          (property.key?.name === "prismTheme" ||
+            property.key?.value === "prismTheme"),
+      )?.value;
+    }
+  }
+}
+
+function injectPrismTheme(code, value, filename) {
+  const identifier = "__yolojsxPrismThemeCss";
+  return `import ${identifier} from ${JSON.stringify(`${filename}?inline`)};
+${code.slice(0, value.start)}${identifier}${code.slice(value.end)}`;
 }
 
 export function createHtml() {
@@ -54,8 +87,14 @@ ${customImport}@source "${source}";
 `;
 }
 
-export function createEntryPlugin(entry, selectedTheme) {
+export function createEntryPlugin(
+  entry,
+  selectedTheme,
+  prismThemes,
+  onWarning = () => {},
+) {
   const runtime = createThemeRuntime(selectedTheme);
+  const entryId = entry.replaceAll(path.sep, "/");
   return {
     name: "yolojsx-entry",
     resolveId(source) {
@@ -120,9 +159,31 @@ if (metadata?.icon) {
   icon.href = metadata.icon;
   document.head.append(icon);
 }
+if (typeof metadata?.prismTheme === "string" && metadata.prismTheme) {
+  const prismTheme = document.createElement("style");
+  prismTheme.dataset.yolojsxPrismTheme = "";
+  prismTheme.textContent = metadata.prismTheme;
+  document.head.append(prismTheme);
+}
 
 createRoot(rootElement).render(React.createElement(YoloJsxThemeBoundary));
 `;
+    },
+    transform(code, id) {
+      if (id.split("?")[0].replaceAll(path.sep, "/") !== entryId) return null;
+      const value = findPrismThemeValue(this.parse(code, { lang: "jsx" }));
+      if (!value) return null;
+      if (value.type !== "Literal" || typeof value.value !== "string") {
+        this.error("YOLOJSX.prismTheme must be a string literal.", value.start);
+      }
+      let filename = prismThemes.get(value.value);
+      if (!filename) {
+        onWarning(
+          `Unknown Prism theme "${value.value}"; using "${DEFAULT_PRISM_THEME}". Run \`yolojsx prism-themes\` to list available themes.`,
+        );
+        filename = prismThemes.get(DEFAULT_PRISM_THEME);
+      }
+      return { code: injectPrismTheme(code, value, filename), map: null };
     },
   };
 }

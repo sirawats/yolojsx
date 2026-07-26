@@ -12,6 +12,7 @@ import {
   createOutputStage,
   writeOutputMarker,
 } from "./output.js";
+import { loadPrismThemeCatalog } from "./prism-themes.js";
 import {
   createEntryPlugin,
   createHtml,
@@ -65,6 +66,7 @@ export async function withTemporaryApplicationBuild(
     singleFile = false,
     theme,
     customCss,
+    onWarning,
   },
   consume,
 ) {
@@ -73,6 +75,7 @@ export async function withTemporaryApplicationBuild(
   try {
     workspace = await createWorkspace(entry, sourceDirectory, theme, customCss);
     const workspaceOutput = path.join(workspace, "dist");
+    const prismThemes = await loadPrismThemeCatalog();
 
     await build({
       root: workspace,
@@ -82,7 +85,11 @@ export async function withTemporaryApplicationBuild(
       publicDir: false,
       appType: "spa",
       logLevel: "silent",
-      plugins: [createEntryPlugin(entry, theme), react(), tailwindcss()],
+      plugins: [
+        createEntryPlugin(entry, theme, prismThemes, onWarning),
+        react(),
+        tailwindcss(),
+      ],
       resolve: {
         alias: createCoreAliases(),
         dedupe: ["react", "react-dom"],
@@ -124,13 +131,14 @@ export async function buildApplication({
   base,
   theme,
   customCss,
+  onWarning,
 }) {
   let stage;
 
   try {
     stage = await createOutputStage(output);
     await withTemporaryApplicationBuild(
-      { entry, sourceDirectory, base, theme, customCss },
+      { entry, sourceDirectory, base, theme, customCss, onWarning },
       async (workspaceOutput) => {
         await cp(workspaceOutput, stage, { recursive: true });
         await writeOutputMarker(stage);
