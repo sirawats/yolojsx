@@ -6,11 +6,14 @@ import { fileURLToPath } from "node:url";
 import { readEmbeddedPayload } from "../../src/single-file.js";
 import { invoke, makeFixture, readAsset } from "../helpers.js";
 
-const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 const examples = [
   ["Home.jsx", "default", "Build first"],
   ["Techspec.jsx", "github", "Session architecture"],
-  ["APIDocs.jsx", "github-dark", "Orbit API", true],
+  ["APIDocs.jsx", "github-dark", "Open API Atlas", true],
   ["CalculatorDemo.jsx", "material", "unit economics"],
   ["SaaS.jsx", "catppuccin", "Nimbus"],
   ["Analytics.jsx", "one-dark", "Platform operations"],
@@ -21,14 +24,23 @@ test("builds every documented example in file and directory modes", async (t) =>
   const fixture = await makeFixture("yolojsx-examples-");
   t.after(() => rm(fixture, { recursive: true, force: true }));
 
-  for (const [filename, theme, expectedText, hasCodePanel = false] of examples) {
+  for (const [
+    filename,
+    theme,
+    expectedText,
+    hasCodePanel = false,
+  ] of examples) {
     const basename = path.basename(filename, ".jsx");
     const fileOutput = path.join(fixture, `${basename}.html`);
     const fileResult = await invoke(
       [path.join(repository, "examples", filename), "--theme", theme],
       { cwd: fixture },
     );
-    assert.equal(fileResult.exitCode, 0, `${filename} file mode: ${fileResult.stderr}`);
+    assert.equal(
+      fileResult.exitCode,
+      0,
+      `${filename} file mode: ${fileResult.stderr}`,
+    );
     const payload = readEmbeddedPayload(await readFile(fileOutput, "utf8"));
     assert.match(payload.script, new RegExp(expectedText), filename);
     assert.match(payload.script, /components/, filename);
@@ -44,7 +56,13 @@ test("builds every documented example in file and directory modes", async (t) =>
 
     const directoryOutput = path.join(fixture, `${basename}-dist`);
     const directoryResult = await invoke(
-      [path.join(repository, "examples", filename), "--theme", theme, "--out-dir", directoryOutput],
+      [
+        path.join(repository, "examples", filename),
+        "--theme",
+        theme,
+        "--out-dir",
+        directoryOutput,
+      ],
       { cwd: fixture },
     );
     assert.equal(

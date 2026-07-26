@@ -47,9 +47,14 @@ test("resolves pack inputs and single-file output names", async (t) => {
     path.join(fixture, "public/index.html"),
   );
 
-  const inputDirectory = await resolveAndValidateInputDirectory("dist", fixture);
+  const inputDirectory = await resolveAndValidateInputDirectory(
+    "dist",
+    fixture,
+  );
   await assert.rejects(
-    resolveAndValidateHtmlOutput("dist/packed.html", fixture, { inputDirectory }),
+    resolveAndValidateHtmlOutput("dist/packed.html", fixture, {
+      inputDirectory,
+    }),
     /inside its input directory/,
   );
   await assert.rejects(
@@ -70,8 +75,14 @@ test("rejects invalid entries and dangerous output paths", async (t) => {
     resolveAndValidateEntry("src/Home.tsx", fixture),
     /must be a .jsx file/,
   );
-  await assert.rejects(resolveAndValidateCss("src/Home.jsx", fixture), /must be a .css/);
-  await assert.rejects(resolveAndValidateCss("missing.css", fixture), /not a readable file/);
+  await assert.rejects(
+    resolveAndValidateCss("src/Home.jsx", fixture),
+    /must be a .css/,
+  );
+  await assert.rejects(
+    resolveAndValidateCss("missing.css", fixture),
+    /not a readable file/,
+  );
   const entry = await resolveAndValidateEntry("src/Home.jsx", fixture);
   await assert.rejects(
     resolveAndValidateOutput(".", fixture, entry),

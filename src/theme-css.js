@@ -6,8 +6,8 @@ const THEME_DIRECTORY = path.join(
   "themes",
 );
 
-export function resolveThemeStylesheet(theme) {
-  return path.join(THEME_DIRECTORY, `${theme.id}.css`);
+export function resolveFoundationStylesheet() {
+  return path.join(THEME_DIRECTORY, "foundation.css");
 }
 
 export function createThemeRuntime(theme) {

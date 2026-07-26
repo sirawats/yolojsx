@@ -3,7 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { run } from "./process.js";
 
-const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const roots = ["bin", "src", "test", "scripts"];
 
 async function collectJavaScript(directory, files = []) {
@@ -19,7 +22,9 @@ async function collectJavaScript(directory, files = []) {
 }
 
 const files = (
-  await Promise.all(roots.map((root) => collectJavaScript(path.join(repository, root))))
+  await Promise.all(
+    roots.map((root) => collectJavaScript(path.join(repository, root))),
+  )
 ).flat();
 
 for (const file of files.sort()) {

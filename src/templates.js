@@ -34,11 +34,13 @@ export function createTailwindStyles(
   workspace,
   sourceDirectory,
   tailwindStylesheet,
+  foundationStylesheet,
   themeStylesheet,
   customStylesheet,
 ) {
   const source = toCssPath(path.relative(workspace, sourceDirectory) || ".");
   const stylesheet = toCssPath(tailwindStylesheet);
+  const foundationImport = toCssPath(foundationStylesheet);
   const themeImport = toCssPath(themeStylesheet);
   const customImport = customStylesheet
     ? `@import "${toCssPath(customStylesheet)}";\n`
@@ -46,6 +48,7 @@ export function createTailwindStyles(
   return `/* Stable package-owned cascade for Tailwind, Ant Design, and user CSS. */
 @layer theme, base, antd, components, utilities;
 @import "${stylesheet}" source(none);
+@import "${foundationImport}";
 @import "${themeImport}";
 ${customImport}@source "${source}";
 `;
@@ -70,7 +73,7 @@ export function createEntryPlugin(entry, selectedTheme) {
 import { createRoot } from "react-dom/client";
 import { StyleProvider } from "@ant-design/cssinjs";
 import { ConfigProvider, theme as antdTheme } from "antd";
-import EntryComponent from ${JSON.stringify(entry)};
+import EntryComponent, * as EntryModule from ${JSON.stringify(entry)};
 
 const themeRuntime = ${JSON.stringify(runtime)};
 
@@ -105,6 +108,17 @@ if (!rootElement) {
 const componentType = typeof EntryComponent;
 if (componentType !== "function" && componentType !== "object") {
   throw new TypeError("The JSX entry must default-export a React component.");
+}
+
+const metadata = EntryModule.YOLOJSX;
+if (metadata?.title) {
+  document.title = metadata.title;
+}
+if (metadata?.icon) {
+  const icon = document.createElement("link");
+  icon.rel = "icon";
+  icon.href = metadata.icon;
+  document.head.append(icon);
 }
 
 createRoot(rootElement).render(React.createElement(YoloJsxThemeBoundary));

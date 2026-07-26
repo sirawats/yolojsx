@@ -4,7 +4,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { npmCommand, printResult, run } from "./process.js";
 
-const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const temporary = await mkdtemp(path.join(os.tmpdir(), "yolojsx-pack-check-"));
 
 try {

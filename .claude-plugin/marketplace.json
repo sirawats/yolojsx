@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "yolojsx",
+  "description": "Create portable interactive applications with yolojsx.",
+  "owner": {
+    "name": "sirawats",
+    "url": "https://github.com/sirawats"
+  },
+  "plugins": [
+    {
+      "name": "yolojsx",
+      "description": "Build readable reports, guides, demos, comparisons, and small browser tools from JSX.",
+      "source": "./",
+      "category": "development"
+    }
+  ]
+}

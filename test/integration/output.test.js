@@ -11,7 +11,9 @@ test("rebuilds managed output and protects unowned output", async (t) => {
     "Home.jsx": `export default () => <div className="p-4">First</div>;`,
   });
 
-  const first = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
+  const first = await invoke(["Home.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
   assert.equal(first.exitCode, 0, first.stderr);
   await writeFixture(path.join(fixture, "dist"), { "stale.txt": "stale" });
 
@@ -45,16 +47,22 @@ test("rebuilds managed output and protects unowned output", async (t) => {
   });
   assert.equal(confirmed.exitCode, 0, confirmed.stderr);
   assert.match(confirmed.stderr, /Warning: replacing unowned/);
-  assert.ok(!(await readdir(path.join(fixture, "unowned"))).includes("important.txt"));
+  assert.ok(
+    !(await readdir(path.join(fixture, "unowned"))).includes("important.txt"),
+  );
 
-  await writeFixture(fixture, { "unowned-force/important.txt": "replace again" });
+  await writeFixture(fixture, {
+    "unowned-force/important.txt": "replace again",
+  });
   const forced = await invoke(["Home.jsx", "-o", "unowned-force", "--force"], {
     cwd: fixture,
   });
   assert.equal(forced.exitCode, 0, forced.stderr);
   assert.match(forced.stderr, /Warning: replacing unowned/);
   assert.ok(
-    !(await readdir(path.join(fixture, "unowned-force"))).includes("important.txt"),
+    !(await readdir(path.join(fixture, "unowned-force"))).includes(
+      "important.txt",
+    ),
   );
 });
 
@@ -71,10 +79,9 @@ test("rejects dangerous paths even with force", async (t) => {
   assert.equal(cwdOutput.exitCode, 1);
   assert.match(cwdOutput.stderr, /current working directory/);
 
-  const sourceOutput = await invoke(
-    ["src/Home.jsx", "-o", "src", "--force"],
-    { cwd: fixture },
-  );
+  const sourceOutput = await invoke(["src/Home.jsx", "-o", "src", "--force"], {
+    cwd: fixture,
+  });
   assert.equal(sourceOutput.exitCode, 1);
   assert.match(sourceOutput.stderr, /contains the source entry/);
 });
@@ -86,9 +93,14 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
     "Home.jsx": `export default () => <div>Last good build</div>;`,
   });
 
-  const first = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
+  const first = await invoke(["Home.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
   assert.equal(first.exitCode, 0, first.stderr);
-  const previousHtml = await readFile(path.join(fixture, "dist/index.html"), "utf8");
+  const previousHtml = await readFile(
+    path.join(fixture, "dist/index.html"),
+    "utf8",
+  );
   const previousJs = await readAsset(path.join(fixture, "dist"), ".js");
 
   await writeFixture(fixture, {
@@ -105,6 +117,8 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
   );
   assert.equal(await readAsset(path.join(fixture, "dist"), ".js"), previousJs);
   assert.ok(
-    !(await readdir(fixture)).some((name) => name.startsWith(".yolojsx-stage-")),
+    !(await readdir(fixture)).some((name) =>
+      name.startsWith(".yolojsx-stage-"),
+    ),
   );
 });

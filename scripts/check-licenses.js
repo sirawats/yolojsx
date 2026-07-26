@@ -3,7 +3,10 @@ import path from "node:path";
 import process from "node:process";
 import { fileURLToPath } from "node:url";
 
-const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const lockfilePath = path.join(repository, "package-lock.json");
 
 const lock = JSON.parse(await readFile(lockfilePath, "utf8"));

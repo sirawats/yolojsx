@@ -16,12 +16,16 @@
   --color-selection-foreground: var(--selection-foreground);
   --color-code: var(--code);
   --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-success-background: var(--success-background);
   --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-warning-background: var(--warning-background);
   --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
   --color-danger-background: var(--danger-background);
   --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
   --color-info-background: var(--info-background);
   --font-sans: var(--font-body);
   --font-mono: var(--font-code);
@@ -52,7 +56,12 @@
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     color: var(--foreground);
     font-weight: var(--heading-weight);
     letter-spacing: var(--heading-tracking);
@@ -64,11 +73,15 @@
     text-underline-offset: 0.16em;
   }
 
-  code, kbd, pre, samp {
+  code,
+  kbd,
+  pre,
+  samp {
     font-family: var(--font-code);
   }
 
-  :not(pre) > code, kbd {
+  :not(pre) > code,
+  kbd {
     border-radius: var(--theme-radius-sm);
     background: var(--code);
   }
@@ -99,11 +112,15 @@
     border-top: 1px solid var(--border);
   }
 
-  figcaption, small {
+  figcaption,
+  small {
     color: var(--muted-foreground);
   }
 
-  button:not([class]), input:not([class]), select:not([class]), textarea:not([class]) {
+  button:not([class]),
+  input:not([class]),
+  select:not([class]),
+  textarea:not([class]) {
     min-height: var(--control-height);
     border: 1px solid var(--border);
     border-radius: var(--theme-radius-md);

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+- Revise every bundled example around the product vision with clearer
+  information hierarchy, honest sample framing, useful interaction, responsive
+  layouts, and stronger accessibility.
+
+## 0.1.3 - 2026-07-26
+
+- Read optional `YOLOJSX` title and icon metadata from JSX entries for
+  browser-tab identity.
+- Add a canonical yolojsx AI-agent skill and Git-installable adapters for Codex,
+  Claude Code, Antigravity/Gemini CLI, and OpenCode without adding plugin files
+  to the npm package.
+- Synchronize npm and plugin manifest versions through `npm version`, and reject
+  version drift during repository verification.
+
 ## 0.1.2 - 2026-07-23
 
 - Add a beginner-focused npm publishing guide with safe dry-run, account

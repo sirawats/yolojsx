@@ -139,14 +139,16 @@ $VERSION
 ```
 
 For a later patch release, this command updates `package.json` and
-`package-lock.json` without creating a Git commit or tag:
+`package-lock.json`, then synchronizes the Codex, Claude Code, and Gemini plugin
+manifests without creating a Git commit or tag:
 
 ```sh
 npm version patch --no-git-tag-version
 ```
 
 Use `minor` or `major` only when that matches the release. Update
-`CHANGELOG.md` with the same version and release date.
+`CHANGELOG.md` with the same version and release date. `npm run verify` includes
+`npm run version:check` and fails if any version-bearing manifest drifts.
 
 ## Step 3: Prepare a release candidate
 
@@ -283,7 +285,8 @@ Checks:
 - [ ] Working tree is clean.
 - [ ] Release commit is pushed.
 - [ ] CI passes for this exact commit.
-- [ ] package.json, package-lock.json, and CHANGELOG.md use the same version.
+- [ ] package.json, package-lock.json, plugin manifests, and CHANGELOG.md use the
+      same version.
 - [ ] The registry does not already contain this version.
 - [ ] npm run readiness passes.
 - [ ] npm publish --dry-run passes.

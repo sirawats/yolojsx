@@ -54,12 +54,17 @@ async function listFiles(root, directory = root, files = new Map()) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const absolute = path.join(directory, entry.name);
     if (entry.isSymbolicLink()) {
-      throw packageError(`Pack input contains an unsupported symbolic link: ${absolute}`);
+      throw packageError(
+        `Pack input contains an unsupported symbolic link: ${absolute}`,
+      );
     }
     if (entry.isDirectory()) {
       await listFiles(root, absolute, files);
     } else if (entry.isFile()) {
-      files.set(path.relative(root, absolute).split(path.sep).join("/"), absolute);
+      files.set(
+        path.relative(root, absolute).split(path.sep).join("/"),
+        absolute,
+      );
     }
   }
   return files;
@@ -84,10 +89,14 @@ function resolveFileReference(
   const clean = cleanReference(reference);
   const candidate = clean.startsWith("/")
     ? clean.slice(1)
-    : path.posix.normalize(path.posix.join(path.posix.dirname(fromRelative), clean));
+    : path.posix.normalize(
+        path.posix.join(path.posix.dirname(fromRelative), clean),
+      );
 
   if (candidate === ".." || candidate.startsWith("../")) {
-    throw packageError(`Resource escapes the pack input directory: ${reference}`);
+    throw packageError(
+      `Resource escapes the pack input directory: ${reference}`,
+    );
   }
   if (files.has(candidate)) {
     return candidate;
@@ -111,7 +120,9 @@ async function replaceAsync(value, pattern, replacer) {
   if (matches.length === 0) {
     return value;
   }
-  const replacements = await Promise.all(matches.map((match) => replacer(match)));
+  const replacements = await Promise.all(
+    matches.map((match) => replacer(match)),
+  );
   let output = "";
   let cursor = 0;
   for (let index = 0; index < matches.length; index += 1) {
@@ -133,14 +144,18 @@ async function inlineCssAssets(css, cssRelative, files) {
       }
       const relative = resolveFileReference(reference, cssRelative, files);
       if (!relative) {
-        throw packageError(`Unresolved CSS resource in ${cssRelative}: ${reference}`);
+        throw packageError(
+          `Unresolved CSS resource in ${cssRelative}: ${reference}`,
+        );
       }
       return `url("${await asDataUrl(files.get(relative))}")`;
     },
   );
   for (const match of result.matchAll(/url\(\s*(["']?)([^"')]+)\1\s*\)/gi)) {
     if (!isEmbeddedOrRemote(match[2].trim())) {
-      throw packageError(`Unsupported local CSS resource remains in ${cssRelative}`);
+      throw packageError(
+        `Unsupported local CSS resource remains in ${cssRelative}`,
+      );
     }
   }
   return result;
@@ -195,7 +210,9 @@ async function inlineJavaScriptAssets(source, scriptRelative, files) {
   ];
   for (const [pattern, label] of unsupported) {
     if (pattern.test(result)) {
-      throw packageError(`The build uses unsupported ${label}: ${scriptRelative}`);
+      throw packageError(
+        `The build uses unsupported ${label}: ${scriptRelative}`,
+      );
     }
   }
   return result;
@@ -210,7 +227,9 @@ export async function normalizeBuildDirectory(inputDirectory) {
   const files = await listFiles(inputDirectory);
   const htmlFile = files.get("index.html");
   if (!htmlFile) {
-    throw packageError(`Pack input does not contain a readable index.html: ${inputDirectory}`);
+    throw packageError(
+      `Pack input does not contain a readable index.html: ${inputDirectory}`,
+    );
   }
 
   let html;
@@ -220,19 +239,33 @@ export async function normalizeBuildDirectory(inputDirectory) {
     throw packageError(`Could not read pack input HTML: ${htmlFile}`, error);
   }
 
-  const scriptTags = [...html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi)];
-  const entryScripts = scriptTags.filter((match) => getAttribute(match[0], "src"));
+  const scriptTags = [
+    ...html.matchAll(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi),
+  ];
+  const entryScripts = scriptTags.filter((match) =>
+    getAttribute(match[0], "src"),
+  );
   if (scriptTags.length !== 1 || entryScripts.length !== 1) {
-    throw packageError("Pack input must contain exactly one external executable script.");
+    throw packageError(
+      "Pack input must contain exactly one external executable script.",
+    );
   }
 
   const scriptTag = entryScripts[0][0];
   const scriptReference = getAttribute(scriptTag, "src");
-  const scriptRelative = resolveFileReference(scriptReference, "index.html", files);
+  const scriptRelative = resolveFileReference(
+    scriptReference,
+    "index.html",
+    files,
+  );
   if (!scriptRelative || !/\.(?:js|mjs)$/i.test(scriptRelative)) {
-    throw packageError(`Executable entry is not a local JavaScript file: ${scriptReference}`);
+    throw packageError(
+      `Executable entry is not a local JavaScript file: ${scriptReference}`,
+    );
   }
-  const javaScriptFiles = [...files.keys()].filter((name) => /\.(?:js|mjs)$/i.test(name));
+  const javaScriptFiles = [...files.keys()].filter((name) =>
+    /\.(?:js|mjs)$/i.test(name),
+  );
   if (javaScriptFiles.length !== 1) {
     throw packageError(
       `Pack input must contain one executable JavaScript bundle; found ${javaScriptFiles.length}.`,
@@ -254,7 +287,9 @@ export async function normalizeBuildDirectory(inputDirectory) {
     }
     const cssRelative = resolveFileReference(href, "index.html", files);
     if (!cssRelative || !cssRelative.endsWith(".css")) {
-      throw packageError(`Stylesheet is not a readable local CSS file: ${href}`);
+      throw packageError(
+        `Stylesheet is not a readable local CSS file: ${href}`,
+      );
     }
     const css = await readFile(files.get(cssRelative), "utf8");
     styles.push(await inlineCssAssets(css, cssRelative, files));
@@ -265,10 +300,14 @@ export async function normalizeBuildDirectory(inputDirectory) {
   const headMatch = cleanedHtml.match(/<head\b[^>]*>([\s\S]*?)<\/head\s*>/i);
   const bodyMatch = cleanedHtml.match(/<body\b[^>]*>([\s\S]*?)<\/body\s*>/i);
   if (!headMatch || !bodyMatch) {
-    throw packageError("Pack input index.html must contain head and body elements.");
+    throw packageError(
+      "Pack input index.html must contain head and body elements.",
+    );
   }
 
-  let head = headMatch[1].replace(/<title\b[^>]*>[\s\S]*?<\/title\s*>/gi, "").trim();
+  let head = headMatch[1]
+    .replace(/<title\b[^>]*>[\s\S]*?<\/title\s*>/gi, "")
+    .trim();
   let body = bodyMatch[1].trim();
   head = await inlineMarkupAssets(head, "index.html", files);
   body = await inlineMarkupAssets(body, "index.html", files);
@@ -295,7 +334,11 @@ export async function createSingleFileArtifact(inputDirectory) {
     compressed.toString("base64"),
     SINGLE_FILE_PAYLOAD_VERSION,
   );
-  return { html, bytes: Buffer.byteLength(html), compressedBytes: compressed.length };
+  return {
+    html,
+    bytes: Buffer.byteLength(html),
+    compressedBytes: compressed.length,
+  };
 }
 
 export function readEmbeddedPayload(html) {
@@ -305,5 +348,7 @@ export function readEmbeddedPayload(html) {
   if (!match) {
     throw packageError("HTML does not contain a yolojsx payload.");
   }
-  return JSON.parse(gunzipSync(Buffer.from(match[1], "base64")).toString("utf8"));
+  return JSON.parse(
+    gunzipSync(Buffer.from(match[1], "base64")).toString("utf8"),
+  );
 }

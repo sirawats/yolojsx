@@ -38,26 +38,37 @@ test("packs an existing build without changing its input", async (t) => {
   await writeFixture(fixture, {
     "Home.jsx": `export default () => <div className="font-bold">Packed existing build</div>;`,
   });
-  const build = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
+  const build = await invoke(["Home.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
   assert.equal(build.exitCode, 0, build.stderr);
 
-  const beforeEntries = await readdir(path.join(fixture, "dist"), { recursive: true });
-  const beforeHtml = await readFile(path.join(fixture, "dist/index.html"), "utf8");
-  const packed = await invoke(
-    ["pack", "dist", "--output", "index.html"],
-    { cwd: fixture },
+  const beforeEntries = await readdir(path.join(fixture, "dist"), {
+    recursive: true,
+  });
+  const beforeHtml = await readFile(
+    path.join(fixture, "dist/index.html"),
+    "utf8",
   );
+  const packed = await invoke(["pack", "dist", "--output", "index.html"], {
+    cwd: fixture,
+  });
   assert.equal(packed.exitCode, 0, packed.stderr);
   assert.match(packed.stdout, /Packed .*dist/);
   assert.match(
-    readEmbeddedPayload(await readFile(path.join(fixture, "index.html"), "utf8")).script,
+    readEmbeddedPayload(
+      await readFile(path.join(fixture, "index.html"), "utf8"),
+    ).script,
     /Packed existing build/,
   );
   assert.deepEqual(
     await readdir(path.join(fixture, "dist"), { recursive: true }),
     beforeEntries,
   );
-  assert.equal(await readFile(path.join(fixture, "dist/index.html"), "utf8"), beforeHtml);
+  assert.equal(
+    await readFile(path.join(fixture, "dist/index.html"), "utf8"),
+    beforeHtml,
+  );
 });
 
 test("protects existing HTML and preserves it when a forced rebuild fails", async (t) => {
@@ -71,7 +82,10 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   const refused = await invoke(["Home.jsx"], { cwd: fixture });
   assert.equal(refused.exitCode, 1);
   assert.match(refused.stderr, /non-interactive.*--force/s);
-  assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
+  assert.equal(
+    await readFile(path.join(fixture, "Home.html"), "utf8"),
+    "previous artifact",
+  );
 
   const declined = await invoke(["Home.jsx"], {
     cwd: fixture,
@@ -79,15 +93,23 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   });
   assert.equal(declined.exitCode, 1);
   assert.match(declined.stderr, /Cancelled/);
-  assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
+  assert.equal(
+    await readFile(path.join(fixture, "Home.html"), "utf8"),
+    "previous artifact",
+  );
 
-  await writeFixture(fixture, { "Home.jsx": "export default function Broken( {" });
+  await writeFixture(fixture, {
+    "Home.jsx": "export default function Broken( {",
+  });
   const failed = await invoke(["Home.jsx"], {
     cwd: fixture,
     confirmReplacement: async () => true,
   });
   assert.equal(failed.exitCode, 1);
-  assert.equal(await readFile(path.join(fixture, "Home.html"), "utf8"), "previous artifact");
+  assert.equal(
+    await readFile(path.join(fixture, "Home.html"), "utf8"),
+    "previous artifact",
+  );
   assert.ok(
     !(await readdir(fixture)).some((name) => name.includes("yolojsx-stage")),
   );
@@ -101,7 +123,8 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   });
   assert.equal(confirmed.exitCode, 0, confirmed.stderr);
   assert.match(
-    readEmbeddedPayload(await readFile(path.join(fixture, "Home.html"), "utf8")).script,
+    readEmbeddedPayload(await readFile(path.join(fixture, "Home.html"), "utf8"))
+      .script,
     /Confirmed replacement/,
   );
 
@@ -114,7 +137,8 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   assert.equal(replaced.exitCode, 0, replaced.stderr);
   assert.match(replaced.stderr, /replacing existing HTML/);
   assert.match(
-    readEmbeddedPayload(await readFile(path.join(fixture, "Home.html"), "utf8")).script,
+    readEmbeddedPayload(await readFile(path.join(fixture, "Home.html"), "utf8"))
+      .script,
     /Forced replacement/,
   );
   assert.ok(
@@ -129,7 +153,9 @@ test("accepts the deprecated single-file alias with a migration warning", async 
     "Legacy.jsx": `export default () => <div>Legacy alias</div>;`,
   });
 
-  const result = await invoke(["Legacy.jsx", "--single-file"], { cwd: fixture });
+  const result = await invoke(["Legacy.jsx", "--single-file"], {
+    cwd: fixture,
+  });
   assert.equal(result.exitCode, 0, result.stderr);
   assert.match(result.stderr, /--single-file is deprecated/);
   assert.ok(await readFile(path.join(fixture, "Legacy.html"), "utf8"));

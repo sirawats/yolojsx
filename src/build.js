@@ -18,23 +18,27 @@ import {
   createMainModule,
   createTailwindStyles,
 } from "./templates.js";
-import { resolveThemeStylesheet } from "./theme-css.js";
+import { resolveFoundationStylesheet } from "./theme-css.js";
+import { renderThemeCss } from "./themes.js";
 
-async function createWorkspace(entry, theme, customCss) {
+async function createWorkspace(entry, sourceDirectory, theme, customCss) {
   const temporaryWorkspace = await mkdtemp(
     path.join(os.tmpdir(), "yolojsx-work-"),
   );
   const workspace = await realpath(temporaryWorkspace);
+  const themeCssPath = path.join(workspace, "theme.css");
   await Promise.all([
     writeFile(path.join(workspace, "index.html"), createHtml(), "utf8"),
     writeFile(path.join(workspace, "main.jsx"), createMainModule(), "utf8"),
+    writeFile(themeCssPath, renderThemeCss(theme), "utf8"),
     writeFile(
       path.join(workspace, "styles.css"),
       createTailwindStyles(
         workspace,
-        path.dirname(entry),
+        sourceDirectory,
         resolvePackageImport("tailwindcss/index.css"),
-        resolveThemeStylesheet(theme),
+        resolveFoundationStylesheet(),
+        themeCssPath,
         customCss,
       ),
       "utf8",
@@ -54,13 +58,20 @@ function asBuildError(error) {
 }
 
 export async function withTemporaryApplicationBuild(
-  { entry, base, singleFile = false, theme, customCss },
+  {
+    entry,
+    sourceDirectory = path.dirname(entry),
+    base,
+    singleFile = false,
+    theme,
+    customCss,
+  },
   consume,
 ) {
   let workspace;
 
   try {
-    workspace = await createWorkspace(entry, theme, customCss);
+    workspace = await createWorkspace(entry, sourceDirectory, theme, customCss);
     const workspaceOutput = path.join(workspace, "dist");
 
     await build({
@@ -106,13 +117,20 @@ export async function withTemporaryApplicationBuild(
   }
 }
 
-export async function buildApplication({ entry, output, base, theme, customCss }) {
+export async function buildApplication({
+  entry,
+  sourceDirectory,
+  output,
+  base,
+  theme,
+  customCss,
+}) {
   let stage;
 
   try {
     stage = await createOutputStage(output);
     await withTemporaryApplicationBuild(
-      { entry, base, theme, customCss },
+      { entry, sourceDirectory, base, theme, customCss },
       async (workspaceOutput) => {
         await cp(workspaceOutput, stage, { recursive: true });
         await writeOutputMarker(stage);

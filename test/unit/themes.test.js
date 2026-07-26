@@ -1,13 +1,17 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import { createThemeRuntime, resolveThemeStylesheet } from "../../src/theme-css.js";
+import {
+  createThemeRuntime,
+  resolveFoundationStylesheet,
+} from "../../src/theme-css.js";
 import {
   ANT_DESIGN_COMPONENT_NAMES,
   FIXED_THEMES,
   THEME_CSS_PROPERTIES,
   THEMES,
   renderThemeCatalog,
+  renderThemeCss,
   resolveTheme,
   validateThemeCatalog,
 } from "../../src/themes.js";
@@ -23,9 +27,8 @@ test("validates the complete immutable theme catalog", async () => {
   assert.ok(THEMES.every(Object.isFrozen));
   assert.equal(resolveTheme("onedark").id, "one-dark");
   for (const theme of THEMES) {
-    const stylesheet = await readFile(resolveThemeStylesheet(theme), "utf8");
+    const stylesheet = renderThemeCss(theme);
     assert.match(stylesheet, new RegExp(`Original yolojsx theme: ${theme.id}`));
-    assert.match(stylesheet, /@import "\.\/foundation\.css"/);
     for (const [key, property] of Object.entries(THEME_CSS_PROPERTIES.colors)) {
       const value = theme.semantic.colors[key];
       assert.match(
@@ -34,7 +37,9 @@ test("validates the complete immutable theme catalog", async () => {
         `${theme.id}: ${property}`,
       );
     }
-    for (const [status, properties] of Object.entries(THEME_CSS_PROPERTIES.status)) {
+    for (const [status, properties] of Object.entries(
+      THEME_CSS_PROPERTIES.status,
+    )) {
       for (const [field, property] of Object.entries(properties)) {
         const value = theme.semantic.colors.status[status][field];
         assert.match(
@@ -46,14 +51,20 @@ test("validates the complete immutable theme catalog", async () => {
     }
     assert.match(
       stylesheet,
-      new RegExp(`${THEME_CSS_PROPERTIES.controlHeight}:\\s*${theme.semantic.controlHeight}px`),
+      new RegExp(
+        `${THEME_CSS_PROPERTIES.controlHeight}:\\s*${theme.semantic.controlHeight}px`,
+      ),
     );
     assert.match(
       stylesheet,
-      new RegExp(`${THEME_CSS_PROPERTIES.rhythm.contentMeasure}:\\s*${theme.semantic.rhythm.contentMeasure}`),
+      new RegExp(
+        `${THEME_CSS_PROPERTIES.rhythm.contentMeasure}:\\s*${theme.semantic.rhythm.contentMeasure}`,
+      ),
     );
     assert.doesNotMatch(stylesheet, /--yolo-|\.yolo-|\.ant-/);
-    assert.deepEqual(Object.keys(theme.antDesign.components), [...ANT_DESIGN_COMPONENT_NAMES]);
+    assert.deepEqual(Object.keys(theme.antDesign.components), [
+      ...ANT_DESIGN_COMPONENT_NAMES,
+    ]);
   }
 });
 
@@ -70,7 +81,7 @@ test("family aliases always resolve to fixed light presets", async () => {
   };
   for (const [alias, canonical] of Object.entries(aliases)) {
     const theme = resolveTheme(alias);
-    const css = await readFile(resolveThemeStylesheet(theme), "utf8");
+    const css = renderThemeCss(theme);
     assert.equal(theme.id, canonical);
     assert.equal(theme.appearance, "light");
     assert.equal(createThemeRuntime(theme).config.algorithm, "light");
@@ -80,9 +91,9 @@ test("family aliases always resolve to fixed light presets", async () => {
 });
 
 test("stored presets include typography, density, and original semantic values", async () => {
-  const material = await readFile(resolveThemeStylesheet(resolveTheme("material-light")), "utf8");
-  const github = await readFile(resolveThemeStylesheet(resolveTheme("github-light")), "utf8");
-  const foundation = await readFile(resolveThemeStylesheet(resolveTheme("default")).replace("default.css", "foundation.css"), "utf8");
+  const material = renderThemeCss(resolveTheme("material-light"));
+  const github = renderThemeCss(resolveTheme("github-light"));
+  const foundation = await readFile(resolveFoundationStylesheet(), "utf8");
   assert.match(material, /Roboto/);
   assert.match(material, /--control-height: 40px/);
   assert.match(github, /BlinkMacSystemFont/);
@@ -92,10 +103,16 @@ test("stored presets include typography, density, and original semantic values",
   assert.match(foundation, /--color-primary-foreground/);
   assert.match(foundation, /--color-border/);
   assert.match(foundation, /button:not\(\[class\]\)/);
-  assert.match(foundation, /:not\(pre\) > code, kbd/);
-  assert.match(foundation, /pre > code[\s\S]*background: transparent[\s\S]*color: inherit/);
+  assert.match(foundation, /:not\(pre\) > code,\s*kbd/);
+  assert.match(
+    foundation,
+    /pre > code[\s\S]*background: transparent[\s\S]*color: inherit/,
+  );
   assert.doesNotMatch(foundation, /--color-yolo-|\.yolo-/);
-  assert.doesNotMatch(material, /\.workspace|\.markdown-source-view|\.view-content/);
+  assert.doesNotMatch(
+    material,
+    /\.workspace|\.markdown-source-view|\.view-content/,
+  );
 });
 
 test("uses official serializable Ant Design component configuration", () => {
@@ -107,12 +124,17 @@ test("uses official serializable Ant Design component configuration", () => {
   assert.equal(material.token.controlHeight, 40);
   assert.equal(github.components.Button.paddingInline, 12);
   assert.equal(material.components.Button.paddingInline, 24);
-  assert.notEqual(github.components.Card.bodyPadding, material.components.Card.bodyPadding);
+  assert.notEqual(
+    github.components.Card.bodyPadding,
+    material.components.Card.bodyPadding,
+  );
   assert.equal(material.components.Button.ghostBg, "transparent");
   assert.ok(material.components.Button.defaultHoverBg);
   assert.ok(material.components.Button.defaultActiveBg);
   assert.ok(material.components.Button.defaultBgDisabled);
-  assert.doesNotThrow(() => JSON.stringify(createThemeRuntime(resolveTheme("material"))));
+  assert.doesNotThrow(() =>
+    JSON.stringify(createThemeRuntime(resolveTheme("material"))),
+  );
 
   const missing = structuredClone(resolveTheme("default"));
   delete missing.antDesign.components.Button;
@@ -136,13 +158,24 @@ test("theme discovery prints only canonical theme names", () => {
 });
 
 test("the shipped notice covers every reviewed source and revision", async () => {
-  const notice = await readFile(new URL("../../THIRD_PARTY_NOTICES.md", import.meta.url), "utf8");
+  const notice = await readFile(
+    new URL("../../THIRD_PARTY_NOTICES.md", import.meta.url),
+    "utf8",
+  );
   for (const theme of THEMES) {
     if (theme.provenance.name === "yolojsx") {
       continue;
     }
-    assert.match(notice, new RegExp(theme.provenance.url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
-    assert.match(notice, new RegExp(theme.provenance.revision.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+    assert.match(
+      notice,
+      new RegExp(theme.provenance.url.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")),
+    );
+    assert.match(
+      notice,
+      new RegExp(
+        theme.provenance.revision.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      ),
+    );
   }
   assert.match(notice, /not affiliated with or endorsed/);
 });

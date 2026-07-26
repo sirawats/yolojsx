@@ -32,8 +32,13 @@ async function pathExists(value) {
 
 async function hasValidMarker(output) {
   try {
-    const marker = JSON.parse(await readFile(path.join(output, OUTPUT_MARKER), "utf8"));
-    return marker?.tool === PACKAGE_NAME && marker?.formatVersion === OUTPUT_MARKER_VERSION;
+    const marker = JSON.parse(
+      await readFile(path.join(output, OUTPUT_MARKER), "utf8"),
+    );
+    return (
+      marker?.tool === PACKAGE_NAME &&
+      marker?.formatVersion === OUTPUT_MARKER_VERSION
+    );
   } catch (error) {
     if (error?.code === "ENOENT" || error instanceof SyntaxError) {
       return false;
