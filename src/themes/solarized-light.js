@@ -54,7 +54,7 @@ export default {
   status: {
     success: { foreground: "#334000", background: "#e6eec0", seed: "#859900" },
     warning: { foreground: "#4a3800", background: "#f0e8c0", seed: "#b58900" },
-    danger:  { foreground: "#5c0a08", background: "#f8e0de", seed: "#dc322f" },
-    info:    { foreground: "#073642", background: "#cce4f8", seed: "#268bd2" },
+    danger: { foreground: "#5c0a08", background: "#f8e0de", seed: "#dc322f" },
+    info: { foreground: "#073642", background: "#cce4f8", seed: "#268bd2" },
   },
 };
