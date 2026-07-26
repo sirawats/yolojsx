@@ -78,6 +78,8 @@ test("parses deprecated single-file, theme discovery, and pack commands", () => 
   );
   assert.deepEqual(parseArgs(["themes"]), { action: "themes" });
   assert.deepEqual(parseArgs(["--themes"]), { action: "themes" });
+  assert.deepEqual(parseArgs(["prism-themes"]), { action: "prism-themes" });
+  assert.deepEqual(parseArgs(["--prism-themes"]), { action: "prism-themes" });
   assert.deepEqual(parseArgs(["pack", "dist", "--output=index.html"]), {
     action: "pack",
     inputDir: "dist",
@@ -123,6 +125,10 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
   );
   assert.throws(() => parseArgs(["themes", "--force"]), /does not accept/);
   assert.throws(() => parseArgs(["--themes", "--force"]), /does not accept/);
+  assert.throws(
+    () => parseArgs(["prism-themes", "--force"]),
+    /does not accept/,
+  );
   assert.throws(() => parseArgs(["pack", "dist"]), /requires --output/);
   assert.throws(
     () => parseArgs(["pack", "dist", "--output", "x.html", "--css", "x.css"]),
@@ -131,5 +137,7 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
   assert.match(USAGE, /HTML file by default/);
   assert.match(USAGE, /yolojsx themes/);
   assert.match(USAGE, /--themes/);
+  assert.match(USAGE, /yolojsx prism-themes/);
+  assert.match(USAGE, /--prism-themes/);
   assert.match(USAGE, /--out-dir/);
 });

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir, rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { readEmbeddedPayload } from "../../src/single-file.js";
 import { makeFixture, invoke, readAsset, writeFixture } from "../helpers.js";
 
 test("builds a standalone React, Tailwind, and Ant Design app", async (t) => {
@@ -78,4 +79,86 @@ export default function Home() {
   assert.match(javascript, /Local dependency/);
   assert.match(javascript, /data:image\/svg\+xml;base64/);
   assert.doesNotMatch(result.stderr, /UNRELATED_CONFIG_EXECUTED/);
+});
+
+test("builds apps using supplied icons and Prism packages without local installations", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "App.jsx": `import { LuCalculator } from "react-icons/lu";
+import Prism from "prismjs";
+import "prismjs/components/prism-json";
+
+export const YOLOJSX = { prismTheme: "prism" };
+
+export default function App() {
+  const code = Prism.highlight('{"tax":100}', Prism.languages.json, "json");
+  return (
+    <main className="supplied-dep-test">
+      <LuCalculator />
+      <pre dangerouslySetInnerHTML={{ __html: code }} />
+    </main>
+  );
+}`,
+  });
+
+  const dirResult = await invoke(["App.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
+  assert.equal(dirResult.exitCode, 0, dirResult.stderr);
+  const output = path.join(fixture, "dist");
+  const javascript = await readAsset(output, ".js");
+  assert.match(javascript, /supplied-dep-test/);
+  assert.match(javascript, /tax/);
+  assert.match(javascript, /yolojsxPrismTheme/);
+  assert.match(javascript, /token\.keyword/);
+  assert.match(javascript, /#f5f2f0/);
+
+  const fileResult = await invoke(["App.jsx", "--output", "App.html"], {
+    cwd: fixture,
+  });
+  assert.equal(fileResult.exitCode, 0, fileResult.stderr);
+  const html = await readFile(path.join(fixture, "App.html"), "utf8");
+  const payload = readEmbeddedPayload(html);
+  assert.match(payload.script, /supplied-dep-test/);
+  assert.match(payload.script, /tax/);
+  assert.match(payload.script, /yolojsxPrismTheme/);
+  assert.match(payload.script, /token\.keyword/);
+  assert.match(payload.script, /#f5f2f0/);
+});
+
+test("warns and uses the default Prism theme for an unknown name", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "Unknown.jsx": `export const YOLOJSX = { prismTheme: "missing" };
+export default () => <pre>Unknown</pre>;`,
+    "Dynamic.jsx": `const prismTheme = "prism";
+export const YOLOJSX = { prismTheme };
+export default () => <pre>Dynamic</pre>;`,
+  });
+
+  const unknown = await invoke(["Unknown.jsx"], { cwd: fixture });
+  assert.equal(unknown.exitCode, 0, unknown.stderr);
+  assert.match(unknown.stderr, /Unknown Prism theme "missing"/);
+  assert.match(unknown.stderr, /using "prism"/);
+  assert.match(unknown.stderr, /yolojsx prism-themes/);
+  const payload = readEmbeddedPayload(
+    await readFile(path.join(fixture, "Unknown.html"), "utf8"),
+  );
+  assert.match(payload.script, /#f5f2f0/);
+
+  const directory = await invoke(["Unknown.jsx", "--out-dir", "unknown-dist"], {
+    cwd: fixture,
+  });
+  assert.equal(directory.exitCode, 0, directory.stderr);
+  assert.match(directory.stderr, /Unknown Prism theme "missing"/);
+  assert.match(
+    await readAsset(path.join(fixture, "unknown-dist"), ".js"),
+    /#f5f2f0/,
+  );
+
+  const dynamic = await invoke(["Dynamic.jsx"], { cwd: fixture });
+  assert.equal(dynamic.exitCode, 1);
+  assert.match(dynamic.stderr, /YOLOJSX\.prismTheme must be a string literal/);
 });

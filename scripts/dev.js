@@ -11,6 +11,7 @@ import {
   resolvePackageImport,
 } from "../src/dependencies.js";
 import { isWithin, resolveAndValidateEntry } from "../src/paths.js";
+import { loadPrismThemeCatalog } from "../src/prism-themes.js";
 import {
   createEntryPlugin,
   createHtml,
@@ -32,6 +33,7 @@ async function startDevServer() {
     ? repository
     : path.dirname(entry);
   const theme = resolveTheme("default");
+  const prismThemes = await loadPrismThemeCatalog();
 
   const temporaryWorkspace = await mkdtemp(
     path.join(os.tmpdir(), "yolojsx-dev-"),
@@ -89,7 +91,13 @@ async function startDevServer() {
         allow: [repository, workspace],
       },
     },
-    plugins: [createEntryPlugin(entry, theme), react(), tailwindcss()],
+    plugins: [
+      createEntryPlugin(entry, theme, prismThemes, (message) =>
+        process.stderr.write(`Warning: ${message}\n`),
+      ),
+      react(),
+      tailwindcss(),
+    ],
     resolve: {
       alias: createCoreAliases(),
       dedupe: ["react", "react-dom"],

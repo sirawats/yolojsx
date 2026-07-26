@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Supply `prism-themes`, resolve a named `YOLOJSX.prismTheme`, and add
+  `yolojsx prism-themes` discovery, with PrismJS's `prism` theme as the
+  warning-backed fallback.
 - Revise every bundled example around the product vision with clearer
   information hierarchy, honest sample framing, useful interaction, responsive
   layouts, and stronger accessibility.

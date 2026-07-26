@@ -4,6 +4,7 @@ import { DEFAULT_THEME_ID, resolveTheme } from "./themes.js";
 
 export const USAGE = `Usage: yolojsx <entry.jsx> [options]
        yolojsx themes | yolojsx --themes
+       yolojsx prism-themes | yolojsx --prism-themes
        yolojsx pack <directory> --output <file.html> [options]
 
 Build a JSX component into one compressed HTML file by default.
@@ -14,13 +15,14 @@ Options:
       --base <path>    Directory-mode public base path (default: ./)
       --theme <preset> Global theme preset (default: default)
       --themes          List available theme names
+      --prism-themes    List available Prism theme names
       --css <path>     Custom CSS loaded after the preset
       --single-file    Deprecated alias for the default file mode
       --force          Replace an existing protected output
   -h, --help           Show this help
   -v, --version        Show the installed version
 
-Run \`yolojsx themes\` or \`yolojsx --themes\` to list available presets.`;
+Run \`yolojsx themes\` or \`yolojsx prism-themes\` to list available themes.`;
 
 function invalid(message) {
   return new YoloJsxError(message, { code: "INVALID_ARGUMENTS" });
@@ -48,7 +50,10 @@ export function parseArgs(argv) {
       ? "pack"
       : requestedAction === "themes" || requestedAction === "--themes"
         ? "themes"
-        : "build";
+        : requestedAction === "prism-themes" ||
+            requestedAction === "--prism-themes"
+          ? "prism-themes"
+          : "build";
   const options = {
     action,
     entry: undefined,
@@ -125,13 +130,13 @@ export function parseArgs(argv) {
     positionals.push(arg);
   }
 
-  if (action === "themes") {
+  if (action === "themes" || action === "prism-themes") {
     if (positionals.length > 0 || seen.size > 0) {
       throw invalid(
-        "The themes command does not accept arguments or build options.",
+        `The ${action} command does not accept arguments or build options.`,
       );
     }
-    return { action: "themes" };
+    return { action };
   }
 
   if (positionals.length !== 1) {

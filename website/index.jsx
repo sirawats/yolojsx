@@ -15,6 +15,19 @@ import {
   Typography,
   theme as antdTheme,
 } from "antd";
+import {
+  LuArchive,
+  LuAtom,
+  LuCheck,
+  LuCopy,
+  LuFolderOutput,
+  LuGithub,
+  LuPalette,
+  LuWrench,
+  LuZap,
+} from "react-icons/lu";
+import Prism from "prismjs";
+import "prismjs/components/prism-jsx";
 import { version } from "../package.json";
 import { THEMES, renderThemeCss } from "../src/themes.js";
 import logo from "../assets/yolo_chihuahua_sticker.png";
@@ -22,6 +35,7 @@ import logo from "../assets/yolo_chihuahua_sticker.png";
 export const YOLOJSX = {
   title: "yolojsx — Build React JSX into portable HTML apps",
   icon: logo,
+  prismTheme: "prism",
 };
 
 const RAW_EXAMPLES = import.meta.glob("../examples/*.jsx", {
@@ -67,37 +81,37 @@ const THEME_FAMILIES = THEMES.reduce((families, preset) => {
 
 const FEATURES = [
   {
-    icon: "⚡",
+    icon: LuZap,
     title: "Zero Configuration",
     description:
       "Turn any standalone React JSX file into a portable web application without Vite, Webpack, or build setup.",
   },
   {
-    icon: "🗜️",
+    icon: LuArchive,
     title: "Compressed Single-File HTML",
     description:
       "Bundles JS & CSS into a self-contained gzip base64 payload. Opens instantly in any browser via file:// or HTTP.",
   },
   {
-    icon: "🎨",
+    icon: LuPalette,
     title: "20+ Theme Presets",
     description:
       "Includes harmonized Tailwind CSS v4 design tokens and Ant Design 6 Component tokens out of the box.",
   },
   {
-    icon: "📁",
+    icon: LuFolderOutput,
     title: "Flexible Output Modes",
     description:
       "Emit single-file HTML by default, or directory assets (--out-dir dist) for strict CSP and traditional hosting.",
   },
   {
-    icon: "⚛️",
+    icon: LuAtom,
     title: "Full React 19 + Ant Design",
     description:
       "Pre-configured with React 19, Tailwind CSS v4, and Ant Design components ready for rapid prototyping.",
   },
   {
-    icon: "🛠️",
+    icon: LuWrench,
     title: "CLI & Pack Workflows",
     description:
       "Simple CLI commands (`yolojsx Home.jsx`, `yolojsx pack dist`) for easy build & CI/CD pipeline integration.",
@@ -119,6 +133,9 @@ export default function App() {
     </main>
   );
 }`;
+
+const highlightJsx = (code) =>
+  Prism.highlight(code, Prism.languages.jsx, "jsx");
 
 function ThemePicker({
   themeFamilies,
@@ -220,7 +237,18 @@ function CliCommandBar({ exampleId, themeId }) {
         <span className="text-primary font-bold">$</span>
         <span className="text-foreground font-medium">{command}</span>
       </div>
-      <Button size="small" type="default" onClick={copy}>
+      <Button
+        size="small"
+        type="default"
+        icon={
+          copied ? (
+            <LuCheck aria-hidden="true" />
+          ) : (
+            <LuCopy aria-hidden="true" />
+          )
+        }
+        onClick={copy}
+      >
         {copied ? "Copied! ✓" : "Copy Command"}
       </Button>
     </div>
@@ -340,6 +368,7 @@ export default function Website() {
             </a>
             <Button
               type="primary"
+              icon={<LuGithub aria-hidden="true" />}
               href="https://github.com/sirawats/yolojsx"
               target="_blank"
               rel="noopener noreferrer"
@@ -385,7 +414,18 @@ export default function Website() {
                 npx yolojsx Home.jsx
               </span>
             </span>
-            <Button size="small" type="default" onClick={copyCommand}>
+            <Button
+              size="small"
+              type="default"
+              icon={
+                copied ? (
+                  <LuCheck aria-hidden="true" />
+                ) : (
+                  <LuCopy aria-hidden="true" />
+                )
+              }
+              onClick={copyCommand}
+            >
               {copied ? "Copied! ✓" : "Copy"}
             </Button>
           </div>
@@ -396,6 +436,7 @@ export default function Website() {
             </Button>
             <Button
               size="large"
+              icon={<LuGithub aria-hidden="true" />}
               href="https://github.com/sirawats/yolojsx"
               target="_blank"
               rel="noopener noreferrer"
@@ -424,19 +465,25 @@ export default function Website() {
           </div>
 
           <Row gutter={[24, 24]}>
-            {FEATURES.map((feat) => (
-              <Col xs={24} md={12} lg={8} key={feat.title}>
-                <Card hoverable className="h-full border-border">
-                  <div className="text-3xl mb-4">{feat.icon}</div>
-                  <Typography.Title level={4} className="mb-2">
-                    {feat.title}
-                  </Typography.Title>
-                  <Typography.Text type="secondary">
-                    {feat.description}
-                  </Typography.Text>
-                </Card>
-              </Col>
-            ))}
+            {FEATURES.map((feat) => {
+              const Icon = feat.icon;
+              return (
+                <Col xs={24} md={12} lg={8} key={feat.title}>
+                  <Card hoverable className="h-full border-border">
+                    <Icon
+                      aria-hidden="true"
+                      className="mb-4 text-3xl text-primary"
+                    />
+                    <Typography.Title level={4} className="mb-2">
+                      {feat.title}
+                    </Typography.Title>
+                    <Typography.Text type="secondary">
+                      {feat.description}
+                    </Typography.Text>
+                  </Card>
+                </Col>
+              );
+            })}
           </Row>
         </div>
       </section>
@@ -489,8 +536,13 @@ export default function Website() {
                   App.jsx
                 </span>
               </div>
-              <pre className="p-4 text-xs font-mono text-foreground overflow-x-auto m-0 leading-relaxed">
-                {CODE_EXAMPLE}
+              <pre className="language-jsx p-4 text-xs font-mono text-foreground overflow-x-auto m-0 leading-relaxed">
+                <code
+                  className="language-jsx"
+                  dangerouslySetInnerHTML={{
+                    __html: highlightJsx(CODE_EXAMPLE),
+                  }}
+                />
               </pre>
             </div>
           </div>
@@ -597,13 +649,25 @@ export default function Website() {
                       <Button
                         size="small"
                         type="default"
+                        icon={
+                          codeCopied ? (
+                            <LuCheck aria-hidden="true" />
+                          ) : (
+                            <LuCopy aria-hidden="true" />
+                          )
+                        }
                         onClick={() => copyCode(activeExample.code)}
                       >
                         {codeCopied ? "Copied! ✓" : "Copy Code"}
                       </Button>
                     </div>
-                    <pre className="max-h-[500px] overflow-auto text-foreground font-mono text-xs leading-relaxed p-2">
-                      <code>{activeExample.code}</code>
+                    <pre className="language-jsx max-h-[500px] overflow-auto text-foreground font-mono text-xs leading-relaxed p-2">
+                      <code
+                        className="language-jsx"
+                        dangerouslySetInnerHTML={{
+                          __html: highlightJsx(activeExample.code),
+                        }}
+                      />
                     </pre>
                   </div>
                 )}

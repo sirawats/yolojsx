@@ -32,7 +32,7 @@ The package SHALL expose a `yolojsx` executable that supports a JSX build form a
 
 ### Requirement: JSX component entry
 
-The CLI SHALL accept an existing `.jsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `YOLOJSX` metadata export containing `title` and `icon` to the generated document.
+The CLI SHALL accept an existing `.jsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `YOLOJSX` metadata export containing `title`, `icon`, and `prismTheme` to the generated document.
 
 #### Scenario: Default-exported component
 
@@ -53,6 +53,21 @@ The CLI SHALL accept an existing `.jsx` module whose default export is a React c
 
 - **WHEN** the entry exports `YOLOJSX` with a title and an imported local, remote, or data URL icon
 - **THEN** the generated application uses that title and icon in the browser tab
+
+#### Scenario: Theme-aware PrismJS tokens
+
+- **WHEN** the entry exports a discovered Prism theme name as the string literal `YOLOJSX.prismTheme`
+- **THEN** the generated application resolves and applies only that `prism-themes` stylesheet
+
+#### Scenario: Prism theme discovery
+
+- **WHEN** the user runs `yolojsx prism-themes` or `yolojsx --prism-themes`
+- **THEN** the CLI lists canonical theme names discovered from the installed PrismJS and `prism-themes` packages
+
+#### Scenario: Unknown Prism theme
+
+- **WHEN** `YOLOJSX.prismTheme` names a theme absent from the discovered catalog
+- **THEN** the build succeeds with PrismJS's default `prism` theme and the CLI prints a warning
 
 #### Scenario: No application metadata
 

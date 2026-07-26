@@ -2,14 +2,19 @@
 
 ## Invocation
 
-Use an installed CLI when available:
+Check whether `yolojsx` is available on `PATH` first. This finds a global
+installation when present; otherwise run the package through `npx`:
 
 ```sh
-yolojsx Report.jsx
+if command -v yolojsx >/dev/null 2>&1; then
+  yolojsx Report.jsx
+else
+  npx yolojsx Report.jsx
+fi
 ```
 
-Use `npx yolojsx Report.jsx` when the package is not installed and package
-execution is allowed.
+Apply the same choice to the commands below: use `yolojsx ...` when the check
+succeeds and `npx yolojsx ...` when it does not.
 
 ## Output modes
 
@@ -52,14 +57,16 @@ Packing reads a compatible directory build without modifying it.
 
 ```sh
 yolojsx themes
+yolojsx prism-themes
 yolojsx Report.jsx --theme material
 yolojsx Report.jsx --theme material-dark
 yolojsx Report.jsx --theme github --css styles/report.css
 ```
 
 Unsuffixed family aliases resolve to fixed light presets; dark mode is selected
-only by naming a dark preset. Theme and CSS options apply to JSX builds, not
-`pack` or `themes`.
+only by naming a dark preset. `prism-themes` lists syntax themes discovered from
+the installed PrismJS and Prism Themes packages. Theme and CSS options apply to
+JSX builds, not discovery or `pack` commands.
 
 ## Option constraints
 

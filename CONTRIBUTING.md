@@ -40,8 +40,8 @@ npm run pack:check
 npm run verify:package
 ```
 
-Use `node bin/yolojsx.js examples/Home.jsx` for a manual default-output smoke
-test. It creates `Home.html`, which is ignored. Use `--out-dir dist` to exercise
+Use `node bin/yolojsx.js examples/TaxCalculator.jsx` for a manual default-output smoke
+test. It creates `TaxCalculator.html`, which is ignored. Use `--out-dir dist` to exercise
 directory output.
 
 ## Dependency changes

@@ -9,6 +9,20 @@ const repository = path.resolve(
   "../..",
 );
 const examplesDirectory = path.join(repository, "examples");
+const skillExamplesDirectory = path.join(repository, "skills/yolojsx/examples");
+
+test("yolojsx skill mirrors every example", async () => {
+  const filenames = (await readdir(examplesDirectory)).sort();
+  assert.deepEqual((await readdir(skillExamplesDirectory)).sort(), filenames);
+
+  for (const filename of filenames) {
+    assert.equal(
+      await readFile(path.join(skillExamplesDirectory, filename), "utf8"),
+      await readFile(path.join(examplesDirectory, filename), "utf8"),
+      filename,
+    );
+  }
+});
 
 test("packaged examples rely on CLI-managed theme styling", async () => {
   const filenames = (await readdir(examplesDirectory))

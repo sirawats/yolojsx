@@ -11,10 +11,9 @@ const repository = path.resolve(
   "../..",
 );
 const examples = [
-  ["Home.jsx", "default", "Build first"],
   ["Techspec.jsx", "github", "Session architecture"],
   ["APIDocs.jsx", "github-dark", "Open API Atlas", true],
-  ["CalculatorDemo.jsx", "material", "unit economics"],
+  ["TaxCalculator.jsx", "material", "Illustrative Tax Estimator"],
   ["SaaS.jsx", "catppuccin", "Nimbus"],
   ["Analytics.jsx", "one-dark", "Platform operations"],
   ["Editorial.jsx", "obsidian-minimal", "Field Notes"],
@@ -52,6 +51,8 @@ test("builds every documented example in file and directory modes", async (t) =>
         css,
         /pre>code\{(?=[^}]*color:inherit)(?=[^}]*background:(?:transparent|0 0))[^}]*\}/,
       );
+      assert.match(payload.script, /language-json/);
+      assert.match(payload.script, /dangerouslySetInnerHTML/);
     }
 
     const directoryOutput = path.join(fixture, `${basename}-dist`);
@@ -81,6 +82,8 @@ test("builds every documented example in file and directory modes", async (t) =>
         directoryThemeCss,
         /pre>code\{(?=[^}]*color:inherit)(?=[^}]*background:(?:transparent|0 0))[^}]*\}/,
       );
+      assert.match(directoryScript, /language-json/);
+      assert.match(directoryScript, /dangerouslySetInnerHTML/);
     }
   }
 });

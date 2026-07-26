@@ -19,6 +19,7 @@ import {
   inspectFileOutput,
   inspectOutput,
 } from "./output.js";
+import { renderPrismThemeCatalog } from "./prism-themes.js";
 import { createSingleFileArtifact } from "./single-file.js";
 import { renderThemeCatalog, resolveTheme } from "./themes.js";
 
@@ -58,6 +59,10 @@ export async function runCli(
       stdout.write(renderThemeCatalog());
       return 0;
     }
+    if (options.action === "prism-themes") {
+      stdout.write(await renderPrismThemeCatalog());
+      return 0;
+    }
 
     if (options.action === "pack") {
       const inputDirectory = await resolveAndValidateInputDirectory(
@@ -94,6 +99,7 @@ export async function runCli(
     const sourceDirectory = isWithin(cwd, entry) ? cwd : path.dirname(entry);
     const customCss = await resolveAndValidateCss(options.css, cwd);
     const theme = resolveTheme(options.theme);
+    const onWarning = (message) => stderr.write(`Warning: ${message}\n`);
 
     if (options.deprecatedSingleFile) {
       stderr.write(
@@ -129,6 +135,7 @@ export async function runCli(
             singleFile: true,
             theme,
             customCss,
+            onWarning,
           },
           createSingleFileArtifact,
         );
@@ -173,6 +180,7 @@ export async function runCli(
       base: options.base,
       theme,
       customCss,
+      onWarning,
     });
     stdout.write(`Built ${entry}\nOutput: ${output}\n`);
     return 0;

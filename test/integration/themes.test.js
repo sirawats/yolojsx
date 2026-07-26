@@ -3,6 +3,7 @@ import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { readEmbeddedPayload } from "../../src/single-file.js";
+import { loadPrismThemeCatalog } from "../../src/prism-themes.js";
 import { THEMES } from "../../src/themes.js";
 import { invoke, makeFixture, readAsset, writeFixture } from "../helpers.js";
 
@@ -153,4 +154,19 @@ test("lists themes and resolves aliases through the CLI", async (t) => {
   });
   assert.equal(alias.exitCode, 0, alias.stderr);
   assert.ok(await readFile(path.join(fixture, "Alias.html"), "utf8"));
+});
+
+test("lists themes discovered from PrismJS and Prism Themes", async () => {
+  const catalog = await loadPrismThemeCatalog();
+  assert.ok(catalog.has("prism"));
+  assert.ok(catalog.has("vsc-dark-plus"));
+  assert.ok([...catalog.keys()].every((name) => !name.endsWith(".min")));
+
+  const listing = await invoke(["prism-themes"]);
+  assert.equal(listing.exitCode, 0, listing.stderr);
+  assert.equal(listing.stdout, `${[...catalog.keys()].join("\n")}\n`);
+
+  const optionListing = await invoke(["--prism-themes"]);
+  assert.equal(optionListing.exitCode, 0, optionListing.stderr);
+  assert.equal(optionListing.stdout, listing.stdout);
 });
