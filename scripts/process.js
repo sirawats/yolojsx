@@ -7,6 +7,7 @@ export function run(command, args, { cwd, env, expectedStatus = 0 } = {}) {
     cwd,
     env: { ...process.env, ...env },
     encoding: "utf8",
+    shell: process.platform === "win32",
   });
 
   if (result.error) {
