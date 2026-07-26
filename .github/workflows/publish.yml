@@ -12,6 +12,7 @@ permissions:
 jobs:
   publish:
     if: ${{ !github.event.release.prerelease }}
+    environment: npm
     runs-on: ubuntu-latest
 
     steps:

@@ -94,9 +94,9 @@ npm logout --registry=https://registry.npmjs.org/
 Later releases use npm trusted publishing from
 `.github/workflows/publish.yml`. Configure the `yolojsx` package on npm with
 GitHub owner `sirawats`, repository `yolojsx`, and workflow `publish.yml`, then
-publish a non-prerelease GitHub Release whose `v<version>` tag matches
-`package.json`. The workflow uses short-lived identity credentials; do not add
-an npm write token to GitHub.
+set its environment to `npm` and publish a non-prerelease GitHub Release whose
+`v<version>` tag matches `package.json`. The workflow uses short-lived identity
+credentials; do not add an npm write token to GitHub.
 
 ## Step 2: Understand the version
 
