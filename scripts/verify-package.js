@@ -186,7 +186,13 @@ export default () => <main className="p-8"><Button>Package verification</Button>
     globalExecutable,
     "file",
   );
-  run(globalExecutable, ["--version"], { cwd: workDirectory });
+  if (process.platform === "win32") {
+    run(process.execPath, [globalExecutable, "--version"], {
+      cwd: workDirectory,
+    });
+  } else {
+    run(globalExecutable, ["--version"], { cwd: workDirectory });
+  }
 
   const npmBinDirectory = path.join(workDirectory, "node_modules", ".bin");
   await mkdir(npmBinDirectory, { recursive: true });
@@ -196,8 +202,13 @@ export default () => <main className="p-8"><Button>Package verification</Button>
     npmExecutable,
     "file",
   );
-  run(npmExecutable, ["themes"], { cwd: workDirectory });
-  run(npmExecutable, ["--themes"], { cwd: workDirectory });
+  if (process.platform === "win32") {
+    run(process.execPath, [npmExecutable, "themes"], { cwd: workDirectory });
+    run(process.execPath, [npmExecutable, "--themes"], { cwd: workDirectory });
+  } else {
+    run(npmExecutable, ["themes"], { cwd: workDirectory });
+    run(npmExecutable, ["--themes"], { cwd: workDirectory });
+  }
 
   const moduleUrl = pathToFileURL(
     path.join(packageDirectory, "src/single-file.js"),
