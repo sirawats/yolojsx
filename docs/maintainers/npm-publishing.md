@@ -91,11 +91,12 @@ The second command must print the intended maintainer account, currently
 npm logout --registry=https://registry.npmjs.org/
 ```
 
-For later releases, prefer npm trusted publishing from a protected GitHub
-Actions environment. Trusted publishing uses short-lived identity credentials
-instead of storing a long-lived npm write token. Set that up only after
-confirming the repository, workflow filename, npm package, and protected
-environment that should be trusted.
+Later releases use npm trusted publishing from
+`.github/workflows/publish.yml`. Configure the `yolojsx` package on npm with
+GitHub owner `sirawats`, repository `yolojsx`, and workflow `publish.yml`, then
+set its environment to `npm` and publish a non-prerelease GitHub Release whose
+`v<version>` tag matches `package.json`. The workflow uses short-lived identity
+credentials; do not add an npm write token to GitHub.
 
 ## Step 2: Understand the version
 
