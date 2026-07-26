@@ -1,5 +1,5 @@
 import { StyleProvider } from "@ant-design/cssinjs";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   Avatar,
@@ -115,74 +115,83 @@ export default function App() {
 function ThemePicker({
   themeFamilies,
   activeFamily,
-  activeTheme,
   onSelectTheme,
   onStepTheme,
 }) {
-  return (
-    <div className="mb-4 grid gap-3 border-y border-border py-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-muted-foreground mr-1">
-          Theme
-        </span>
-        <Button
-          size="small"
-          onClick={() => onStepTheme(-1)}
-          aria-label="Previous theme"
-        >
-          ←
-        </Button>
-        {themeFamilies.map((family) => {
-          const isActive = family.id === activeFamily.id;
-          return (
-            <button
-              key={family.id}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onSelectTheme(family.presets[0].id)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                isActive
-                  ? "bg-primary text-primary-foreground font-semibold shadow-sm"
-                  : "bg-code text-foreground hover:bg-border"
-              }`}
-            >
-              {family.name}
-            </button>
-          );
-        })}
-        <Button
-          size="small"
-          onClick={() => onStepTheme(1)}
-          aria-label="Next theme"
-        >
-          →
-        </Button>
-      </div>
+  const activeFamilyRef = useRef(null);
 
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-semibold text-muted-foreground mr-1">
-          Variant
-        </span>
-        {activeFamily.presets.map((preset) => {
-          const isActive = preset.id === activeTheme.id;
-          return (
-            <button
-              key={preset.id}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onSelectTheme(preset.id)}
-              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
-                isActive
-                  ? "bg-foreground font-bold text-background shadow-sm"
-                  : "bg-code text-muted-foreground hover:bg-border hover:text-foreground"
-              }`}
-            >
-              {preset.name.slice(activeFamily.name.length).trim() ||
-                preset.name}
-            </button>
-          );
-        })}
+  useEffect(() => {
+    activeFamilyRef.current?.scrollIntoView({
+      block: "nearest",
+      inline: "nearest",
+    });
+  }, [activeFamily.id]);
+
+  return (
+    <div className="mb-4 flex min-w-0 items-center gap-2 border-y border-border py-3">
+      <span className="mr-1 shrink-0 text-xs font-semibold text-muted-foreground">
+        Theme
+      </span>
+      <Button
+        className="shrink-0"
+        size="small"
+        onClick={() => onStepTheme(-1)}
+        aria-label="Previous theme"
+      >
+        ←
+      </Button>
+      <div className="relative min-w-0 flex-1">
+        <div
+          aria-label="Theme families"
+          className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <div className="flex w-max items-center gap-2 px-3">
+            {themeFamilies.map((family) => {
+              const isActive = family.id === activeFamily.id;
+              return (
+                <button
+                  ref={isActive ? activeFamilyRef : undefined}
+                  key={family.id}
+                  type="button"
+                  aria-pressed={isActive}
+                  onClick={() => onSelectTheme(family.presets[0].id)}
+                  className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                    isActive
+                      ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                      : "bg-code text-foreground hover:bg-border"
+                  }`}
+                >
+                  {family.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 left-0 w-4"
+          style={{
+            background:
+              "linear-gradient(to right, var(--background), transparent)",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 right-0 w-4"
+          style={{
+            background:
+              "linear-gradient(to left, var(--background), transparent)",
+          }}
+        />
       </div>
+      <Button
+        className="shrink-0"
+        size="small"
+        onClick={() => onStepTheme(1)}
+        aria-label="Next theme"
+      >
+        →
+      </Button>
     </div>
   );
 }
@@ -529,7 +538,7 @@ export default function Website() {
               <div className="min-w-0">
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <strong>{activeExample.label}</strong>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
                     <Segmented
                       size="small"
                       options={["Desktop", "Mobile", "Code"]}
@@ -542,14 +551,26 @@ export default function Website() {
                       }
                       onChange={(value) => setPreviewMode(value.toLowerCase())}
                     />
-                    <Tag color="geekblue">{activeTheme.id}</Tag>
+                    <span className="text-xs font-semibold text-muted-foreground">
+                      Variant
+                    </span>
+                    <Segmented
+                      size="small"
+                      options={activeFamily.presets.map((preset) => ({
+                        label:
+                          preset.name.slice(activeFamily.name.length).trim() ||
+                          preset.name,
+                        value: preset.id,
+                      }))}
+                      value={activeTheme.id}
+                      onChange={setActiveThemeId}
+                    />
                   </div>
                 </div>
 
                 <ThemePicker
                   themeFamilies={THEME_FAMILIES}
                   activeFamily={activeFamily}
-                  activeTheme={activeTheme}
                   onSelectTheme={setActiveThemeId}
                   onStepTheme={stepTheme}
                 />
