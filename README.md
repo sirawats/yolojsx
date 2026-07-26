@@ -4,6 +4,12 @@
 
 # yolojsx
 
+[![CI status][ci-image]][ci-url]
+[![npm version][npm-image]][npm-url]
+[![npm downloads][downloads-image]][npm-url]
+[![Node.js version][node-image]][node-url]
+[![License][license-image]][license-url]
+
 Build one JSX component into a portable compressed HTML application—without setting up a frontend project first.
 
 `yolojsx` supplies React, Vite, Tailwind CSS, Ant Design, and an original global theme catalog. A normal invocation writes one `<EntryName>.html` file that can open directly; directory output remains available explicitly.
@@ -273,3 +279,13 @@ Report vulnerabilities privately using [SECURITY.md](https://github.com/sirawats
 ## License
 
 MIT
+
+[ci-image]: https://github.com/sirawats/yolojsx/actions/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/sirawats/yolojsx/actions/workflows/ci.yml
+[npm-image]: https://img.shields.io/npm/v/yolojsx.svg
+[npm-url]: https://www.npmjs.com/package/yolojsx
+[downloads-image]: https://img.shields.io/npm/dm/yolojsx.svg
+[node-image]: https://img.shields.io/node/v/yolojsx.svg
+[node-url]: https://nodejs.org/
+[license-image]: https://img.shields.io/npm/l/yolojsx.svg
+[license-url]: https://github.com/sirawats/yolojsx/blob/master/LICENSE
