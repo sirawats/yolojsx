@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.3 - 2026-07-26
+
 - Add a canonical yolojsx AI-agent skill and Git-installable adapters for Codex,
   Claude Code, Antigravity/Gemini CLI, and OpenCode without adding plugin files
   to the npm package.
