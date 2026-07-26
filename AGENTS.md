@@ -96,7 +96,8 @@ practices.
 - Dependency or release work also runs `npm audit`, `npm run check:licenses`, and
   `npm run readiness`.
 
-CI runs `npm run verify` after a pull request is merged, not while it is open.
+CI runs `npm run verify` on every pull request and on pushes to `master`.
+Branch protection requires these checks to pass before merging.
 Run it locally before handing work off.
 
 ## Code Style
