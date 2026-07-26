@@ -18,26 +18,37 @@ import {
 import { THEMES, renderThemeCss } from "../src/themes.js";
 import logo from "../assets/yolo_chihuahua_sticker.png";
 
+const RAW_EXAMPLES = import.meta.glob("../examples/*.jsx", {
+  eager: true,
+  query: "?raw",
+  import: "default",
+});
+
 const EXAMPLES = Object.entries(
   import.meta.glob("../examples/*.jsx", { eager: true, import: "default" }),
-).map(([file, component]) => {
-  const name = file.split("/").pop();
-  return {
-    id: name,
-    label: name.slice(0, -4),
-    component,
-  };
-}).sort((left, right) => left.label.localeCompare(right.label));
+)
+  .map(([file, component]) => {
+    const name = file.split("/").pop();
+    return {
+      id: name,
+      label: name.slice(0, -4),
+      component,
+      code: RAW_EXAMPLES[file] || "",
+    };
+  })
+  .sort((left, right) => left.label.localeCompare(right.label));
 
 const THEME_FAMILIES = THEMES.reduce((families, preset) => {
-  const family = families.find(({ id }) =>
-    preset.id === id || preset.id.startsWith(`${id}-`)
+  const family = families.find(
+    ({ id }) => preset.id === id || preset.id.startsWith(`${id}-`),
   );
   if (family) {
     family.presets.push(preset);
     return families;
   }
-  const id = preset.aliases.find((alias) => preset.id.startsWith(`${alias}-`)) ?? preset.id;
+  const id =
+    preset.aliases.find((alias) => preset.id.startsWith(`${alias}-`)) ??
+    preset.id;
   families.push({
     id,
     name: preset.name.split(" ").slice(0, id.split("-").length).join(" "),
@@ -45,38 +56,43 @@ const THEME_FAMILIES = THEMES.reduce((families, preset) => {
   });
   return families;
 }, []);
-const FAMILIES_PER_PAGE = 4;
 
 const FEATURES = [
   {
     icon: "⚡",
     title: "Zero Configuration",
-    description: "Turn any standalone React JSX file into a portable web application without Vite, Webpack, or build setup.",
+    description:
+      "Turn any standalone React JSX file into a portable web application without Vite, Webpack, or build setup.",
   },
   {
     icon: "🗜️",
     title: "Compressed Single-File HTML",
-    description: "Bundles JS & CSS into a self-contained gzip base64 payload. Opens instantly in any browser via file:// or HTTP.",
+    description:
+      "Bundles JS & CSS into a self-contained gzip base64 payload. Opens instantly in any browser via file:// or HTTP.",
   },
   {
     icon: "🎨",
     title: "20+ Theme Presets",
-    description: "Includes harmonized Tailwind CSS v4 design tokens and Ant Design 6 Component tokens out of the box.",
+    description:
+      "Includes harmonized Tailwind CSS v4 design tokens and Ant Design 6 Component tokens out of the box.",
   },
   {
     icon: "📁",
     title: "Flexible Output Modes",
-    description: "Emit single-file HTML by default, or directory assets (--out-dir dist) for strict CSP and traditional hosting.",
+    description:
+      "Emit single-file HTML by default, or directory assets (--out-dir dist) for strict CSP and traditional hosting.",
   },
   {
     icon: "⚛️",
     title: "Full React 19 + Ant Design",
-    description: "Pre-configured with React 19, Tailwind CSS v4, and Ant Design components ready for rapid prototyping.",
+    description:
+      "Pre-configured with React 19, Tailwind CSS v4, and Ant Design components ready for rapid prototyping.",
   },
   {
     icon: "🛠️",
     title: "CLI & Pack Workflows",
-    description: "Simple CLI commands (`yolojsx Home.jsx`, `yolojsx pack dist`) for easy build & CI/CD pipeline integration.",
+    description:
+      "Simple CLI commands (`yolojsx Home.jsx`, `yolojsx pack dist`) for easy build & CI/CD pipeline integration.",
   },
 ];
 
@@ -96,11 +112,109 @@ export default function App() {
   );
 }`;
 
+function ThemePicker({
+  themeFamilies,
+  activeFamily,
+  activeTheme,
+  onSelectTheme,
+  onStepTheme,
+}) {
+  return (
+    <div className="mb-4 grid gap-3 border-y border-border py-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold text-muted-foreground mr-1">
+          Theme
+        </span>
+        <Button
+          size="small"
+          onClick={() => onStepTheme(-1)}
+          aria-label="Previous theme"
+        >
+          ←
+        </Button>
+        {themeFamilies.map((family) => {
+          const isActive = family.id === activeFamily.id;
+          return (
+            <button
+              key={family.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => onSelectTheme(family.presets[0].id)}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                isActive
+                  ? "bg-primary text-primary-foreground font-semibold shadow-sm"
+                  : "bg-code text-foreground hover:bg-border"
+              }`}
+            >
+              {family.name}
+            </button>
+          );
+        })}
+        <Button
+          size="small"
+          onClick={() => onStepTheme(1)}
+          aria-label="Next theme"
+        >
+          →
+        </Button>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold text-muted-foreground mr-1">
+          Variant
+        </span>
+        {activeFamily.presets.map((preset) => {
+          const isActive = preset.id === activeTheme.id;
+          return (
+            <button
+              key={preset.id}
+              type="button"
+              aria-pressed={isActive}
+              onClick={() => onSelectTheme(preset.id)}
+              className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
+                isActive
+                  ? "bg-foreground font-bold text-background shadow-sm"
+                  : "bg-code text-muted-foreground hover:bg-border hover:text-foreground"
+              }`}
+            >
+              {preset.name.slice(activeFamily.name.length).trim() ||
+                preset.name}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function CliCommandBar({ exampleId, themeId }) {
+  const command = `npx yolojsx ${exampleId} --theme ${themeId}`;
+  const [copied, setCopied] = useState(false);
+
+  const copy = () => {
+    navigator.clipboard?.writeText(command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-card/90 px-4 py-2.5 font-mono text-xs shadow-card">
+      <div className="flex items-center gap-2 overflow-x-auto">
+        <span className="text-primary font-bold">$</span>
+        <span className="text-foreground font-medium">{command}</span>
+      </div>
+      <Button size="small" type="default" onClick={copy}>
+        {copied ? "Copied! ✓" : "Copy Command"}
+      </Button>
+    </div>
+  );
+}
+
 export default function Website() {
   const [copied, setCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [activeExampleId, setActiveExampleId] = useState(EXAMPLES[0].id);
   const [activeThemeId, setActiveThemeId] = useState(THEMES[0].id);
-  const [familyPageIndex, setFamilyPageIndex] = useState(0);
   const [previewMode, setPreviewMode] = useState("desktop");
   const [previewDocument, setPreviewDocument] = useState();
 
@@ -110,35 +224,43 @@ export default function Website() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const activeExample = EXAMPLES.find(({ id }) => id === activeExampleId) ?? EXAMPLES[0];
-  const activeTheme = THEMES.find(({ id }) => id === activeThemeId) ?? THEMES[0];
-  const activeFamily = THEME_FAMILIES.find(({ presets }) =>
-    presets.some(({ id }) => id === activeTheme.id)
-  ) ?? THEME_FAMILIES[0];
-  const familyPageCount = Math.ceil(THEME_FAMILIES.length / FAMILIES_PER_PAGE);
-  const visibleFamilies = THEME_FAMILIES.slice(
-    familyPageIndex * FAMILIES_PER_PAGE,
-    (familyPageIndex + 1) * FAMILIES_PER_PAGE,
-  );
+  const copyCode = (code) => {
+    navigator.clipboard?.writeText(code);
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
+  };
+
+  const activeExample =
+    EXAMPLES.find(({ id }) => id === activeExampleId) ?? EXAMPLES[0];
+  const activeTheme =
+    THEMES.find(({ id }) => id === activeThemeId) ?? THEMES[0];
+  const activeFamily =
+    THEME_FAMILIES.find(({ presets }) =>
+      presets.some(({ id }) => id === activeTheme.id),
+    ) ?? THEME_FAMILIES[0];
+  const currentThemeIndex = THEMES.findIndex(({ id }) => id === activeTheme.id);
+  const stepTheme = (offset) => {
+    const nextIndex =
+      (currentThemeIndex + offset + THEMES.length) % THEMES.length;
+    setActiveThemeId(THEMES[nextIndex].id);
+  };
   const ActiveExample = activeExample.component;
   const previewTheme = {
     ...activeTheme.antDesign,
-    algorithm: activeTheme.appearance === "dark"
-      ? antdTheme.darkAlgorithm
-      : antdTheme.defaultAlgorithm,
-  };
-  const changeFamilyPage = (offset) => {
-    const nextPage = (familyPageIndex + offset + familyPageCount) % familyPageCount;
-    setFamilyPageIndex(nextPage);
-    setActiveThemeId(THEME_FAMILIES[nextPage * FAMILIES_PER_PAGE].presets[0].id);
+    algorithm:
+      activeTheme.appearance === "dark"
+        ? antdTheme.darkAlgorithm
+        : antdTheme.defaultAlgorithm,
   };
   const loadPreview = (event) => {
     const frameDocument = event.currentTarget.contentDocument;
     const base = frameDocument.createElement("base");
     base.href = document.baseURI;
-    const styles = [...document.head.querySelectorAll(
-      'link[rel="stylesheet"], style:not([data-rc-order])',
-    )].map((node) => node.cloneNode(true));
+    const styles = [
+      ...document.head.querySelectorAll(
+        'link[rel="stylesheet"], style:not([data-rc-order])',
+      ),
+    ].map((node) => node.cloneNode(true));
     frameDocument.head.replaceChildren(base, ...styles);
     frameDocument.body.style.margin = "0";
     frameDocument.body.style.overflowX = "hidden";
@@ -154,7 +276,11 @@ export default function Website() {
           const el = frameDocument.getElementById(targetId);
           el?.scrollIntoView({ behavior: "smooth" });
         }
-      } else if (anchor.target === "_blank" || href.startsWith("http://") || href.startsWith("https://")) {
+      } else if (
+        anchor.target === "_blank" ||
+        href.startsWith("http://") ||
+        href.startsWith("https://")
+      ) {
         window.open(href, "_blank", "noopener,noreferrer");
       }
     });
@@ -167,14 +293,34 @@ export default function Website() {
       <nav className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3 font-bold text-xl">
-            <Avatar src={logo} shape="square" size="large" className="bg-transparent" />
+            <Avatar
+              src={logo}
+              shape="square"
+              size="large"
+              className="bg-transparent"
+            />
             <span>yolojsx</span>
             <Tag color="blue">v0.1.2</Tag>
           </div>
           <Space size="medium">
-            <a href="#features" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Features</a>
-            <a href="#showcase" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Showcase</a>
-            <a href="#quickstart" className="text-muted-foreground hover:text-foreground hidden sm:inline-block">Quickstart</a>
+            <a
+              href="#features"
+              className="text-muted-foreground hover:text-foreground hidden sm:inline-block"
+            >
+              Features
+            </a>
+            <a
+              href="#quickstart"
+              className="text-muted-foreground hover:text-foreground hidden sm:inline-block"
+            >
+              Quickstart
+            </a>
+            <a
+              href="#showcase"
+              className="text-muted-foreground hover:text-foreground hidden sm:inline-block"
+            >
+              Showcase
+            </a>
             <Button
               type="primary"
               href="https://github.com/sirawats/yolojsx"
@@ -191,18 +337,37 @@ export default function Website() {
       <section className="relative px-6 pt-20 pb-24 text-center overflow-hidden">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-primary opacity-10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl">
-          <img src={logo} alt="yolojsx logo" className="mx-auto mb-2 h-36 w-36 object-contain drop-shadow-md" />
-          <Badge count="Open Source CLI Tool" style={{ backgroundColor: "#57b926ff" }} className="mb-6" />
+          <img
+            src={logo}
+            alt="yolojsx logo"
+            className="mx-auto mb-2 h-36 w-36 object-contain drop-shadow-md"
+          />
+          <Badge
+            count="Open Source CLI Tool"
+            style={{ backgroundColor: "#57b926ff" }}
+            className="mb-6"
+          />
           <Typography.Title className="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
             Build React JSX into portable HTML apps.
           </Typography.Title>
-          <Typography.Paragraph type="secondary" className="text-xl leading-relaxed max-w-2xl mx-auto mb-8">
-            Zero configuration. Turn any single <code className="bg-code px-2 py-1 rounded text-primary">.jsx</code> component into a portable compressed HTML application with React 19, Tailwind CSS v4, and Ant Design 6.
+          <Typography.Paragraph
+            type="secondary"
+            className="text-xl leading-relaxed max-w-2xl mx-auto mb-8"
+          >
+            Zero configuration. Turn any single{" "}
+            <code className="bg-code px-2 py-1 rounded text-primary">.jsx</code>{" "}
+            component into a portable compressed HTML application with React 19,
+            Tailwind CSS v4, and Ant Design 6.
           </Typography.Paragraph>
 
           {/* Terminal Command Box */}
           <div className="mx-auto max-w-lg rounded-xl border border-border bg-card p-4 shadow-card mb-8 flex items-center justify-between gap-4 font-mono text-sm">
-            <span className="text-muted-foreground">$ <span className="text-foreground font-semibold">npx yolojsx Home.jsx</span></span>
+            <span className="text-muted-foreground">
+              ${" "}
+              <span className="text-foreground font-semibold">
+                npx yolojsx Home.jsx
+              </span>
+            </span>
             <Button size="small" type="default" onClick={copyCommand}>
               {copied ? "Copied! ✓" : "Copy"}
             </Button>
@@ -212,7 +377,12 @@ export default function Website() {
             <Button type="primary" size="large" href="#showcase">
               Explore Showcase
             </Button>
-            <Button size="large" href="https://github.com/sirawats/yolojsx" target="_blank" rel="noopener noreferrer">
+            <Button
+              size="large"
+              href="https://github.com/sirawats/yolojsx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               View on GitHub
             </Button>
           </Space>
@@ -220,13 +390,19 @@ export default function Website() {
       </section>
 
       {/* Features Grid */}
-      <section id="features" className="px-6 py-20 bg-card/40 border-y border-border">
+      <section
+        id="features"
+        className="px-6 py-20 bg-card/40 border-y border-border"
+      >
         <div className="mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <Tag color="blue" className="mb-3">Everything Bundled</Tag>
+            <Tag color="blue" className="mb-3">
+              Everything Bundled
+            </Tag>
             <Typography.Title level={2}>Why yolojsx?</Typography.Title>
             <Typography.Text type="secondary" className="text-base">
-              Designed for developers who want to ship React components fast without build tool fatigue.
+              Designed for developers who want to ship React components fast
+              without build tool fatigue.
             </Typography.Text>
           </div>
 
@@ -235,8 +411,12 @@ export default function Website() {
               <Col xs={24} md={12} lg={8} key={feat.title}>
                 <Card hoverable className="h-full border-border">
                   <div className="text-3xl mb-4">{feat.icon}</div>
-                  <Typography.Title level={4} className="mb-2">{feat.title}</Typography.Title>
-                  <Typography.Text type="secondary">{feat.description}</Typography.Text>
+                  <Typography.Title level={4} className="mb-2">
+                    {feat.title}
+                  </Typography.Title>
+                  <Typography.Text type="secondary">
+                    {feat.description}
+                  </Typography.Text>
                 </Card>
               </Col>
             ))}
@@ -244,12 +424,72 @@ export default function Website() {
         </div>
       </section>
 
+      {/* Code Example Section */}
+      <section id="quickstart" className="px-6 py-20 border-b border-border">
+        <div className="mx-auto max-w-5xl">
+          <div className="grid lg:grid-cols-2 gap-10 items-center">
+            <div>
+              <Tag color="green" className="mb-3">
+                Simple Contract
+              </Tag>
+              <Typography.Title level={2}>
+                Write React. Ship Single HTML.
+              </Typography.Title>
+              <Typography.Paragraph type="secondary" className="text-base">
+                Create a standard React module exporting a default component.
+                Import Ant Design components directly—yolojsx handles the
+                bundling, CSS reset, and theme application automatically.
+              </Typography.Paragraph>
+
+              <div className="mt-6 space-y-4">
+                <div className="flex items-start gap-3">
+                  <span className="text-primary font-bold">1.</span>
+                  <div>
+                    <strong>Install or run via npx:</strong>
+                    <div className="bg-code p-2 rounded mt-1 font-mono text-xs text-foreground">
+                      npx yolojsx Home.jsx --theme github-dark
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <span className="text-primary font-bold">2.</span>
+                  <div>
+                    <strong>Output single-file HTML or directory:</strong>
+                    <div className="bg-code p-2 rounded mt-1 font-mono text-xs text-foreground">
+                      yolojsx Home.jsx --out-dir dist
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
+              <div className="bg-background px-4 py-3 border-b border-border flex items-center gap-2">
+                <div className="size-3 rounded-full bg-danger" />
+                <div className="size-3 rounded-full bg-warning" />
+                <div className="size-3 rounded-full bg-success" />
+                <span className="text-xs text-muted-foreground ml-2 font-mono">
+                  App.jsx
+                </span>
+              </div>
+              <pre className="p-4 text-xs font-mono text-foreground overflow-x-auto m-0 leading-relaxed">
+                {CODE_EXAMPLE}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Interactive Showcase */}
-      <section id="showcase" className="px-6 py-20">
+      <section id="showcase" className="px-6 py-20 bg-card/40">
         <div className="mx-auto max-w-7xl">
           <div className="text-center mb-12">
-            <Tag color="purple" className="mb-3">Live Showcase</Tag>
-            <Typography.Title level={2}>Examples, in every theme</Typography.Title>
+            <Tag color="purple" className="mb-3">
+              Live Showcase
+            </Tag>
+            <Typography.Title level={2}>
+              Examples, in every theme
+            </Typography.Title>
             <Typography.Text type="secondary" className="text-base">
               Preview every packaged example with the complete theme catalog.
             </Typography.Text>
@@ -257,7 +497,10 @@ export default function Website() {
 
           <Card className="border-border shadow-card">
             <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,4fr)]">
-              <nav aria-label="Examples" className="border-b border-border pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-4">
+              <nav
+                aria-label="Examples"
+                className="border-b border-border pb-4 lg:border-b-0 lg:border-r lg:pb-0 lg:pr-4"
+              >
                 <div className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Examples ({EXAMPLES.length})
                 </div>
@@ -289,149 +532,92 @@ export default function Website() {
                   <div className="flex items-center gap-2">
                     <Segmented
                       size="small"
-                      options={["Desktop", "Mobile"]}
-                      value={previewMode === "desktop" ? "Desktop" : "Mobile"}
+                      options={["Desktop", "Mobile", "Code"]}
+                      value={
+                        previewMode === "desktop"
+                          ? "Desktop"
+                          : previewMode === "mobile"
+                            ? "Mobile"
+                            : "Code"
+                      }
                       onChange={(value) => setPreviewMode(value.toLowerCase())}
                     />
                     <Tag color="geekblue">{activeTheme.id}</Tag>
                   </div>
                 </div>
-                <div className="flex justify-center">
+
+                <ThemePicker
+                  themeFamilies={THEME_FAMILIES}
+                  activeFamily={activeFamily}
+                  activeTheme={activeTheme}
+                  onSelectTheme={setActiveThemeId}
+                  onStepTheme={stepTheme}
+                />
+
+                <CliCommandBar
+                  exampleId={activeExample.id}
+                  themeId={activeTheme.id}
+                />
+
+                {previewMode === "code" && (
+                  <div className="rounded-xl border border-border bg-card p-4 font-mono text-sm overflow-hidden">
+                    <div className="flex items-center justify-between gap-4 mb-3 pb-3 border-b border-border">
+                      <span className="text-xs text-muted-foreground font-semibold">
+                        {activeExample.id}
+                      </span>
+                      <Button
+                        size="small"
+                        type="default"
+                        onClick={() => copyCode(activeExample.code)}
+                      >
+                        {codeCopied ? "Copied! ✓" : "Copy Code"}
+                      </Button>
+                    </div>
+                    <pre className="max-h-[500px] overflow-auto text-foreground font-mono text-xs leading-relaxed p-2">
+                      <code>{activeExample.code}</code>
+                    </pre>
+                  </div>
+                )}
+                <div
+                  className={
+                    previewMode === "code" ? "hidden" : "flex justify-center"
+                  }
+                >
                   <iframe
                     title={`${activeExample.label} ${previewMode} preview`}
                     srcDoc="<!doctype html><html><head></head><body></body></html>"
                     onLoad={loadPreview}
                     className="block w-full rounded-xl border border-border bg-background"
                     style={{
-                      aspectRatio: previewMode === "desktop" ? "16 / 9" : "6 / 13",
+                      aspectRatio:
+                        previewMode === "desktop" ? "16 / 9" : "6 / 13",
                       maxWidth: previewMode === "mobile" ? "390px" : "none",
                     }}
                   />
                 </div>
-                {previewDocument && createPortal(
-                  <>
-                    <style>{renderThemeCss(activeTheme)}</style>
-                    <StyleProvider container={previewDocument.head} layer>
-                      <ConfigProvider theme={previewTheme}>
-                        <div
-                          style={{
-                            width: "calc(100% / 0.7)",
-                            transform: "scale(0.7)",
-                            transformOrigin: "top left",
-                          }}
-                        >
-                          <ActiveExample />
-                        </div>
-                      </ConfigProvider>
-                    </StyleProvider>
-                  </>,
-                  previewDocument.body,
-                )}
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-4 border-t border-border pt-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-              <div className="flex flex-wrap items-center gap-2">
-                <Button size="small" onClick={() => changeFamilyPage(-1)} aria-label="Previous theme families">
-                  ←
-                </Button>
-                {visibleFamilies.map((family) => {
-                  const isActive = family.id === activeFamily.id;
-                  return (
-                    <button
-                      key={family.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => setActiveThemeId(family.presets[0].id)}
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "bg-code text-foreground hover:bg-border"
-                      }`}
-                    >
-                      {family.name}
-                    </button>
-                  );
-                })}
-                <Button size="small" onClick={() => changeFamilyPage(1)} aria-label="Next theme families">
-                  →
-                </Button>
-                <span className="text-xs text-muted-foreground">
-                  {familyPageIndex + 1}/{familyPageCount}
-                </span>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-xs font-semibold text-muted-foreground">Variant</span>
-                {activeFamily.presets.map((preset) => {
-                  const isActive = preset.id === activeTheme.id;
-                  return (
-                    <button
-                      key={preset.id}
-                      type="button"
-                      aria-pressed={isActive}
-                      onClick={() => setActiveThemeId(preset.id)}
-                      className={`rounded-md px-2.5 py-1 text-xs transition-colors ${
-                        isActive
-                          ? "bg-foreground font-bold text-background"
-                          : "bg-code text-muted-foreground hover:bg-border hover:text-foreground"
-                      }`}
-                    >
-                      {preset.name.slice(activeFamily.name.length).trim() || preset.name}
-                    </button>
-                  );
-                })}
+                {previewDocument &&
+                  createPortal(
+                    <>
+                      <style>{renderThemeCss(activeTheme)}</style>
+                      <StyleProvider container={previewDocument.head} layer>
+                        <ConfigProvider theme={previewTheme}>
+                          <div
+                            style={{
+                              width: "calc(100% / 0.7)",
+                              transform: "scale(0.7)",
+                              transformOrigin: "top left",
+                            }}
+                          >
+                            <ActiveExample />
+                          </div>
+                        </ConfigProvider>
+                      </StyleProvider>
+                    </>,
+                    previewDocument.body,
+                  )}
               </div>
             </div>
           </Card>
-        </div>
-      </section>
-
-      {/* Code Example Section */}
-      <section id="quickstart" className="px-6 py-20 bg-card/40 border-t border-border">
-        <div className="mx-auto max-w-5xl">
-          <div className="grid lg:grid-cols-2 gap-10 items-center">
-            <div>
-              <Tag color="green" className="mb-3">Simple Contract</Tag>
-              <Typography.Title level={2}>Write React. Ship Single HTML.</Typography.Title>
-              <Typography.Paragraph type="secondary" className="text-base">
-                Create a standard React module exporting a default component. Import Ant Design components directly—yolojsx handles the bundling, CSS reset, and theme application automatically.
-              </Typography.Paragraph>
-
-              <div className="mt-6 space-y-4">
-                <div className="flex items-start gap-3">
-                  <span className="text-primary font-bold">1.</span>
-                  <div>
-                    <strong>Install or run via npx:</strong>
-                    <div className="bg-code p-2 rounded mt-1 font-mono text-xs text-foreground">
-                      npx yolojsx Home.jsx --theme github-dark
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3">
-                  <span className="text-primary font-bold">2.</span>
-                  <div>
-                    <strong>Output single-file HTML or directory:</strong>
-                    <div className="bg-code p-2 rounded mt-1 font-mono text-xs text-foreground">
-                      yolojsx Home.jsx --out-dir dist
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-card">
-              <div className="bg-background px-4 py-3 border-b border-border flex items-center gap-2">
-                <div className="size-3 rounded-full bg-danger" />
-                <div className="size-3 rounded-full bg-warning" />
-                <div className="size-3 rounded-full bg-success" />
-                <span className="text-xs text-muted-foreground ml-2 font-mono">App.jsx</span>
-              </div>
-              <pre className="p-4 text-xs font-mono text-foreground overflow-x-auto m-0 leading-relaxed">
-                {CODE_EXAMPLE}
-              </pre>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -439,14 +625,31 @@ export default function Website() {
       <footer className="border-t border-border px-6 py-10 text-center text-muted-foreground text-sm">
         <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <img src={logo} alt="yolojsx logo" className="h-6 w-6 object-contain" />
-            <span>© {new Date().getFullYear()} <strong>yolojsx</strong>. Released under the MIT License.</span>
+            <img
+              src={logo}
+              alt="yolojsx logo"
+              className="h-6 w-6 object-contain"
+            />
+            <span>
+              © {new Date().getFullYear()} <strong>yolojsx</strong>. Released
+              under the MIT License.
+            </span>
           </div>
           <Space size="large">
-            <a href="https://github.com/sirawats/yolojsx" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+            <a
+              href="https://github.com/sirawats/yolojsx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
               GitHub Repository
             </a>
-            <a href="https://npmjs.com/package/yolojsx" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+            <a
+              href="https://npmjs.com/package/yolojsx"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground"
+            >
               npm Package
             </a>
           </Space>

@@ -56,7 +56,12 @@
     min-height: 100vh;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     color: var(--foreground);
     font-weight: var(--heading-weight);
     letter-spacing: var(--heading-tracking);
@@ -68,11 +73,15 @@
     text-underline-offset: 0.16em;
   }
 
-  code, kbd, pre, samp {
+  code,
+  kbd,
+  pre,
+  samp {
     font-family: var(--font-code);
   }
 
-  :not(pre) > code, kbd {
+  :not(pre) > code,
+  kbd {
     border-radius: var(--theme-radius-sm);
     background: var(--code);
   }
@@ -103,11 +112,15 @@
     border-top: 1px solid var(--border);
   }
 
-  figcaption, small {
+  figcaption,
+  small {
     color: var(--muted-foreground);
   }
 
-  button:not([class]), input:not([class]), select:not([class]), textarea:not([class]) {
+  button:not([class]),
+  input:not([class]),
+  select:not([class]),
+  textarea:not([class]) {
     min-height: var(--control-height);
     border: 1px solid var(--border);
     border-radius: var(--theme-radius-md);

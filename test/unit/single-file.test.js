@@ -71,7 +71,10 @@ test("rejects incompatible build resource shapes", async (t) => {
     "index.html": `<!doctype html><html><head></head><body><script type="module" src="app.js"></script></body></html>`,
     "app.js": `fetch("./runtime.json");`,
   });
-  await assert.rejects(normalizeBuildDirectory(fixture), /runtime-relative fetches/);
+  await assert.rejects(
+    normalizeBuildDirectory(fixture),
+    /runtime-relative fetches/,
+  );
 
   await writeFixture(fixture, { "extra.js": "export default 1;" });
   await assert.rejects(normalizeBuildDirectory(fixture), /found 2/);
@@ -85,7 +88,10 @@ test("rejects CSS root escapes, workers, and non-local entries", async (t) => {
     "app.css": `body{background:url("../outside.png")}`,
     "app.js": `new Worker("worker.js");`,
   });
-  await assert.rejects(normalizeBuildDirectory(fixture), /escapes the pack input/);
+  await assert.rejects(
+    normalizeBuildDirectory(fixture),
+    /escapes the pack input/,
+  );
 
   await writeFixture(fixture, { "app.css": "body{color:red}" });
   await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
@@ -93,7 +99,10 @@ test("rejects CSS root escapes, workers, and non-local entries", async (t) => {
   await writeFixture(fixture, {
     "index.html": `<!doctype html><html><head></head><body><script src="https://example.com/app.js"></script></body></html>`,
   });
-  await assert.rejects(normalizeBuildDirectory(fixture), /not a local JavaScript/);
+  await assert.rejects(
+    normalizeBuildDirectory(fixture),
+    /not a local JavaScript/,
+  );
 });
 
 async function runBootstrap(html, { decompression = true } = {}) {
@@ -155,20 +164,31 @@ test("bootstrap restores supported payloads and renders failure messages", async
     scriptType: "module",
     script: "document.body.dataset.ready='yes'",
   };
-  const encoded = gzipSync(Buffer.from(JSON.stringify(payload))).toString("base64");
+  const encoded = gzipSync(Buffer.from(JSON.stringify(payload))).toString(
+    "base64",
+  );
   const restored = await runBootstrap(createSingleFileHtml(encoded, 1));
   assert.equal(restored.document.title, "Restored");
   assert.equal(restored.body.innerHTML, payload.body);
   assert.equal(restored.head.children[0].textContent, payload.styles[0]);
   assert.equal(restored.body.children[0].textContent, payload.script);
 
-  const unsupportedBrowser = await runBootstrap(createSingleFileHtml(encoded, 1), {
-    decompression: false,
-  });
-  assert.match(unsupportedBrowser.body.children[0].textContent, /does not support/);
+  const unsupportedBrowser = await runBootstrap(
+    createSingleFileHtml(encoded, 1),
+    {
+      decompression: false,
+    },
+  );
+  assert.match(
+    unsupportedBrowser.body.children[0].textContent,
+    /does not support/,
+  );
 
   const wrongVersion = await runBootstrap(createSingleFileHtml(encoded, 2));
-  assert.match(wrongVersion.body.children[0].textContent, /Unsupported packaged/);
+  assert.match(
+    wrongVersion.body.children[0].textContent,
+    /Unsupported packaged/,
+  );
 
   const corrupt = await runBootstrap(createSingleFileHtml("not-base64", 1));
   assert.match(corrupt.body.children[0].textContent, /Unable to load/);

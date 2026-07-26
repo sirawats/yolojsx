@@ -3,7 +3,8 @@ export default {
   name: "Obsidian Minimal Dark",
   aliases: [],
   appearance: "dark",
-  description: "An original restrained dark reading canvas inspired by Minimal's rhythm.",
+  description:
+    "An original restrained dark reading canvas inspired by Minimal's rhythm.",
   source: {
     name: "Minimal for Obsidian",
     url: "https://github.com/kepano/obsidian-minimal",
@@ -25,8 +26,8 @@ export default {
     codeBackground: "#181818",
   },
   typography: {
-    sans: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
-    mono: "ui-monospace, \"SFMono-Regular\", Consolas, monospace",
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    mono: 'ui-monospace, "SFMono-Regular", Consolas, monospace',
   },
   rhythm: {
     lineHeight: 1.68,

@@ -26,7 +26,7 @@ export default {
   },
   typography: {
     sans: "Inter, ui-sans-serif, system-ui, sans-serif",
-    mono: "\"JetBrains Mono\", \"SFMono-Regular\", Consolas, monospace",
+    mono: '"JetBrains Mono", "SFMono-Regular", Consolas, monospace',
   },
   rhythm: {
     lineHeight: 1.48,

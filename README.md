@@ -130,18 +130,18 @@ yolojsx themes                          # List available presets
 
 ### Theme Catalog
 
-| Theme Family | Default / Light Preset | Dark Presets |
-| :--- | :--- | :--- |
-| **Default** | `default` | — |
-| **GitHub** | `github-light` *(alias: `github`)* | `github-dark`, `github-dark-dimmed` |
-| **Material** | `material-light` *(alias: `material`)* | `material-dark` |
-| **One Dark** | — | `one-dark` *(alias: `onedark`)* |
-| **Solarized** | `solarized-light` *(alias: `solarized`)* | `solarized-dark` |
-| **Gruvbox** | `gruvbox-light` *(alias: `gruvbox`)* | `gruvbox-dark` |
-| **Everforest** | `everforest-light` *(alias: `everforest`)* | `everforest-dark` |
-| **Catppuccin** | `catppuccin-latte` *(alias: `catppuccin`)* | `catppuccin-frappe`, `catppuccin-macchiato`, `catppuccin-mocha` |
-| **Obsidian Minimal** | `obsidian-minimal-light` *(alias: `obsidian-minimal`)* | `obsidian-minimal-dark` |
-| **Obsidian Baseline** | `obsidian-baseline-light` *(alias: `obsidian-baseline`)* | `obsidian-baseline-dark` |
+| Theme Family          | Default / Light Preset                                   | Dark Presets                                                    |
+| :-------------------- | :------------------------------------------------------- | :-------------------------------------------------------------- |
+| **Default**           | `default`                                                | —                                                               |
+| **GitHub**            | `github-light` _(alias: `github`)_                       | `github-dark`, `github-dark-dimmed`                             |
+| **Material**          | `material-light` _(alias: `material`)_                   | `material-dark`                                                 |
+| **One Dark**          | —                                                        | `one-dark` _(alias: `onedark`)_                                 |
+| **Solarized**         | `solarized-light` _(alias: `solarized`)_                 | `solarized-dark`                                                |
+| **Gruvbox**           | `gruvbox-light` _(alias: `gruvbox`)_                     | `gruvbox-dark`                                                  |
+| **Everforest**        | `everforest-light` _(alias: `everforest`)_               | `everforest-dark`                                               |
+| **Catppuccin**        | `catppuccin-latte` _(alias: `catppuccin`)_               | `catppuccin-frappe`, `catppuccin-macchiato`, `catppuccin-mocha` |
+| **Obsidian Minimal**  | `obsidian-minimal-light` _(alias: `obsidian-minimal`)_   | `obsidian-minimal-dark`                                         |
+| **Obsidian Baseline** | `obsidian-baseline-light` _(alias: `obsidian-baseline`)_ | `obsidian-baseline-dark`                                        |
 
 Themes never switch in response to the operating-system color preference. This keeps generated output visually stable across machines and viewing environments.
 
@@ -243,15 +243,15 @@ npm run verify
 
 The repository includes a varied example gallery:
 
-| Example | Suggested theme | Demonstrates |
-| :--- | :--- | :--- |
-| [Home.jsx](examples/Home.jsx) | `default` | Compact Tailwind and Ant Design starter |
-| [Techspec.jsx](examples/Techspec.jsx) | `github` | Technical RFC, requirements, architecture, rollout |
-| [APIDocs.jsx](examples/APIDocs.jsx) | `github-dark` | Interactive endpoint reference and code samples |
-| [CalculatorDemo.jsx](examples/CalculatorDemo.jsx) | `material` | Stateful unit-economics calculator |
-| [SaaS.jsx](examples/SaaS.jsx) | `catppuccin` | Marketing, product preview, and responsive pricing |
-| [Analytics.jsx](examples/Analytics.jsx) | `one-dark` | Dense operational metrics and service health |
-| [Editorial.jsx](examples/Editorial.jsx) | `obsidian-minimal` | Long-form reading and typographic rhythm |
+| Example                                           | Suggested theme    | Demonstrates                                       |
+| :------------------------------------------------ | :----------------- | :------------------------------------------------- |
+| [Home.jsx](examples/Home.jsx)                     | `default`          | Compact Tailwind and Ant Design starter            |
+| [Techspec.jsx](examples/Techspec.jsx)             | `github`           | Technical RFC, requirements, architecture, rollout |
+| [APIDocs.jsx](examples/APIDocs.jsx)               | `github-dark`      | Interactive endpoint reference and code samples    |
+| [CalculatorDemo.jsx](examples/CalculatorDemo.jsx) | `material`         | Stateful unit-economics calculator                 |
+| [SaaS.jsx](examples/SaaS.jsx)                     | `catppuccin`       | Marketing, product preview, and responsive pricing |
+| [Analytics.jsx](examples/Analytics.jsx)           | `one-dark`         | Dense operational metrics and service health       |
+| [Editorial.jsx](examples/Editorial.jsx)           | `obsidian-minimal` | Long-form reading and typographic rhythm           |
 
 For example:
 
@@ -260,7 +260,7 @@ node bin/yolojsx.js examples/APIDocs.jsx --theme github-dark
 node bin/yolojsx.js examples/CalculatorDemo.jsx --theme material
 ```
 
-`npm run verify` runs unit and integration coverage, syntax checks, package-content inspection, and a smoke test against the extracted npm artifact, including theme assets and the default artifact-size budget. See [RELEASING.md](https://github.com/sirawats/yolojsx/blob/master/RELEASING.md).
+`npm run verify` runs formatting, linting, syntax checks, unit and integration coverage, package-content inspection, and a smoke test against the extracted npm artifact, including theme assets and the default artifact-size budget. See [RELEASING.md](https://github.com/sirawats/yolojsx/blob/master/RELEASING.md).
 
 First-time npm maintainers can follow the [npm publishing guide](https://github.com/sirawats/yolojsx/blob/master/docs/maintainers/npm-publishing.md), which separates safe dry runs from the live publication command.
 

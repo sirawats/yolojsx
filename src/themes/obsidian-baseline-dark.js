@@ -3,7 +3,8 @@ export default {
   name: "Obsidian Baseline Dark",
   aliases: [],
   appearance: "dark",
-  description: "An original typographic dark canvas inspired by Baseline's hierarchy.",
+  description:
+    "An original typographic dark canvas inspired by Baseline's hierarchy.",
   source: {
     name: "Baseline for Obsidian",
     url: "https://github.com/aaaaalexis/obsidian-baseline",
@@ -25,8 +26,8 @@ export default {
     codeBackground: "#191b1d",
   },
   typography: {
-    sans: "\"Source Sans 3\", \"Segoe UI\", ui-sans-serif, system-ui, sans-serif",
-    mono: "\"Source Code Pro\", ui-monospace, monospace",
+    sans: '"Source Sans 3", "Segoe UI", ui-sans-serif, system-ui, sans-serif',
+    mono: '"Source Code Pro", ui-monospace, monospace',
   },
   rhythm: {
     lineHeight: 1.62,

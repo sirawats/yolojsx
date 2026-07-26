@@ -7,11 +7,11 @@ After publication, the latest release line will receive security fixes. Older
 pre-1.0 releases may be addressed only through an upgrade to the newest patch or
 minor release.
 
-| Version | Supported |
-| --- | --- |
-| Default branch | Yes |
-| Latest npm release | Yes, after publication |
-| Older pre-1.0 releases | No guarantee |
+| Version                | Supported              |
+| ---------------------- | ---------------------- |
+| Default branch         | Yes                    |
+| Latest npm release     | Yes, after publication |
+| Older pre-1.0 releases | No guarantee           |
 
 ## Report a vulnerability
 

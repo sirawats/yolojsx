@@ -49,9 +49,12 @@ export async function resolveAndValidateCss(cssArgument, cwd) {
   }
   const stylesheet = path.resolve(cwd, cssArgument);
   if (path.extname(stylesheet).toLowerCase() !== ".css") {
-    throw new YoloJsxError(`Custom stylesheet must be a .css file: ${stylesheet}`, {
-      code: "INVALID_CSS",
-    });
+    throw new YoloJsxError(
+      `Custom stylesheet must be a .css file: ${stylesheet}`,
+      {
+        code: "INVALID_CSS",
+      },
+    );
   }
   try {
     const stylesheetStat = await stat(stylesheet);
@@ -65,10 +68,13 @@ export async function resolveAndValidateCss(cssArgument, cwd) {
     if (error instanceof YoloJsxError) {
       throw error;
     }
-    throw new YoloJsxError(`Custom stylesheet is not a readable file: ${stylesheet}`, {
-      code: "INVALID_CSS",
-      cause: error,
-    });
+    throw new YoloJsxError(
+      `Custom stylesheet is not a readable file: ${stylesheet}`,
+      {
+        code: "INVALID_CSS",
+        cause: error,
+      },
+    );
   }
   return realpath(stylesheet);
 }
@@ -78,9 +84,12 @@ export async function resolveAndValidateOutput(outArgument, cwd, entry) {
   const root = path.parse(output).root;
 
   if (output === root) {
-    throw new YoloJsxError(`Refusing to use a filesystem root as output: ${output}`, {
-      code: "DANGEROUS_OUTPUT",
-    });
+    throw new YoloJsxError(
+      `Refusing to use a filesystem root as output: ${output}`,
+      {
+        code: "DANGEROUS_OUTPUT",
+      },
+    );
   }
   if (output === path.resolve(cwd)) {
     throw new YoloJsxError(
@@ -98,14 +107,20 @@ export async function resolveAndValidateOutput(outArgument, cwd, entry) {
   try {
     const outputStat = await lstat(output);
     if (outputStat.isSymbolicLink()) {
-      throw new YoloJsxError(`Refusing to replace a symbolic-link output: ${output}`, {
-        code: "DANGEROUS_OUTPUT",
-      });
+      throw new YoloJsxError(
+        `Refusing to replace a symbolic-link output: ${output}`,
+        {
+          code: "DANGEROUS_OUTPUT",
+        },
+      );
     }
     if (!outputStat.isDirectory()) {
-      throw new YoloJsxError(`Output exists and is not a directory: ${output}`, {
-        code: "INVALID_OUTPUT",
-      });
+      throw new YoloJsxError(
+        `Output exists and is not a directory: ${output}`,
+        {
+          code: "INVALID_OUTPUT",
+        },
+      );
     }
   } catch (error) {
     if (error?.code !== "ENOENT") {
@@ -189,9 +204,12 @@ export async function resolveAndValidateHtmlOutput(
   try {
     const outputStat = await lstat(output);
     if (outputStat.isSymbolicLink()) {
-      throw new YoloJsxError(`Refusing to replace a symbolic-link output: ${output}`, {
-        code: "DANGEROUS_FILE_OUTPUT",
-      });
+      throw new YoloJsxError(
+        `Refusing to replace a symbolic-link output: ${output}`,
+        {
+          code: "DANGEROUS_FILE_OUTPUT",
+        },
+      );
     }
     if (outputStat.isDirectory()) {
       throw new YoloJsxError(`HTML output exists as a directory: ${output}`, {

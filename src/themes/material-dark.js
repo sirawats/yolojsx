@@ -25,8 +25,8 @@ export default {
     codeBackground: "#2f2b32",
   },
   typography: {
-    sans: "Roboto, \"Noto Sans\", ui-sans-serif, system-ui, sans-serif",
-    mono: "\"Roboto Mono\", ui-monospace, monospace",
+    sans: 'Roboto, "Noto Sans", ui-sans-serif, system-ui, sans-serif',
+    mono: '"Roboto Mono", ui-monospace, monospace',
   },
   rhythm: {
     lineHeight: 1.55,

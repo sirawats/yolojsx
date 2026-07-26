@@ -124,7 +124,12 @@ const REQUIRED_COMPONENT_TOKENS = Object.freeze({
     "textTextActiveColor",
     "defaultBgDisabled",
   ]),
-  Card: Object.freeze(["headerBg", "bodyPadding", "headerPadding", "actionsBg"]),
+  Card: Object.freeze([
+    "headerBg",
+    "bodyPadding",
+    "headerPadding",
+    "actionsBg",
+  ]),
   Input: Object.freeze([
     "paddingInline",
     "paddingBlock",
@@ -159,7 +164,14 @@ const REQUIRED_COMPONENT_TOKENS = Object.freeze({
   Typography: Object.freeze(["titleMarginTop", "titleMarginBottom"]),
 });
 
-function createAntDesignComponents({ colors, controlHeight, radius, shadow, status, definition }) {
+function createAntDesignComponents({
+  colors,
+  controlHeight,
+  radius,
+  shadow,
+  status,
+  definition,
+}) {
   const radiusPixels = Number.parseFloat(radius.medium) * 16;
   const comp = definition.components;
   return {
@@ -303,7 +315,6 @@ function fixedTheme(definition) {
     colors,
     typography,
     rhythm,
-    components,
     radius,
     shadow,
     controlHeight,
@@ -401,12 +412,24 @@ function deepFreeze(value) {
 }
 
 export const DEFAULT_THEME_ID = "default";
-export const FIXED_THEMES = Object.freeze(DEFINITIONS.map(fixedTheme).map(deepFreeze));
+export const FIXED_THEMES = Object.freeze(
+  DEFINITIONS.map(fixedTheme).map(deepFreeze),
+);
 export const THEMES = FIXED_THEMES;
 
 const REQUIRED_COLORS = [
-  "canvas", "surface", "surfaceRaised", "text", "textMuted", "border",
-  "primary", "primaryText", "focus", "selection", "selectionText", "codeBackground",
+  "canvas",
+  "surface",
+  "surfaceRaised",
+  "text",
+  "textMuted",
+  "border",
+  "primary",
+  "primaryText",
+  "focus",
+  "selection",
+  "selectionText",
+  "codeBackground",
 ];
 const HEX_COLOR = /^#[0-9a-f]{6}$/i;
 
@@ -424,7 +447,9 @@ export function contrastRatio(first, second) {
     );
     return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
   };
-  const [lighter, darker] = [luminance(first), luminance(second)].sort((a, b) => b - a);
+  const [lighter, darker] = [luminance(first), luminance(second)].sort(
+    (a, b) => b - a,
+  );
   return (lighter + 0.05) / (darker + 0.05);
 }
 
@@ -454,12 +479,22 @@ export function validateThemeCatalog(themes = THEMES) {
       aliases.add(alias);
     }
     const provenance = theme.provenance;
-    for (const field of ["name", "url", "revision", "license", "attribution", "nonEndorsement"]) {
+    for (const field of [
+      "name",
+      "url",
+      "revision",
+      "license",
+      "attribution",
+      "nonEndorsement",
+    ]) {
       if (!provenance?.[field]) {
         throw new Error(`${theme.id} is missing provenance.${field}.`);
       }
     }
-    if (theme.mode !== "fixed" || !["light", "dark"].includes(theme.appearance)) {
+    if (
+      theme.mode !== "fixed" ||
+      !["light", "dark"].includes(theme.appearance)
+    ) {
       throw new Error(`${theme.id} has an invalid mode or appearance.`);
     }
     const colors = theme.semantic?.colors;
@@ -470,17 +505,38 @@ export function validateThemeCatalog(themes = THEMES) {
     }
     for (const status of ["success", "warning", "danger", "info"]) {
       const pair = colors.status?.[status];
-      if (!HEX_COLOR.test(pair?.foreground ?? "") || !HEX_COLOR.test(pair?.background ?? "")) {
+      if (
+        !HEX_COLOR.test(pair?.foreground ?? "") ||
+        !HEX_COLOR.test(pair?.background ?? "")
+      ) {
         throw new Error(`${theme.id} has an invalid ${status} status pair.`);
       }
-      requireContrast(theme, `${status} status`, pair.foreground, pair.background, 4.5);
+      requireContrast(
+        theme,
+        `${status} status`,
+        pair.foreground,
+        pair.background,
+        4.5,
+      );
     }
     requireContrast(theme, "body text", colors.text, colors.canvas, 4.5);
     requireContrast(theme, "surface text", colors.text, colors.surface, 4.5);
     requireContrast(theme, "muted text", colors.textMuted, colors.canvas, 3);
-    requireContrast(theme, "primary control", colors.primaryText, colors.primary, 4.5);
+    requireContrast(
+      theme,
+      "primary control",
+      colors.primaryText,
+      colors.primary,
+      4.5,
+    );
     requireContrast(theme, "focus indicator", colors.focus, colors.canvas, 3);
-    requireContrast(theme, "selection", colors.selectionText, colors.selection, 4.5);
+    requireContrast(
+      theme,
+      "selection",
+      colors.selectionText,
+      colors.selection,
+      4.5,
+    );
     const antDesign = theme.antDesign;
     if (
       !["light", "dark"].includes(antDesign?.algorithm) ||
@@ -493,11 +549,17 @@ export function validateThemeCatalog(themes = THEMES) {
     const componentNames = Object.keys(antDesign.components).sort();
     if (
       componentNames.length !== ANT_DESIGN_COMPONENT_NAMES.length ||
-      componentNames.some((name, index) => name !== [...ANT_DESIGN_COMPONENT_NAMES].sort()[index])
+      componentNames.some(
+        (name, index) => name !== [...ANT_DESIGN_COMPONENT_NAMES].sort()[index],
+      )
     ) {
-      throw new Error(`${theme.id} has unsupported Ant Design component configuration.`);
+      throw new Error(
+        `${theme.id} has unsupported Ant Design component configuration.`,
+      );
     }
-    for (const [componentName, requiredTokens] of Object.entries(REQUIRED_COMPONENT_TOKENS)) {
+    for (const [componentName, requiredTokens] of Object.entries(
+      REQUIRED_COMPONENT_TOKENS,
+    )) {
       const component = antDesign.components[componentName];
       for (const tokenName of requiredTokens) {
         const value = component?.[tokenName];
@@ -512,7 +574,9 @@ export function validateThemeCatalog(themes = THEMES) {
       }
       for (const value of Object.values(component)) {
         if (!["string", "number", "boolean"].includes(typeof value)) {
-          throw new Error(`${theme.id} has a non-serializable Ant Design ${componentName} token.`);
+          throw new Error(
+            `${theme.id} has a non-serializable Ant Design ${componentName} token.`,
+          );
         }
       }
     }
@@ -521,7 +585,12 @@ export function validateThemeCatalog(themes = THEMES) {
         throw new Error(`${theme.id} is missing typography.${field}.`);
       }
     }
-    for (const field of ["lineHeight", "headingWeight", "letterSpacing", "contentMeasure"]) {
+    for (const field of [
+      "lineHeight",
+      "headingWeight",
+      "letterSpacing",
+      "contentMeasure",
+    ]) {
       if (theme.semantic.rhythm?.[field] === undefined) {
         throw new Error(`${theme.id} is missing rhythm.${field}.`);
       }
@@ -554,7 +623,8 @@ export function renderThemeCatalog() {
 }
 
 export function renderThemeCss(theme) {
-  const { colors, typography, rhythm, radius, shadow, controlHeight } = theme.semantic;
+  const { colors, typography, rhythm, radius, shadow, controlHeight } =
+    theme.semantic;
   const status = colors.status;
   return `/* Original yolojsx theme: ${theme.id}. No upstream CSS is included. */
 :root {
@@ -599,4 +669,3 @@ export function renderThemeCss(theme) {
 }
 
 validateThemeCatalog();
-

@@ -122,7 +122,14 @@ export async function runCli(
       let artifact;
       try {
         artifact = await withTemporaryApplicationBuild(
-          { entry, sourceDirectory, base: "./", singleFile: true, theme, customCss },
+          {
+            entry,
+            sourceDirectory,
+            base: "./",
+            singleFile: true,
+            theme,
+            customCss,
+          },
           createSingleFileArtifact,
         );
       } catch (error) {

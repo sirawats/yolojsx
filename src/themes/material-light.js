@@ -3,7 +3,8 @@ export default {
   name: "Material Light",
   aliases: ["material"],
   appearance: "light",
-  description: "A tonal light surface system with rounded, deliberate controls.",
+  description:
+    "A tonal light surface system with rounded, deliberate controls.",
   source: {
     name: "Material Web",
     url: "https://github.com/material-components/material-web",
@@ -25,8 +26,8 @@ export default {
     codeBackground: "#f3edf7",
   },
   typography: {
-    sans: "Roboto, \"Noto Sans\", ui-sans-serif, system-ui, sans-serif",
-    mono: "\"Roboto Mono\", ui-monospace, monospace",
+    sans: 'Roboto, "Noto Sans", ui-sans-serif, system-ui, sans-serif',
+    mono: '"Roboto Mono", ui-monospace, monospace',
   },
   rhythm: {
     lineHeight: 1.55,

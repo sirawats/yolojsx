@@ -25,8 +25,8 @@ export default {
     codeBackground: "#21262d",
   },
   typography: {
-    sans: "-apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
-    mono: "ui-monospace, \"SFMono-Regular\", Consolas, monospace",
+    sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    mono: 'ui-monospace, "SFMono-Regular", Consolas, monospace',
   },
   rhythm: {
     lineHeight: 1.5,

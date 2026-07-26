@@ -26,7 +26,7 @@ export default {
   },
   typography: {
     sans: "Inter, ui-sans-serif, system-ui, sans-serif",
-    mono: "\"Fira Code\", ui-monospace, monospace",
+    mono: '"Fira Code", ui-monospace, monospace',
   },
   rhythm: {
     lineHeight: 1.55,

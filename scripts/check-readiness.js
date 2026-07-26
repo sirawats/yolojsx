@@ -4,19 +4,17 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import { run } from "./process.js";
 
-const repository = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const requiredFiles = [
   "CHANGELOG.md",
   "LICENSE",
   "README.md",
   "THIRD_PARTY_NOTICES.md",
 ];
-const expectedPackageFiles = [
-  "bin",
-  "src",
-  "examples",
-  ...requiredFiles,
-];
+const expectedPackageFiles = ["bin", "src", "examples", ...requiredFiles];
 const issues = [];
 
 async function fileExists(relative) {
@@ -45,10 +43,14 @@ for (const field of ["repository", "homepage", "bugs", "author"]) {
   }
 }
 if (packageJson.publishConfig?.registry !== "https://registry.npmjs.org/") {
-  issues.push("package.json publishConfig.registry must target the public npm registry.");
+  issues.push(
+    "package.json publishConfig.registry must target the public npm registry.",
+  );
 }
 if (!/html/i.test(packageJson.description)) {
-  issues.push("package.json description should describe the default HTML output.");
+  issues.push(
+    "package.json description should describe the default HTML output.",
+  );
 }
 for (const file of expectedPackageFiles) {
   if (!packageJson.files?.includes(file)) {
@@ -57,7 +59,9 @@ for (const file of expectedPackageFiles) {
 }
 for (const file of packageJson.files || []) {
   if (!expectedPackageFiles.includes(file)) {
-    issues.push(`package.json files allowlist contains unexpected entry: ${file}.`);
+    issues.push(
+      `package.json files allowlist contains unexpected entry: ${file}.`,
+    );
   }
 }
 
@@ -68,15 +72,19 @@ const releaseHeading = new RegExp(
   "m",
 );
 if (!releaseHeading.test(changelog)) {
-  issues.push(`CHANGELOG.md has no release heading for ${packageJson.version}.`);
+  issues.push(
+    `CHANGELOG.md has no release heading for ${packageJson.version}.`,
+  );
 }
 
-const tracked = run("git", ["ls-files"], { cwd: repository }).stdout
-  .trim()
+const tracked = run("git", ["ls-files"], { cwd: repository })
+  .stdout.trim()
   .split("\n")
   .filter(Boolean);
 const forbiddenTracked = tracked.filter((file) =>
-  /(^|\/)(?:node_modules|dist)(?:\/|$)|\.tgz$|\.npmrc$|^[^/]+\.html$/i.test(file),
+  /(^|\/)(?:node_modules|dist)(?:\/|$)|\.tgz$|\.npmrc$|^[^/]+\.html$/i.test(
+    file,
+  ),
 );
 for (const file of forbiddenTracked) {
   issues.push(`Generated or sensitive file is tracked: ${file}`);

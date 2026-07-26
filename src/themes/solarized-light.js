@@ -25,8 +25,8 @@ export default {
     codeBackground: "#eee8d5",
   },
   typography: {
-    sans: "\"Avenir Next\", Avenir, ui-sans-serif, system-ui, sans-serif",
-    mono: "ui-monospace, \"SFMono-Regular\", Consolas, monospace",
+    sans: '"Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif',
+    mono: 'ui-monospace, "SFMono-Regular", Consolas, monospace',
   },
   rhythm: {
     lineHeight: 1.6,

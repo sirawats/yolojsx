@@ -75,7 +75,15 @@ export default () => <main className="custom-card bg-brand content-auto p-8"><Bu
   });
 
   const directory = await invoke(
-    ["Custom.jsx", "--theme", "material-light", "--css", "styles/custom.css", "--out-dir", "site"],
+    [
+      "Custom.jsx",
+      "--theme",
+      "material-light",
+      "--css",
+      "styles/custom.css",
+      "--out-dir",
+      "site",
+    ],
     { cwd: fixture },
   );
   assert.equal(directory.exitCode, 0, directory.stderr);
@@ -91,7 +99,15 @@ export default () => <main className="custom-card bg-brand content-auto p-8"><Bu
   );
 
   const packaged = await invoke(
-    ["Custom.jsx", "--theme", "material-light", "--css", "styles/custom.css", "--output", "Custom.html"],
+    [
+      "Custom.jsx",
+      "--theme",
+      "material-light",
+      "--css",
+      "styles/custom.css",
+      "--output",
+      "Custom.html",
+    ],
     { cwd: fixture },
   );
   assert.equal(packaged.exitCode, 0, packaged.stderr);
@@ -114,19 +130,27 @@ test("lists themes and resolves aliases through the CLI", async (t) => {
 
   const listing = await invoke(["themes"], { cwd: fixture });
   assert.equal(listing.exitCode, 0, listing.stderr);
-  assert.equal(listing.stdout, `${THEMES.map((theme) => theme.id).join("\n")}\n`);
+  assert.equal(
+    listing.stdout,
+    `${THEMES.map((theme) => theme.id).join("\n")}\n`,
+  );
 
   const optionListing = await invoke(["--themes"], { cwd: fixture });
   assert.equal(optionListing.exitCode, 0, optionListing.stderr);
   assert.equal(optionListing.stdout, listing.stdout);
 
-  const lightAlias = await invoke(["Alias.jsx", "--theme", "material", "--out-dir", "material"], { cwd: fixture });
+  const lightAlias = await invoke(
+    ["Alias.jsx", "--theme", "material", "--out-dir", "material"],
+    { cwd: fixture },
+  );
   assert.equal(lightAlias.exitCode, 0, lightAlias.stderr);
   const lightCss = await readAsset(path.join(fixture, "material"), ".css");
   assert.match(lightCss, /--background:#fffbfe/);
   assert.doesNotMatch(lightCss, /prefers-color-scheme/);
 
-  const alias = await invoke(["Alias.jsx", "--theme", "onedark"], { cwd: fixture });
+  const alias = await invoke(["Alias.jsx", "--theme", "onedark"], {
+    cwd: fixture,
+  });
   assert.equal(alias.exitCode, 0, alias.stderr);
   assert.ok(await readFile(path.join(fixture, "Alias.html"), "utf8"));
 });

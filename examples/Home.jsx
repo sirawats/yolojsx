@@ -7,7 +7,8 @@ export default function Home() {
         <Space orientation="vertical" size="large">
           <Typography.Title>Build first. Configure never.</Typography.Title>
           <Typography.Text type="secondary">
-            This page combines Tailwind CSS utilities with Ant Design components.
+            This page combines Tailwind CSS utilities with Ant Design
+            components.
           </Typography.Text>
           <Button type="primary">Hello from yolojsx</Button>
         </Space>

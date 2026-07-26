@@ -14,7 +14,9 @@ export default function Home() {
 }`,
   });
 
-  const result = await invoke(["Home.jsx", "--out-dir", "dist"], { cwd: fixture });
+  const result = await invoke(["Home.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
   assert.equal(result.exitCode, 0, result.stderr);
   assert.match(result.stdout, /Output: .*dist/);
 
@@ -29,7 +31,9 @@ export default function Home() {
   assert.match(javascript, /anticon/);
   const markerName = ".yolojsx-output.json";
   assert.ok((await readdir(output)).includes(markerName));
-  const marker = JSON.parse(await readFile(path.join(output, markerName), "utf8"));
+  const marker = JSON.parse(
+    await readFile(path.join(output, markerName), "utf8"),
+  );
   assert.equal(marker.tool, "yolojsx");
   assert.equal(marker.formatVersion, 1);
   assert.match(marker.packageVersion, /^\d+\.\d+\.\d+/);

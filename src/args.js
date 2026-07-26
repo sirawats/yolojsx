@@ -43,11 +43,12 @@ function setOnce(seen, name) {
 
 export function parseArgs(argv) {
   const requestedAction = argv[0];
-  const action = requestedAction === "pack"
-    ? "pack"
-    : requestedAction === "themes" || requestedAction === "--themes"
-      ? "themes"
-      : "build";
+  const action =
+    requestedAction === "pack"
+      ? "pack"
+      : requestedAction === "themes" || requestedAction === "--themes"
+        ? "themes"
+        : "build";
   const options = {
     action,
     entry: undefined,
@@ -126,26 +127,40 @@ export function parseArgs(argv) {
 
   if (action === "themes") {
     if (positionals.length > 0 || seen.size > 0) {
-      throw invalid("The themes command does not accept arguments or build options.");
+      throw invalid(
+        "The themes command does not accept arguments or build options.",
+      );
     }
     return { action: "themes" };
   }
 
   if (positionals.length !== 1) {
-    const reason = positionals.length === 0
-      ? action === "pack" ? "A build directory is required." : "A JSX entry file is required."
-      : action === "pack" ? "Exactly one build directory is supported." : "Exactly one JSX entry file is supported.";
+    const reason =
+      positionals.length === 0
+        ? action === "pack"
+          ? "A build directory is required."
+          : "A JSX entry file is required."
+        : action === "pack"
+          ? "Exactly one build directory is supported."
+          : "Exactly one JSX entry file is supported.";
     throw invalid(`${reason}\n\n${USAGE}`);
   }
 
   if (action === "pack") {
-    const rejected = ["--single-file", "--out-dir", "--base", "--theme", "--css"]
-      .filter((name) => seen.has(name));
+    const rejected = [
+      "--single-file",
+      "--out-dir",
+      "--base",
+      "--theme",
+      "--css",
+    ].filter((name) => seen.has(name));
     if (rejected.length > 0) {
       throw invalid(`The pack command does not accept ${rejected.join(", ")}.`);
     }
     if (!options.output) {
-      throw invalid(`The pack command requires --output <file.html>.\n\n${USAGE}`);
+      throw invalid(
+        `The pack command requires --output <file.html>.\n\n${USAGE}`,
+      );
     }
     return {
       action: "pack",

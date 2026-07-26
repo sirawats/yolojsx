@@ -65,7 +65,7 @@ directory output.
 - Prefer named exports and small modules with one clear responsibility.
 - Use `camelCase` for variables and functions and `UPPER_SNAKE_CASE` for
   constants.
-- Match surrounding code; no formatter or linter is currently configured.
+- Run `npm run format` and `npm run lint` before submitting.
 
 ## Commits and branches
 

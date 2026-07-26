@@ -10,9 +10,24 @@ import {
 } from "antd";
 
 const requirements = [
-  { id: "AUTH-01", requirement: "Rotate signing keys without downtime", priority: "Must", status: "Accepted" },
-  { id: "AUTH-02", requirement: "Revoke a session within 60 seconds", priority: "Must", status: "In review" },
-  { id: "AUTH-03", requirement: "Expose device-level session history", priority: "Should", status: "Draft" },
+  {
+    id: "AUTH-01",
+    requirement: "Rotate signing keys without downtime",
+    priority: "Must",
+    status: "Accepted",
+  },
+  {
+    id: "AUTH-02",
+    requirement: "Revoke a session within 60 seconds",
+    priority: "Must",
+    status: "In review",
+  },
+  {
+    id: "AUTH-03",
+    requirement: "Expose device-level session history",
+    priority: "Should",
+    status: "Draft",
+  },
 ];
 
 const columns = [
@@ -24,7 +39,15 @@ const columns = [
     dataIndex: "status",
     width: 110,
     render: (status) => (
-      <Tag color={status === "Accepted" ? "green" : status === "In review" ? "gold" : "blue"}>
+      <Tag
+        color={
+          status === "Accepted"
+            ? "green"
+            : status === "In review"
+              ? "gold"
+              : "blue"
+        }
+      >
         {status}
       </Tag>
     ),
@@ -37,7 +60,10 @@ export default function Techspec() {
       <header className="border-b border-border bg-card px-6 py-4 lg:px-10">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4">
           <div>
-            <Typography.Text type="secondary" className="font-mono text-xs uppercase tracking-[0.18em]">
+            <Typography.Text
+              type="secondary"
+              className="font-mono text-xs uppercase tracking-[0.18em]"
+            >
               RFC 042 · Identity Platform
             </Typography.Text>
             <Typography.Title level={3} className="mb-0 mt-1">
@@ -46,7 +72,9 @@ export default function Techspec() {
           </div>
           <Space wrap>
             <Tag color="green">Ready for implementation</Tag>
-            <Typography.Text type="secondary">Updated 22 Jul 2026</Typography.Text>
+            <Typography.Text type="secondary">
+              Updated 22 Jul 2026
+            </Typography.Text>
           </Space>
         </div>
       </header>
@@ -55,24 +83,45 @@ export default function Techspec() {
         <aside className="lg:sticky lg:top-6 lg:self-start">
           <Typography.Text strong>On this page</Typography.Text>
           <nav className="mt-4 grid gap-1 text-sm text-muted-foreground">
-            {["Summary", "Context", "Architecture", "Requirements", "Rollout"].map((item, index) => (
-              <a key={item} href={`#${item.toLowerCase()}`} className={`rounded-md px-3 py-2 ${index === 0 ? "bg-code text-primary" : "hover:bg-card"}`}>
+            {[
+              "Summary",
+              "Context",
+              "Architecture",
+              "Requirements",
+              "Rollout",
+            ].map((item, index) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase()}`}
+                className={`rounded-md px-3 py-2 ${index === 0 ? "bg-code text-primary" : "hover:bg-card"}`}
+              >
                 {String(index + 1).padStart(2, "0")} · {item}
               </a>
             ))}
           </nav>
           <Card size="small" className="mt-6">
-            <Typography.Text type="secondary" className="text-xs">Review progress</Typography.Text>
+            <Typography.Text type="secondary" className="text-xs">
+              Review progress
+            </Typography.Text>
             <Progress percent={78} size="small" className="mt-2" />
-            <Typography.Text type="secondary" className="text-xs">7 of 9 reviewers</Typography.Text>
+            <Typography.Text type="secondary" className="text-xs">
+              7 of 9 reviewers
+            </Typography.Text>
           </Card>
         </aside>
 
         <article className="min-w-0">
           <section id="summary" className="mb-10">
-            <Typography.Title className="mb-3 text-4xl">Durable sessions without a central bottleneck</Typography.Title>
-            <Typography.Paragraph type="secondary" className="max-w-3xl text-lg leading-8">
-              Move session verification to signed, short-lived access tokens while retaining fast revocation through a compact regional deny list.
+            <Typography.Title className="mb-3 text-4xl">
+              Durable sessions without a central bottleneck
+            </Typography.Title>
+            <Typography.Paragraph
+              type="secondary"
+              className="max-w-3xl text-lg leading-8"
+            >
+              Move session verification to signed, short-lived access tokens
+              while retaining fast revocation through a compact regional deny
+              list.
             </Typography.Paragraph>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               {[
@@ -81,7 +130,12 @@ export default function Techspec() {
                 ["Rollout window", "6 weeks"],
               ].map(([label, value]) => (
                 <Card key={label} size="small">
-                  <Typography.Text type="secondary" className="text-xs uppercase tracking-wider">{label}</Typography.Text>
+                  <Typography.Text
+                    type="secondary"
+                    className="text-xs uppercase tracking-wider"
+                  >
+                    {label}
+                  </Typography.Text>
                   <div className="mt-1 font-semibold">{value}</div>
                 </Card>
               ))}
@@ -93,10 +147,13 @@ export default function Techspec() {
           <section id="context" className="mb-10">
             <Typography.Title level={2}>Context</Typography.Title>
             <Typography.Paragraph className="max-w-3xl leading-7">
-              The current session service is consulted on every request. It is simple to reason about, but creates a cross-region dependency and turns routine maintenance into a coordinated event.
+              The current session service is consulted on every request. It is
+              simple to reason about, but creates a cross-region dependency and
+              turns routine maintenance into a coordinated event.
             </Typography.Paragraph>
             <blockquote>
-              A revoked session must stop authorizing requests quickly, but an unavailable control plane must not stop healthy traffic.
+              A revoked session must stop authorizing requests quickly, but an
+              unavailable control plane must not stop healthy traffic.
             </blockquote>
           </section>
 
@@ -110,11 +167,19 @@ export default function Techspec() {
               ].map(([number, title, copy], index) => (
                 <div className="contents" key={title}>
                   <Card>
-                    <span className="font-mono text-xs text-primary">{number}</span>
-                    <Typography.Title level={4} className="mb-1 mt-3">{title}</Typography.Title>
+                    <span className="font-mono text-xs text-primary">
+                      {number}
+                    </span>
+                    <Typography.Title level={4} className="mb-1 mt-3">
+                      {title}
+                    </Typography.Title>
                     <Typography.Text type="secondary">{copy}</Typography.Text>
                   </Card>
-                  {index < 2 && <div className="hidden self-center text-2xl text-muted-foreground md:block">→</div>}
+                  {index < 2 && (
+                    <div className="hidden self-center text-2xl text-muted-foreground md:block">
+                      →
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -137,9 +202,42 @@ export default function Techspec() {
             <Timeline
               className="mt-6"
               items={[
-                { color: "green", children: <><strong>Week 1</strong><br /><Typography.Text type="secondary">Shadow verification in one region</Typography.Text></> },
-                { color: "blue", children: <><strong>Weeks 2–3</strong><br /><Typography.Text type="secondary">Progressive traffic ramp and revocation drills</Typography.Text></> },
-                { color: "gray", children: <><strong>Weeks 4–6</strong><br /><Typography.Text type="secondary">Global rollout, then remove synchronous lookups</Typography.Text></> },
+                {
+                  color: "green",
+                  children: (
+                    <>
+                      <strong>Week 1</strong>
+                      <br />
+                      <Typography.Text type="secondary">
+                        Shadow verification in one region
+                      </Typography.Text>
+                    </>
+                  ),
+                },
+                {
+                  color: "blue",
+                  children: (
+                    <>
+                      <strong>Weeks 2–3</strong>
+                      <br />
+                      <Typography.Text type="secondary">
+                        Progressive traffic ramp and revocation drills
+                      </Typography.Text>
+                    </>
+                  ),
+                },
+                {
+                  color: "gray",
+                  children: (
+                    <>
+                      <strong>Weeks 4–6</strong>
+                      <br />
+                      <Typography.Text type="secondary">
+                        Global rollout, then remove synchronous lookups
+                      </Typography.Text>
+                    </>
+                  ),
+                },
               ]}
             />
           </section>
