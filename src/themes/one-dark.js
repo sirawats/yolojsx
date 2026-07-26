@@ -11,8 +11,8 @@ export default {
     license: "MIT",
   },
   colors: {
-    canvas: "#282c34",
-    surface: "#21252b",
+    canvas: "#21252b",
+    surface: "#282c34",
     surfaceRaised: "#303640",
     text: "#e5e9f0",
     textMuted: "#abb2bf",
@@ -51,4 +51,10 @@ export default {
   radius: { small: "0.375rem", medium: "0.625rem", large: "0.875rem" },
   shadow: "0 12px 32px rgb(15 23 42 / 0.12)",
   controlHeight: 32,
+  status: {
+    success: { foreground: "#d4ecc0", background: "#1e3810", seed: "#98c379" },
+    warning: { foreground: "#fef3c7", background: "#4a3800", seed: "#e5c07b" },
+    danger:  { foreground: "#fecaca", background: "#4e1010", seed: "#e06c75" },
+    info:    { foreground: "#dbeafe", background: "#1a3a5c", seed: "#61afef" },
+  },
 };

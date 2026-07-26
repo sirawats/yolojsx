@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Revise every bundled example around the product vision with clearer
+  information hierarchy, honest sample framing, useful interaction, responsive
+  layouts, and stronger accessibility.
+
 ## 0.1.3 - 2026-07-26
 
 - Read optional `YOLOJSX` title and icon metadata from JSX entries for

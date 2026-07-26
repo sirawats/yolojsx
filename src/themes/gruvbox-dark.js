@@ -51,4 +51,10 @@ export default {
   radius: { small: "0.375rem", medium: "0.625rem", large: "0.875rem" },
   shadow: "0 12px 32px rgb(15 23 42 / 0.12)",
   controlHeight: 32,
+  status: {
+    success: { foreground: "#e0e3a0", background: "#353a08", seed: "#b8bb26" },
+    warning: { foreground: "#fef3c7", background: "#4a3a00", seed: "#fabd2f" },
+    danger:  { foreground: "#fecaca", background: "#5c1212", seed: "#fb4934" },
+    info:    { foreground: "#c8e0de", background: "#1a3432", seed: "#83a598" },
+  },
 };

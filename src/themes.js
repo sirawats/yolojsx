@@ -319,7 +319,15 @@ function fixedTheme(definition) {
     shadow,
     controlHeight,
   } = definition;
-  const status = appearance === "dark" ? DARK_STATUS : LIGHT_STATUS;
+  const defaultStatus = appearance === "dark" ? DARK_STATUS : LIGHT_STATUS;
+  const status = definition.status
+    ? Object.fromEntries(
+        Object.entries(defaultStatus).map(([key, def]) => [
+          key,
+          definition.status[key] ?? def,
+        ]),
+      )
+    : defaultStatus;
   const semantic = {
     colors: {
       ...colors,

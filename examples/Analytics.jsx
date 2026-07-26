@@ -1,4 +1,6 @@
+import { useState } from "react";
 import {
+  Alert,
   Badge,
   Card,
   Col,
@@ -53,6 +55,34 @@ const incidents = [
   },
 ];
 
+const metrics = [
+  {
+    title: "Requests",
+    value: 28.4,
+    suffix: "M",
+    precision: 1,
+    delta: "+12.8%",
+  },
+  {
+    title: "Availability",
+    value: 99.982,
+    suffix: "%",
+    precision: 3,
+    delta: "+0.014%",
+  },
+  {
+    title: "p95 latency",
+    value: 184,
+    suffix: "ms",
+    delta: "−8.2%",
+  },
+  {
+    title: "Open incidents",
+    value: 3,
+    delta: "−2 today",
+  },
+];
+
 const columns = [
   {
     title: "Service",
@@ -94,10 +124,15 @@ const columns = [
 
 function SparkBars({ values }) {
   return (
-    <div className="flex h-20 items-end gap-1">
+    <div
+      className="flex h-24 items-end gap-1"
+      role="img"
+      aria-label="Illustrative request volume rises overall with several short dips."
+    >
       {values.map((value, index) => (
         <span
           key={index}
+          aria-hidden="true"
           className="min-w-1 flex-1 rounded-t-sm bg-primary opacity-70"
           style={{ height: `${value}%` }}
         />
@@ -107,120 +142,193 @@ function SparkBars({ values }) {
 }
 
 export default function Analytics() {
+  const [health, setHealth] = useState("All");
+  const visibleServices =
+    health === "All"
+      ? incidents
+      : incidents.filter((service) => service.health === health);
+
   return (
-    <main className="p-5 lg:p-8">
-      <div className="mx-auto max-w-[1500px]">
-        <header className="mb-7 flex flex-wrap items-center justify-between gap-4">
-          <Space orientation="vertical" size={0}>
-            <Typography.Text
-              type="secondary"
-              className="text-xs uppercase tracking-[0.16em]"
-            >
-              CONTROL ROOM
-            </Typography.Text>
-            <Typography.Title>Platform operations</Typography.Title>
-          </Space>
-          <Space wrap>
-            <Badge status="success" text="All systems reporting" />
-            <Select
-              defaultValue="24h"
-              options={[
-                { value: "1h", label: "Last hour" },
-                { value: "24h", label: "Last 24 hours" },
-                { value: "7d", label: "Last 7 days" },
-              ]}
-            />
-            <Tag>UTC 10:42</Tag>
-          </Space>
+    <main className="min-h-screen p-4 sm:p-6 lg:p-8">
+      <article className="mx-auto max-w-7xl">
+        <header className="mb-6">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <Space orientation="vertical" size={2}>
+              <Typography.Text
+                type="secondary"
+                className="text-xs uppercase tracking-[0.16em]"
+              >
+                Illustrative 24-hour snapshot
+              </Typography.Text>
+              <Typography.Title className="m-0">
+                Platform operations
+              </Typography.Title>
+              <Typography.Paragraph
+                type="secondary"
+                className="mb-0 max-w-2xl text-base leading-relaxed"
+              >
+                A static example of how a portable operations report can surface
+                the conclusion first, then preserve the evidence for review.
+              </Typography.Paragraph>
+            </Space>
+            <Tag color="blue">Example data · not live</Tag>
+          </div>
         </header>
 
-        <Row gutter={[16, 16]}>
-          {[
-            ["Requests", 28.4, "M", "+12.8%"],
-            ["Availability", 99.982, "%", "+0.014%"],
-            ["p95 latency", 184, "ms", "−8.2%"],
-            ["Open incidents", 3, "", "−2 today"],
-          ].map(([title, value, suffix, delta]) => (
-            <Col key={title} xs={24} sm={12} xl={6}>
-              <Card>
-                <Statistic
-                  title={title}
-                  value={value}
-                  precision={
-                    title === "Availability" ? 3 : title === "Requests" ? 1 : 0
-                  }
-                  suffix={suffix}
-                />
-                <Typography.Text type="success" className="mt-3 block text-xs">
-                  {delta}{" "}
-                  <Typography.Text type="secondary">
-                    vs previous
+        <section aria-labelledby="summary-heading">
+          <Typography.Title id="summary-heading" level={2} className="sr-only">
+            Operations summary
+          </Typography.Title>
+          <Alert
+            type="warning"
+            showIcon
+            message="Checkout latency needs attention"
+            description="Checkout API is the only degraded service shown: p95 latency is 842 ms, up 18% in this illustrative snapshot. Search index remains on watch."
+            className="mb-4"
+          />
+
+          <Row gutter={[16, 16]}>
+            {metrics.map(({ title, value, suffix, precision, delta }) => (
+              <Col key={title} xs={24} sm={12} xl={6}>
+                <Card className="h-full">
+                  <Statistic
+                    title={title}
+                    value={value}
+                    precision={precision}
+                    suffix={suffix}
+                  />
+                  <Typography.Text
+                    type={
+                      delta.startsWith("−") || title === "Availability"
+                        ? "success"
+                        : undefined
+                    }
+                    className="mt-3 block text-sm"
+                  >
+                    {delta}{" "}
+                    <Typography.Text type="secondary">
+                      vs previous 24h
+                    </Typography.Text>
                   </Typography.Text>
-                </Typography.Text>
-              </Card>
-            </Col>
-          ))}
-        </Row>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </section>
 
         <div className="mt-4 grid gap-4 xl:grid-cols-[1.55fr_0.75fr]">
-          <Card title="Request volume" extra={<Tag color="blue">Live</Tag>}>
-            <div className="grid gap-6 md:grid-cols-[1fr_180px]">
-              <SparkBars
-                values={[
-                  28, 35, 31, 42, 48, 44, 53, 61, 58, 67, 74, 69, 77, 84, 72,
-                  88, 82, 91, 87, 76, 83, 89, 94, 90,
-                ]}
-              />
-              <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-1">
+          <section aria-labelledby="traffic-heading">
+            <Card
+              className="h-full"
+              title={
+                <Typography.Title
+                  id="traffic-heading"
+                  level={2}
+                  className="m-0"
+                >
+                  Request volume
+                </Typography.Title>
+              }
+              extra={<Tag>24 hours</Tag>}
+            >
+              <figure className="m-0 grid gap-5 md:grid-cols-[1fr_180px]">
                 <div>
-                  <Typography.Text type="secondary">Peak</Typography.Text>
-                  <strong className="block text-xl">1.42k/s</strong>
+                  <SparkBars
+                    values={[
+                      28, 35, 31, 42, 48, 44, 53, 61, 58, 67, 74, 69, 77, 84,
+                      72, 88, 82, 91, 87, 76, 83, 89, 94, 90,
+                    ]}
+                  />
+                  <figcaption className="mt-2 text-sm text-muted-foreground">
+                    Relative volume by hour; bars show shape, not an exact
+                    scale.
+                  </figcaption>
+                </div>
+                <dl className="grid grid-cols-2 gap-3 text-sm md:grid-cols-1">
+                  <div>
+                    <dt className="text-muted-foreground">Peak</dt>
+                    <dd className="m-0 text-xl font-semibold">1.42k/s</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Average</dt>
+                    <dd className="m-0 text-xl font-semibold">986/s</dd>
+                  </div>
+                </dl>
+              </figure>
+            </Card>
+          </section>
+
+          <section aria-labelledby="budget-heading">
+            <Card
+              className="h-full"
+              title={
+                <Typography.Title id="budget-heading" level={2} className="m-0">
+                  Error budget
+                </Typography.Title>
+              }
+            >
+              <div className="flex items-center justify-center py-2">
+                <Progress
+                  type="dashboard"
+                  percent={73}
+                  aria-label="73 percent of error budget remaining"
+                />
+              </div>
+              <dl className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <dt className="text-sm text-muted-foreground">Remaining</dt>
+                  <dd className="m-0 font-semibold">6h 34m</dd>
                 </div>
                 <div>
-                  <Typography.Text type="secondary">Average</Typography.Text>
-                  <strong className="block text-xl">986/s</strong>
+                  <dt className="text-sm text-muted-foreground">Burn rate</dt>
+                  <dd className="m-0 font-semibold">2.1%</dd>
                 </div>
-              </div>
-            </div>
-          </Card>
-          <Card title="Error budget">
-            <div className="flex items-center justify-center py-2">
-              <Progress type="dashboard" percent={73} />
-            </div>
-            <div className="grid grid-cols-2 gap-4 text-center">
-              <div>
-                <strong>6h 34m</strong>
-                <Typography.Text type="secondary" className="block text-xs">
-                  remaining
-                </Typography.Text>
-              </div>
-              <div>
-                <strong>2.1%</strong>
-                <Typography.Text type="secondary" className="block text-xs">
-                  burn rate
-                </Typography.Text>
-              </div>
-            </div>
-          </Card>
+              </dl>
+            </Card>
+          </section>
         </div>
 
-        <Card
-          className="mt-4"
-          title="Service health"
-          extra={
-            <Typography.Text type="secondary">
-              4 of 18 services shown
-            </Typography.Text>
-          }
-        >
-          <Table
-            columns={columns}
-            dataSource={incidents}
-            pagination={false}
-            scroll={{ x: 760 }}
-          />
-        </Card>
-      </div>
+        <section aria-labelledby="health-heading" className="mt-4">
+          <Card
+            title={
+              <div>
+                <Typography.Title id="health-heading" level={2} className="m-0">
+                  Service health
+                </Typography.Title>
+              </div>
+            }
+          >
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <Typography.Text type="secondary">
+                {visibleServices.length} of {incidents.length} illustrative
+                services shown
+              </Typography.Text>
+              <div>
+                <label htmlFor="health-filter" className="sr-only">
+                  Filter services by health
+                </label>
+                <Select
+                  id="health-filter"
+                  value={health}
+                  onChange={setHealth}
+                  aria-label="Filter services by health"
+                  className="w-36"
+                  options={["All", "Degraded", "Watching", "Healthy"].map(
+                    (value) => ({ value, label: value }),
+                  )}
+                />
+              </div>
+            </div>
+            <Table
+              columns={columns}
+              dataSource={visibleServices}
+              pagination={false}
+              scroll={{ x: 760 }}
+              rowKey="key"
+            />
+          </Card>
+        </section>
+      </article>
     </main>
   );
 }

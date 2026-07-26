@@ -17,9 +17,9 @@ export default {
     text: "#fdf6e3",
     textMuted: "#b8c4bd",
     border: "#43646b",
-    primary: "#5ccfc5",
+    primary: "#2aa198",
     primaryText: "#002b36",
-    focus: "#5ccfc5",
+    focus: "#2aa198",
     selection: "#1f5864",
     selectionText: "#ffffff",
     codeBackground: "#073642",
@@ -51,4 +51,10 @@ export default {
   radius: { small: "0.375rem", medium: "0.625rem", large: "0.875rem" },
   shadow: "0 12px 32px rgb(15 23 42 / 0.12)",
   controlHeight: 32,
+  status: {
+    success: { foreground: "#c4d870", background: "#2a3a00", seed: "#859900" },
+    warning: { foreground: "#fef3c7", background: "#3c2c00", seed: "#b58900" },
+    danger:  { foreground: "#fecaca", background: "#3c1010", seed: "#dc322f" },
+    info:    { foreground: "#dbeafe", background: "#0a2040", seed: "#268bd2" },
+  },
 };

@@ -13,7 +13,7 @@ const repository = path.resolve(
 const examples = [
   ["Home.jsx", "default", "Build first"],
   ["Techspec.jsx", "github", "Session architecture"],
-  ["APIDocs.jsx", "github-dark", "Orbit API", true],
+  ["APIDocs.jsx", "github-dark", "Open API Atlas", true],
   ["CalculatorDemo.jsx", "material", "unit economics"],
   ["SaaS.jsx", "catppuccin", "Nimbus"],
   ["Analytics.jsx", "one-dark", "Platform operations"],

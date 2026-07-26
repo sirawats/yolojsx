@@ -44,6 +44,8 @@ const EXAMPLES = Object.entries(
   })
   .sort((left, right) => left.label.localeCompare(right.label));
 
+const PREVIEW_SCALE = 0.7;
+
 const THEME_FAMILIES = THEMES.reduce((families, preset) => {
   const family = families.find(
     ({ id }) => preset.id === id || preset.id.startsWith(`${id}-`),
@@ -607,18 +609,26 @@ export default function Website() {
                 )}
                 <div
                   className={
-                    previewMode === "code" ? "hidden" : "flex justify-center"
+                    previewMode === "code"
+                      ? "hidden"
+                      : "relative mx-auto w-full overflow-hidden rounded-xl border border-border bg-background"
                   }
+                  style={{
+                    aspectRatio:
+                      previewMode === "desktop" ? "16 / 9" : "6 / 13",
+                    maxWidth: previewMode === "mobile" ? "390px" : "none",
+                  }}
                 >
                   <iframe
                     title={`${activeExample.label} ${previewMode} preview`}
                     srcDoc="<!doctype html><html><head></head><body></body></html>"
                     onLoad={loadPreview}
-                    className="block w-full rounded-xl border border-border bg-background"
+                    className="absolute inset-0 block border-0 bg-background"
                     style={{
-                      aspectRatio:
-                        previewMode === "desktop" ? "16 / 9" : "6 / 13",
-                      maxWidth: previewMode === "mobile" ? "390px" : "none",
+                      width: `calc(100% / ${PREVIEW_SCALE})`,
+                      height: `calc(100% / ${PREVIEW_SCALE})`,
+                      transform: `scale(${PREVIEW_SCALE})`,
+                      transformOrigin: "top left",
                     }}
                   />
                 </div>
@@ -628,15 +638,7 @@ export default function Website() {
                       <style>{renderThemeCss(activeTheme)}</style>
                       <StyleProvider container={previewDocument.head} layer>
                         <ConfigProvider theme={previewTheme}>
-                          <div
-                            style={{
-                              width: "calc(100% / 0.7)",
-                              transform: "scale(0.7)",
-                              transformOrigin: "top left",
-                            }}
-                          >
-                            <ActiveExample />
-                          </div>
+                          <ActiveExample />
                         </ConfigProvider>
                       </StyleProvider>
                     </>,

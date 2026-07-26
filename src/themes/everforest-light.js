@@ -15,14 +15,14 @@ export default {
     surface: "#fffbef",
     surfaceRaised: "#ffffff",
     text: "#3a4a44",
-    textMuted: "#5f6f68",
+    textMuted: "#5c6a72",
     border: "#bdc9b8",
     primary: "#3a7460",
     primaryText: "#ffffff",
     focus: "#3a7460",
     selection: "#d5e2c8",
     selectionText: "#25352f",
-    codeBackground: "#e7ead9",
+    codeBackground: "#efebd4",
   },
   typography: {
     sans: '"Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif',
@@ -51,4 +51,10 @@ export default {
   radius: { small: "0.375rem", medium: "0.625rem", large: "0.875rem" },
   shadow: "0 12px 32px rgb(15 23 42 / 0.12)",
   controlHeight: 32,
+  status: {
+    success: { foreground: "#2e3800", background: "#e0ecc0", seed: "#8da101" },
+    warning: { foreground: "#4c3800", background: "#f8f0c0", seed: "#dfa000" },
+    danger:  { foreground: "#5c0800", background: "#fce0de", seed: "#f85552" },
+    info:    { foreground: "#0e3654", background: "#cce4f4", seed: "#3a94c5" },
+  },
 };

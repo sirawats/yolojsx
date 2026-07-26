@@ -10,8 +10,7 @@
 - Use browser APIs directly for small tools when they are sufficient.
 
 ```jsx
-import { Button, Card, Typography } from "antd";
-import { LuDownload } from "react-icons/lu";
+import { Card, Typography } from "antd";
 import icon from "./icon.png";
 
 export const YOLOJSX = {
@@ -25,11 +24,11 @@ export default function Report() {
       <Card className="mx-auto max-w-4xl">
         <Typography.Title>Release readiness</Typography.Title>
         <Typography.Paragraph type="secondary">
-          Review the findings, then export the approved result.
+          Review the findings, then build the approved result for sharing.
         </Typography.Paragraph>
-        <Button type="primary" icon={<LuDownload aria-hidden="true" />}>
-          Export result
-        </Button>
+        <Typography.Text code copyable>
+          yolojsx Report.jsx --output release-readiness.html
+        </Typography.Text>
       </Card>
     </main>
   );
