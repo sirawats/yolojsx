@@ -1,0 +1,10 @@
+# Normalize all text files to LF on checkout (prevents CRLF on Windows)
+* text=auto eol=lf
+
+# Binary files — no conversion
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
