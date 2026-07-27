@@ -2,12 +2,20 @@
 
 ## Unreleased
 
+## 0.1.4 - 2026-07-26
+
 - Supply `prism-themes`, resolve a named `YOLOJSX.prismTheme`, and add
   `yolojsx prism-themes` discovery, with PrismJS's `prism` theme as the
   warning-backed fallback.
 - Revise every bundled example around the product vision with clearer
   information hierarchy, honest sample framing, useful interaction, responsive
   layouts, and stronger accessibility.
+- Add product vision documentation (`docs/product-vision.md`) and extend theme
+  definitions with status and canonical visual metadata.
+- Implement npm trusted publishing with OIDC provenance in release workflows
+  and update maintainer publishing guidance.
+- Resolve cross-platform command execution issues on Windows during verification
+  and add website build verification to CI workflows.
 
 ## 0.1.3 - 2026-07-26
 
