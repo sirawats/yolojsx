@@ -46,8 +46,6 @@ export default function Catalog() {
     assert.match(css, /@layer antd/, theme.id);
     assert.match(css, /box-sizing:border-box/, theme.id);
     assert.match(javascript, /Theme catalog/, theme.id);
-    assert.match(javascript, /StyleProvider/, theme.id);
-    assert.match(javascript, /ConfigProvider/, theme.id);
     assert.match(javascript, /components/, theme.id);
     assert.match(javascript, /colorPrimary/, theme.id);
     assert.match(javascript, /defaultHoverBg/, theme.id);

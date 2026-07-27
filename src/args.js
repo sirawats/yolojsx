@@ -7,20 +7,21 @@ export const USAGE = `Usage: yolojsx <entry.jsx> [options]
        yolojsx prism-themes | yolojsx --prism-themes
        yolojsx pack <directory> --output <file.html> [options]
 
-Build a JSX component into one compressed HTML file by default.
+Build a JSX component into one CDN-backed compressed HTML file by default.
 
 Options:
-      --output <path>   HTML output path (default: ./<EntryName>.html)
-  -o, --out-dir <path> Build a directory instead of one HTML file
-      --base <path>    Directory-mode public base path (default: ./)
-      --theme <preset> Global theme preset (default: default)
-      --themes          List available theme names
-      --prism-themes    List available Prism theme names
-      --css <path>     Custom CSS loaded after the preset
-      --single-file    Deprecated alias for the default file mode
-      --force          Replace an existing protected output
-  -h, --help           Show this help
-  -v, --version        Show the installed version
+      --output <path>    HTML output path (default: ./<EntryName>.html)
+  -o, --out-dir <path>  Build a directory instead of one HTML file
+      --base <path>     Directory-mode public base path (default: ./)
+      --self-contained  Embed runtime dependencies for offline use
+      --theme <preset>  Global theme preset (default: default)
+      --themes           List available theme names
+      --prism-themes     List available Prism theme names
+      --css <path>      Custom CSS loaded after the preset
+      --single-file     Deprecated alias for the default file mode
+      --force           Replace an existing protected output
+  -h, --help            Show this help
+  -v, --version         Show the installed version
 
 Run \`yolojsx themes\` or \`yolojsx prism-themes\` to list available themes.`;
 
@@ -65,6 +66,7 @@ export function parseArgs(argv) {
     css: undefined,
     force: false,
     singleFile: false,
+    selfContained: false,
   };
   const positionals = [];
   const seen = new Set();
@@ -91,6 +93,11 @@ export function parseArgs(argv) {
     if (parseOptions && arg === "--single-file") {
       setOnce(seen, "--single-file");
       options.singleFile = true;
+      continue;
+    }
+    if (parseOptions && arg === "--self-contained") {
+      setOnce(seen, "--self-contained");
+      options.selfContained = true;
       continue;
     }
 
@@ -154,6 +161,7 @@ export function parseArgs(argv) {
   if (action === "pack") {
     const rejected = [
       "--single-file",
+      "--self-contained",
       "--out-dir",
       "--base",
       "--theme",
@@ -184,6 +192,11 @@ export function parseArgs(argv) {
   if (options.singleFile && (options.outDir || seen.has("--base"))) {
     throw invalid("--single-file cannot be combined with --out-dir or --base.");
   }
+  if (options.selfContained && (options.outDir || seen.has("--base"))) {
+    throw invalid(
+      "--self-contained cannot be combined with --out-dir or --base.",
+    );
+  }
   resolveTheme(options.theme);
 
   return {
@@ -197,5 +210,6 @@ export function parseArgs(argv) {
     css: options.css,
     force: options.force,
     deprecatedSingleFile: options.singleFile,
+    selfContained: options.selfContained,
   };
 }

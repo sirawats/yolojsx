@@ -13,7 +13,7 @@ maintainer checklist.
 
 1. Recheck npm package-name availability and current dependency/Node engine compatibility.
 2. Run a clean `npm install`, review dependency and lockfile changes, then run `npm audit`, `npm run check:licenses`, and `npm run verify`; record the dated audit summaries, reviewed license exceptions, and accepted findings with the release candidate.
-3. Confirm `yolojsx examples/TaxCalculator.jsx` creates `TaxCalculator.html`; open it through `file://` in a browser with gzip `DecompressionStream` support.
+3. Confirm `yolojsx examples/TaxCalculator.jsx` creates `TaxCalculator.html`; open it through `file://` in a browser with gzip `DecompressionStream`, import-map, and network support. Repeat with `--self-contained` while offline.
 4. Run `yolojsx examples/TaxCalculator.jsx --out-dir dist`, serve it, and verify Tailwind utilities, global theme styles, and Ant Design components.
 5. Exercise an unsuffixed light alias such as `--theme material`, its explicit `material-dark` counterpart, the `onedark` alias, and `--css` with a relative local image or font in both modes; confirm system color preference never changes the selected theme.
 6. Run `yolojsx themes` and compare every id, light alias, fixed mode, description, revision, and license with `src/themes/`, `src/themes.js`, and `THIRD_PARTY_NOTICES.md`.
@@ -21,10 +21,10 @@ maintainer checklist.
 8. Review automated contrast results for text, muted text, primary controls, focus, selection, and status pairs.
 9. Verify the stable `theme, base, antd, components, utilities` cascade, Tailwind Preflight, and the absence of Ant Design reset CSS.
 10. Test existing file and directory targets with `no`, `yes`, non-interactive input, and `--force`; confirm failed rebuilds preserve prior output.
-11. Verify `--single-file` still builds with a deprecation warning, and `--out-dir dist` is documented as the old-default migration.
+11. Verify `--single-file` still builds with a deprecation warning, `--self-contained` embeds the runtime, and `--out-dir dist` remains the directory-mode selector.
 12. Run `yolojsx pack dist --output packed.html` and confirm `dist/` is unchanged; exercise a rejected graph and check its directory-mode recommendation.
 13. Run `npm pack --dry-run`. Confirm the tarball includes `src/themes/*.css`, `THIRD_PARTY_NOTICES.md`, and no output, temporary files, credentials, or unrelated artifacts.
-14. Review the default themed/provider artifact size reported by `npm run verify:package`; investigate before increasing its 1,000,000-byte release budget.
+14. Review the default and self-contained themed/provider artifact sizes reported by `npm run verify:package`; investigate before increasing their 100,000-byte and 500,000-byte release budgets.
 15. Install the tarball into an isolated prefix and test the executable through both a global-bin and npm-exec/npx-equivalent layout.
 16. Publish with an explicit pre-1.0 version, then verify the installed package can build the documented example in both output modes.
 

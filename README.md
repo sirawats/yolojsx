@@ -10,7 +10,7 @@
 [![Node.js version][node-image]][node-url]
 [![License][license-image]][license-url]
 
-Build one JSX component into a portable compressed HTML application—without setting up a frontend project first.
+Build one JSX component into a compact compressed HTML application—without setting up a frontend project first.
 
 `yolojsx` supplies React, Vite, Tailwind CSS, Ant Design, and an original global theme catalog. A normal invocation writes one `<EntryName>.html` file that can open directly; directory output remains available explicitly.
 
@@ -19,7 +19,7 @@ Build one JSX component into a portable compressed HTML application—without se
 - 🚀 **Zero Configuration**: Turn any standalone `.jsx` component into a production-ready application.
 - 📦 **Complete Stack**: React 18, Vite, Tailwind CSS v4, and Ant Design bundled out of the box.
 - 🎨 **20+ Built-in Themes**: Visual presets with matched typography, spacing, and Ant Design design tokens.
-- 🗜️ **Single-File Compression**: Emits a self-contained `.html` file powered by browser-native `DecompressionStream("gzip")`.
+- 🗜️ **Single-File Compression**: Emits a compact `.html` file backed by pinned CDN runtimes, with optional self-contained output.
 - 📁 **Flexible Output**: Supports single-file HTML or traditional static asset directories (`--out-dir`).
 
 ## Table of Contents
@@ -57,7 +57,7 @@ Or use an `npx` execution without installing globally:
 npx yolojsx Home.jsx
 ```
 
-The default artifact contains a small loader and a base64-encoded gzip payload. A modern browser restores it with `DecompressionStream("gzip")`, including when opened through `file://`; no adjacent asset directory or server is required.
+The default artifact contains a small loader and a base64-encoded gzip payload. A modern browser restores it with `DecompressionStream("gzip")`, including when opened through `file://`; no adjacent asset directory or server is required. The supplied React and Ant Design runtime loads from exact-version esm.sh URLs, so default artifacts require network access.
 
 ## AI Agent Skill
 
@@ -148,7 +148,7 @@ not part of the guaranteed stack.
 
 ## Output Modes
 
-### Single-File HTML (Default)
+### CDN-Backed HTML (Default)
 
 One HTML file is produced by default:
 
@@ -157,6 +157,17 @@ yolojsx pages/Home.jsx
 # Outputs: ./Home.html
 
 yolojsx pages/Home.jsx --output public/index.html
+```
+
+Application code, generated CSS, local assets, selected Prism modules, and React Icons remain embedded. React, React DOM, Ant Design, and Ant Design CSS-in-JS load from exact-version esm.sh URLs so browsers can cache them across artifacts.
+
+### Self-Contained HTML (`--self-contained`)
+
+Embed the supplied runtime when the file must work offline:
+
+```sh
+yolojsx pages/Home.jsx --self-contained
+yolojsx pages/Home.jsx --self-contained --output public/index.html
 ```
 
 ### Directory Output (`--out-dir`)
@@ -184,14 +195,14 @@ yolojsx pages/Home.jsx --out-dir public/app --base /application/
 
 ### Repackaging Existing Builds (`pack`)
 
-The `pack` command packages an existing compatible directory build into a single HTML file without changing its input:
+The `pack` command packages an existing compatible directory build into a self-contained HTML file without changing its input:
 
 ```sh
 yolojsx pack dist --output index.html
 ```
 
 > [!NOTE]
-> The single-file packer rejects extra executable chunks, workers, service workers, runtime-loaded WASM, unresolved local files, and runtime-relative `fetch()` calls. When a default file build encounters one of those shapes, use `--out-dir dist`.
+> The single-file packer rejects extra executable chunks, workers, service workers, runtime-loaded WASM, unresolved local files, and runtime-relative `fetch()` calls. When a file build encounters one of those shapes, use `--out-dir dist`.
 
 ## Themes
 
@@ -279,26 +290,29 @@ Usage: yolojsx <entry.jsx> [options]
        yolojsx prism-themes | yolojsx --prism-themes
        yolojsx pack <directory> --output <file.html> [options]
 
-Build a JSX component into one compressed HTML file by default.
+Build a JSX component into one CDN-backed compressed HTML file by default.
 
 Options:
-      --output <path>   HTML output path (default: ./<EntryName>.html)
-  -o, --out-dir <path> Build a directory instead of one HTML file
-      --base <path>    Directory-mode public base path (default: ./)
-      --theme <preset> Global theme preset (default: default)
-      --themes          List available theme names
-      --prism-themes    List available Prism theme names
-      --css <path>     Custom CSS loaded after the preset
-      --single-file    Deprecated alias for the default file mode
-      --force          Replace an existing protected output
-  -h, --help           Show this help
-  -v, --version        Show the installed version
+      --output <path>    HTML output path (default: ./<EntryName>.html)
+  -o, --out-dir <path>  Build a directory instead of one HTML file
+      --base <path>     Directory-mode public base path (default: ./)
+      --self-contained  Embed runtime dependencies for offline use
+      --theme <preset>  Global theme preset (default: default)
+      --themes           List available theme names
+      --prism-themes     List available Prism theme names
+      --css <path>      Custom CSS loaded after the preset
+      --single-file     Deprecated alias for the default file mode
+      --force           Replace an existing protected output
+  -h, --help            Show this help
+  -v, --version         Show the installed version
 
 Run `yolojsx themes` or `yolojsx prism-themes` to list available themes.
 ```
 
-`--output` and `--out-dir` conflict. `--base` requires `--out-dir`. Theme and
-CSS options apply to JSX builds, not discovery or `pack` commands.
+`--output` and `--out-dir` conflict. `--base` requires `--out-dir`.
+`--self-contained` applies only to direct HTML-file builds; `pack` is already
+self-contained. Theme and CSS options apply to JSX builds, not discovery or
+`pack` commands.
 
 ## Safe Output Replacement
 
@@ -309,7 +323,7 @@ Directory output uses `.yolojsx-output.json` ownership markers. Both modes stage
 ## Browser and Security Notes
 
 > [!IMPORTANT]
-> Single-file output requires native gzip `DecompressionStream`. Its loader and restored application execute inline scripts and styles, so it is not suitable for a strict Content Security Policy (CSP) that disallows inline code. Use directory mode (`--out-dir`) for strict hosting policies. Compression is not a security boundary.
+> Single-file output requires native gzip `DecompressionStream`. Default output also requires import-map support and network access to `https://esm.sh`; use `--self-contained` for offline files. The loader and restored application execute inline scripts and styles, so neither file mode is suitable for a strict Content Security Policy (CSP) that disallows inline code. Use directory mode (`--out-dir`) for strict hosting policies. Compression is not a security boundary.
 
 Current limitations include JSX-only input, one page per invocation, no dev server/watch/SSR, no user Vite or HTML configuration, no automatic `public/` copying, and single-file graph limitations described above.
 

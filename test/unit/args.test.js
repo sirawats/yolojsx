@@ -22,6 +22,7 @@ test("defaults JSX builds to a named HTML file", () => {
     css: undefined,
     force: false,
     deprecatedSingleFile: false,
+    selfContained: false,
   });
   assert.deepEqual(
     parseArgs([
@@ -43,6 +44,7 @@ test("defaults JSX builds to a named HTML file", () => {
       css: "app.css",
       force: false,
       deprecatedSingleFile: false,
+      selfContained: false,
     },
   );
 });
@@ -67,6 +69,7 @@ test("selects directory mode only from an explicit output directory", () => {
       css: undefined,
       force: true,
       deprecatedSingleFile: false,
+      selfContained: false,
     },
   );
 });
@@ -76,6 +79,7 @@ test("parses deprecated single-file, theme discovery, and pack commands", () => 
     parseArgs(["Home.jsx", "--single-file"]).deprecatedSingleFile,
     true,
   );
+  assert.equal(parseArgs(["Home.jsx", "--self-contained"]).selfContained, true);
   assert.deepEqual(parseArgs(["themes"]), { action: "themes" });
   assert.deepEqual(parseArgs(["--themes"]), { action: "themes" });
   assert.deepEqual(parseArgs(["prism-themes"]), { action: "prism-themes" });
@@ -116,6 +120,10 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
     /cannot be combined/,
   );
   assert.throws(
+    () => parseArgs(["A.jsx", "--self-contained", "--out-dir", "site"]),
+    /cannot be combined/,
+  );
+  assert.throws(
     () => parseArgs(["A.jsx", "--theme", "github", "--theme", "material"]),
     /only be specified once/,
   );
@@ -134,7 +142,12 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
     () => parseArgs(["pack", "dist", "--output", "x.html", "--css", "x.css"]),
     /does not accept --css/,
   );
-  assert.match(USAGE, /HTML file by default/);
+  assert.throws(
+    () => parseArgs(["pack", "dist", "--output", "x.html", "--self-contained"]),
+    /does not accept --self-contained/,
+  );
+  assert.match(USAGE, /CDN-backed compressed HTML file by default/);
+  assert.match(USAGE, /--self-contained/);
   assert.match(USAGE, /yolojsx themes/);
   assert.match(USAGE, /--themes/);
   assert.match(USAGE, /yolojsx prism-themes/);

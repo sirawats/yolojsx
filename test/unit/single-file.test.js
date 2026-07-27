@@ -3,6 +3,8 @@ import { rm } from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
 import { gzipSync } from "node:zlib";
+import { SINGLE_FILE_PAYLOAD_VERSION } from "../../src/constants.js";
+import { createCdnImportMap } from "../../src/dependencies.js";
 import {
   createSingleFileArtifact,
   normalizeBuildDirectory,
@@ -22,7 +24,7 @@ test("normalizes assets and round-trips a compressed HTML artifact", async (t) =
   });
 
   const payload = await normalizeBuildDirectory(fixture);
-  assert.equal(payload.version, 1);
+  assert.equal(payload.version, SINGLE_FILE_PAYLOAD_VERSION);
   assert.equal(payload.title, "Fixture");
   assert.match(payload.body, /src="data:image\/png;base64,/);
   assert.match(payload.styles[0], /url\("data:image\/png;base64,/);
@@ -59,6 +61,29 @@ test("does not mistake application scopes for resource URL schemes", async (t) =
   const payload = await normalizeBuildDirectory(fixture);
   assert.match(payload.script, /events:read/);
   assert.match(payload.script, /tokens:write/);
+});
+
+test("normalizes only the controlled CDN import map", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const importMap = createCdnImportMap();
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><script type="importmap">${JSON.stringify(importMap)}</script></head><body><script type="module" src="app.js"></script></body></html>`,
+    "app.js": `import React from "react";document.body.dataset.react=String(React);`,
+  });
+
+  const payload = await normalizeBuildDirectory(fixture);
+  assert.deepEqual(payload.importMap, importMap);
+
+  await writeFixture(fixture, {
+    "app.js": `import value from "unmapped";document.body.dataset.value=value;`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /Unmapped.*unmapped/);
+
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><script type="importmap">{"imports":{"react":"https://example.com/react.js"}}</script></head><body><script type="module" src="app.js"></script></body></html>`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /controlled CDN/);
 });
 
 test("rejects incompatible build resource shapes", async (t) => {
@@ -108,7 +133,10 @@ test("rejects CSS root escapes, workers, and non-local entries", async (t) => {
   );
 });
 
-async function runBootstrap(html, { decompression = true } = {}) {
+async function runBootstrap(
+  html,
+  { decompression = true, importMaps = true, moduleError = false } = {},
+) {
   const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)];
   const encoded = scripts[0][1];
   const body = {
@@ -120,6 +148,11 @@ async function runBootstrap(html, { decompression = true } = {}) {
     },
     append(child) {
       this.children.push(child);
+      if (child.type === "module") {
+        setImmediate(() =>
+          moduleError ? child.onerror?.() : child.onload?.(),
+        );
+      }
     },
   };
   const head = {
@@ -149,6 +182,15 @@ async function runBootstrap(html, { decompression = true } = {}) {
     Response,
     Uint8Array,
     ...(decompression ? { DecompressionStream } : {}),
+    ...(importMaps
+      ? {
+          HTMLScriptElement: class {
+            static supports(type) {
+              return type === "importmap";
+            }
+          },
+        }
+      : {}),
   };
   vm.runInNewContext(scripts[1][1], context);
   for (let index = 0; index < 10; index += 1) {
@@ -159,7 +201,7 @@ async function runBootstrap(html, { decompression = true } = {}) {
 
 test("bootstrap restores supported payloads and renders failure messages", async () => {
   const payload = {
-    version: 1,
+    version: SINGLE_FILE_PAYLOAD_VERSION,
     title: "Restored",
     head: "<meta name=fixture content=yes>",
     body: '<div id="root"></div>',
@@ -170,14 +212,16 @@ test("bootstrap restores supported payloads and renders failure messages", async
   const encoded = gzipSync(Buffer.from(JSON.stringify(payload))).toString(
     "base64",
   );
-  const restored = await runBootstrap(createSingleFileHtml(encoded, 1));
+  const restored = await runBootstrap(
+    createSingleFileHtml(encoded, SINGLE_FILE_PAYLOAD_VERSION),
+  );
   assert.equal(restored.document.title, "Restored");
   assert.equal(restored.body.innerHTML, payload.body);
   assert.equal(restored.head.children[0].textContent, payload.styles[0]);
   assert.equal(restored.body.children[0].textContent, payload.script);
 
   const unsupportedBrowser = await runBootstrap(
-    createSingleFileHtml(encoded, 1),
+    createSingleFileHtml(encoded, SINGLE_FILE_PAYLOAD_VERSION),
     {
       decompression: false,
     },
@@ -187,12 +231,45 @@ test("bootstrap restores supported payloads and renders failure messages", async
     /does not support/,
   );
 
-  const wrongVersion = await runBootstrap(createSingleFileHtml(encoded, 2));
+  const wrongVersion = await runBootstrap(
+    createSingleFileHtml(encoded, SINGLE_FILE_PAYLOAD_VERSION + 1),
+  );
   assert.match(
     wrongVersion.body.children[0].textContent,
     /Unsupported packaged/,
   );
 
-  const corrupt = await runBootstrap(createSingleFileHtml("not-base64", 1));
+  const corrupt = await runBootstrap(
+    createSingleFileHtml("not-base64", SINGLE_FILE_PAYLOAD_VERSION),
+  );
   assert.match(corrupt.body.children[0].textContent, /Unable to load/);
+});
+
+test("bootstrap installs import maps and reports CDN failures", async () => {
+  const payload = {
+    version: SINGLE_FILE_PAYLOAD_VERSION,
+    title: "CDN",
+    head: "",
+    body: '<div id="root"></div>',
+    styles: [],
+    importMap: createCdnImportMap(),
+    scriptType: "module",
+    script: `import React from "react";`,
+  };
+  const encoded = gzipSync(Buffer.from(JSON.stringify(payload))).toString(
+    "base64",
+  );
+  const html = createSingleFileHtml(encoded, SINGLE_FILE_PAYLOAD_VERSION);
+  const restored = await runBootstrap(html);
+  assert.equal(restored.head.children[0].type, "importmap");
+  assert.deepEqual(
+    JSON.parse(restored.head.children[0].textContent),
+    payload.importMap,
+  );
+
+  const unsupported = await runBootstrap(html, { importMaps: false });
+  assert.match(unsupported.body.children[0].textContent, /import maps/);
+
+  const failed = await runBootstrap(html, { moduleError: true });
+  assert.match(failed.body.children[0].textContent, /application runtime/);
 });

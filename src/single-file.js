@@ -2,6 +2,7 @@ import { gzipSync, gunzipSync } from "node:zlib";
 import { lstat, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { SINGLE_FILE_PAYLOAD_VERSION } from "./constants.js";
+import { createCdnImportMap } from "./dependencies.js";
 import { YoloJsxError } from "./errors.js";
 import { createSingleFileHtml } from "./templates.js";
 
@@ -35,6 +36,30 @@ function getAttribute(tag, name) {
     new RegExp(`\\b${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i"),
   );
   return match?.[1] ?? match?.[2] ?? match?.[3];
+}
+
+function parseImportMap(tag) {
+  let value;
+  try {
+    value = JSON.parse(
+      tag.replace(/^<script\b[^>]*>/i, "").replace(/<\/script\s*>$/i, ""),
+    );
+  } catch (error) {
+    throw packageError("Build import map is not valid JSON.", error);
+  }
+
+  const expected = createCdnImportMap();
+  const imports = value?.imports;
+  const expectedEntries = Object.entries(expected.imports);
+  if (
+    !imports ||
+    Object.keys(value).length !== 1 ||
+    Object.keys(imports).length !== expectedEntries.length ||
+    expectedEntries.some(([name, url]) => imports[name] !== url)
+  ) {
+    throw packageError("Build import map is not the controlled CDN mapping.");
+  }
+  return value;
 }
 
 function isEmbeddedOrRemote(reference) {
@@ -182,7 +207,12 @@ async function inlineMarkupAssets(markup, htmlRelative, files) {
   );
 }
 
-async function inlineJavaScriptAssets(source, scriptRelative, files) {
+async function inlineJavaScriptAssets(
+  source,
+  scriptRelative,
+  files,
+  importMap,
+) {
   const result = await replaceAsync(
     source,
     /(["'])([^"'\\\n]+)\1/g,
@@ -201,8 +231,28 @@ async function inlineJavaScriptAssets(source, scriptRelative, files) {
     },
   );
 
+  if (/(?:^|[;}])\s*import\s*\(/m.test(result)) {
+    throw packageError(
+      `The build uses unsupported additional JavaScript imports: ${scriptRelative}`,
+    );
+  }
+  const imports = [
+    ...result.matchAll(
+      /(?:^|[;}])\s*import\s*(?:[\w$*{},\s]*?\s*from\s*)?(["'])([^"']+)\1/g,
+    ),
+  ].map((match) => match[2]);
+  if (imports.length > 0 && !importMap) {
+    throw packageError(
+      `The build uses unsupported additional JavaScript imports: ${scriptRelative}`,
+    );
+  }
+  for (const specifier of imports) {
+    if (!Object.hasOwn(importMap.imports, specifier)) {
+      throw packageError(`Unmapped executable import: ${specifier}`);
+    }
+  }
+
   const unsupported = [
-    [/(?:^|[;{}])\s*import\s*(?:\(|["'{*])/m, "additional JavaScript imports"],
     // Prism bundles a dormant worker helper using `<identifier>.filename`.
     [
       /\bnew\s+(?:Shared)?Worker\s*\(\s*(?![A-Za-z_$][\w$]*\.filename\b)/,
@@ -249,13 +299,22 @@ export async function normalizeBuildDirectory(inputDirectory) {
   const entryScripts = scriptTags.filter((match) =>
     getAttribute(match[0], "src"),
   );
-  if (scriptTags.length !== 1 || entryScripts.length !== 1) {
+  const importMapTags = scriptTags.filter(
+    (match) => getAttribute(match[0], "type")?.toLowerCase() === "importmap",
+  );
+  if (
+    entryScripts.length !== 1 ||
+    importMapTags.length > 1 ||
+    scriptTags.length !== entryScripts.length + importMapTags.length
+  ) {
     throw packageError(
-      "Pack input must contain exactly one external executable script.",
+      "Pack input must contain one external executable script and at most one controlled import map.",
     );
   }
 
   const scriptTag = entryScripts[0][0];
+  const importMapTag = importMapTags[0]?.[0];
+  const importMap = importMapTag ? parseImportMap(importMapTag) : undefined;
   const scriptReference = getAttribute(scriptTag, "src");
   const scriptRelative = resolveFileReference(
     scriptReference,
@@ -277,6 +336,9 @@ export async function normalizeBuildDirectory(inputDirectory) {
   }
 
   let cleanedHtml = html.replace(scriptTag, "");
+  if (importMapTag) {
+    cleanedHtml = cleanedHtml.replace(importMapTag, "");
+  }
   const styles = [];
   for (const match of [...cleanedHtml.matchAll(/<link\b[^>]*>/gi)]) {
     const tag = match[0];
@@ -317,7 +379,12 @@ export async function normalizeBuildDirectory(inputDirectory) {
   body = await inlineMarkupAssets(body, "index.html", files);
 
   let script = await readFile(files.get(scriptRelative), "utf8");
-  script = await inlineJavaScriptAssets(script, scriptRelative, files);
+  script = await inlineJavaScriptAssets(
+    script,
+    scriptRelative,
+    files,
+    importMap,
+  );
 
   return {
     version: SINGLE_FILE_PAYLOAD_VERSION,
@@ -325,6 +392,7 @@ export async function normalizeBuildDirectory(inputDirectory) {
     head,
     body,
     styles,
+    ...(importMap ? { importMap } : {}),
     scriptType: getAttribute(scriptTag, "type") || "module",
     script,
   };

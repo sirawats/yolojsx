@@ -18,7 +18,7 @@ succeeds and `npx yolojsx ...` when it does not.
 
 ## Output modes
 
-### Portable HTML: default
+### Compact CDN-backed HTML: default
 
 ```sh
 yolojsx Report.jsx
@@ -27,13 +27,24 @@ yolojsx Report.jsx
 yolojsx Report.jsx --output deliverables/index.html
 ```
 
-The result is one HTML file containing a base64-encoded gzip application payload.
-A browser with `DecompressionStream("gzip")` restores it, including through
-`file://`; no neighboring local assets or server are required.
+The result is one HTML file containing a base64-encoded gzip application
+payload. A browser with `DecompressionStream("gzip")` and import-map support
+restores it, including through `file://`; no neighboring local assets or server
+are required. React and Ant Design runtime modules load from exact-version
+esm.sh URLs, so the default requires network access.
 
-Choose this mode for shareable reports, guides, demos, comparisons, and small
-tools. Remote URLs and intentional absolute API calls can still require a
-network connection.
+Choose this mode for the smallest shareable reports, guides, demos,
+comparisons, and small tools.
+
+### Self-contained HTML
+
+```sh
+yolojsx Report.jsx --self-contained
+yolojsx Report.jsx --self-contained --output deliverables/index.html
+```
+
+Choose this mode when the artifact must start offline. It embeds the supplied
+runtime and is therefore substantially larger.
 
 ### Deployable directory
 
@@ -51,7 +62,8 @@ Policy, or application graphs the single-file packer cannot normalize.
 yolojsx pack dist --output Report.html
 ```
 
-Packing reads a compatible directory build without modifying it.
+Packing reads a compatible directory build without modifying it and produces a
+self-contained artifact.
 
 ## Themes and CSS
 
@@ -73,6 +85,8 @@ JSX builds, not discovery or `pack` commands.
 - `--output` names the single HTML destination.
 - `--out-dir` selects directory mode and conflicts with `--output`.
 - `--base` requires `--out-dir`.
+- `--self-contained` embeds runtime dependencies and conflicts with directory
+  mode; `pack` is already self-contained.
 - `--single-file` is a deprecated alias for the default mode.
 - `--force` replaces an existing protected output; use it only after confirming
   the exact target may be replaced.
@@ -91,7 +105,9 @@ Use `--out-dir dist` when an application requires:
 - runtime-relative `fetch()` calls;
 - strict CSP that rejects inline scripts or styles.
 
-Compression is packaging, not a security boundary. Never embed secrets.
+Default files require network access to esm.sh. Both file modes execute inline
+code and styles. Compression is packaging, not a security boundary. Never
+embed secrets.
 
 ## Verification
 

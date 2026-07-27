@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile, readdir, rm } from "node:fs/promises";
+import { readFile, readdir, rm, stat } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { createCdnImportMap } from "../../src/dependencies.js";
 import { readEmbeddedPayload } from "../../src/single-file.js";
 import { invoke, makeFixture, writeFixture } from "../helpers.js";
 
@@ -22,6 +23,9 @@ test("builds a default and explicitly named single HTML file", async (t) => {
   const payload = readEmbeddedPayload(defaultHtml);
   assert.match(payload.script, /Single artifact/);
   assert.match(payload.styles.join("\n"), /\.p-8\{/);
+  assert.deepEqual(payload.importMap, createCdnImportMap());
+  assert.match(payload.script, /from"react"/);
+  assert.match(payload.script, /from"antd"/);
   assert.ok(!(await readdir(fixture)).includes("dist"));
 
   const explicitBuild = await invoke(
@@ -30,6 +34,17 @@ test("builds a default and explicitly named single HTML file", async (t) => {
   );
   assert.equal(explicitBuild.exitCode, 0, explicitBuild.stderr);
   assert.ok(await readFile(path.join(fixture, "public/index.html"), "utf8"));
+
+  const selfContained = await invoke(
+    ["pages/Home.jsx", "--self-contained", "--output", "offline.html"],
+    { cwd: fixture },
+  );
+  assert.equal(selfContained.exitCode, 0, selfContained.stderr);
+  const offlinePayload = readEmbeddedPayload(
+    await readFile(path.join(fixture, "offline.html"), "utf8"),
+  );
+  assert.equal(offlinePayload.importMap, undefined);
+  assert.doesNotMatch(offlinePayload.script, /from"react"/);
 });
 
 test("packs an existing build without changing its input", async (t) => {
@@ -55,12 +70,11 @@ test("packs an existing build without changing its input", async (t) => {
   });
   assert.equal(packed.exitCode, 0, packed.stderr);
   assert.match(packed.stdout, /Packed .*dist/);
-  assert.match(
-    readEmbeddedPayload(
-      await readFile(path.join(fixture, "index.html"), "utf8"),
-    ).script,
-    /Packed existing build/,
+  const payload = readEmbeddedPayload(
+    await readFile(path.join(fixture, "index.html"), "utf8"),
   );
+  assert.match(payload.script, /Packed existing build/);
+  assert.equal(payload.importMap, undefined);
   assert.deepEqual(
     await readdir(path.join(fixture, "dist"), { recursive: true }),
     beforeEntries,
@@ -184,4 +198,21 @@ test("rejects unsafe pack destinations and unsupported chunks", async (t) => {
   assert.equal(unsupported.exitCode, 1);
   assert.match(unsupported.stderr, /found 2/);
   await assert.rejects(readFile(path.join(fixture, "packed.html")), /ENOENT/);
+});
+
+test("keeps the self-contained APIDocs artifact below its regression budget", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const output = path.join(fixture, "APIDocs.html");
+  const result = await invoke(
+    [
+      path.resolve("examples/APIDocs.jsx"),
+      "--self-contained",
+      "--output",
+      output,
+    ],
+    { cwd: path.resolve(".") },
+  );
+  assert.equal(result.exitCode, 0, result.stderr);
+  assert.ok((await stat(output)).size < 450_000);
 });

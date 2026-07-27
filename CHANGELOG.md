@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- **Breaking:** make direct HTML builds load exact-version React and Ant Design
+  runtimes from esm.sh by default, reducing generated file size while requiring
+  network access at startup.
+- Add `--self-contained` for offline HTML output and keep `pack` output
+  self-contained.
+- Resolve Ant Design and CSS-in-JS through their ESM entries so self-contained
+  and directory builds exclude unused component families.
+
 ## 0.1.4 - 2026-07-26
 
 - Supply `prism-themes`, resolve a named `YOLOJSX.prismTheme`, and add

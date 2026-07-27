@@ -133,6 +133,7 @@ export async function runCli(
             sourceDirectory,
             base: "./",
             singleFile: true,
+            cdn: !options.selfContained,
             theme,
             customCss,
             onWarning,

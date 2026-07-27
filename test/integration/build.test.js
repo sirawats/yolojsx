@@ -35,6 +35,8 @@ export default function Home() {
   assert.match(javascript, /Fixture application/);
   assert.match(javascript, /data:image\/svg\+xml;base64/);
   assert.match(javascript, /anticon/);
+  assert.ok(javascript.length < 500_000);
+  assert.doesNotMatch(javascript, /ant-table|ant-picker|ant-upload/);
   const markerName = ".yolojsx-output.json";
   assert.ok((await readdir(output)).includes(markerName));
   const marker = JSON.parse(
