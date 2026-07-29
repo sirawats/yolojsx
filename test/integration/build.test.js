@@ -113,6 +113,8 @@ export default function App() {
   assert.match(javascript, /supplied-dep-test/);
   assert.match(javascript, /tax/);
   assert.match(javascript, /yolojsxPrismTheme/);
+  assert.match(javascript, /@layer components/);
+  assert.match(javascript, /background:\s*transparent/);
   assert.match(javascript, /token\.keyword/);
   assert.match(javascript, /#f5f2f0/);
 

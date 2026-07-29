@@ -92,7 +92,7 @@ export default function SaaS() {
       >
         <a
           href="#top"
-          className="flex items-center gap-3 text-lg font-bold text-foreground no-underline"
+          className="flex items-center gap-3 text-lg font-bold no-underline"
         >
           <Avatar shape="square">N</Avatar>
           Nimbus

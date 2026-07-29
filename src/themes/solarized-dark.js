@@ -30,7 +30,7 @@ export default {
   },
   rhythm: {
     lineHeight: 1.6,
-    headingWeight: 650,
+    headingWeight: 600,
     letterSpacing: "-0.01em",
     contentMeasure: "74rem",
   },
@@ -48,9 +48,9 @@ export default {
     inputPaddingInline: 12,
     inputPaddingBlock: 5,
   },
-  radius: { small: "0.375rem", medium: "0.625rem", large: "0.875rem" },
-  shadow: "0 12px 32px rgb(15 23 42 / 0.12)",
-  controlHeight: 32,
+  radius: { small: "0.25rem", medium: "0.375rem", large: "0.5rem" },
+  shadow: "0 1px 2px rgb(0 0 0 / 0.32)",
+  controlHeight: 34,
   status: {
     success: { foreground: "#c4d870", background: "#2a3a00", seed: "#859900" },
     warning: { foreground: "#fef3c7", background: "#3c2c00", seed: "#b58900" },

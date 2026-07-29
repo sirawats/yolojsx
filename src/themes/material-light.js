@@ -38,6 +38,7 @@ export default {
   components: {
     buttonPadding: 24,
     buttonShadow: "0 2px 4px rgb(29 27 32 / 0.2)",
+    cardBorderWidth: 0,
     cardPadding: 24,
     cardHeaderHeight: 64,
     menuItemHeight: 44,

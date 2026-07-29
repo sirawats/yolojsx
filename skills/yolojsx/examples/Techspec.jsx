@@ -258,7 +258,6 @@ export default function Techspec() {
               Current and proposed behavior
             </Typography.Title>
             <Table
-              className="overflow-hidden rounded-lg border border-border"
               columns={[
                 { title: "Concern", dataIndex: "concern", width: 190 },
                 { title: "Current", dataIndex: "current", width: 310 },
@@ -331,7 +330,6 @@ export default function Techspec() {
               evidence required before rollout.
             </Typography.Paragraph>
             <Table
-              className="overflow-hidden rounded-lg border border-border"
               columns={requirementColumns}
               dataSource={requirements}
               pagination={false}

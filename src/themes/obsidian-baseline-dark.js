@@ -27,17 +27,18 @@ export default {
   },
   typography: {
     sans: '"Source Sans 3", "Segoe UI", ui-sans-serif, system-ui, sans-serif',
+    heading: 'ui-serif, Georgia, Cambria, "Times New Roman", serif',
     mono: '"Source Code Pro", ui-monospace, monospace',
   },
   rhythm: {
     lineHeight: 1.62,
-    headingWeight: 650,
+    headingWeight: 700,
     letterSpacing: "-0.012em",
     contentMeasure: "72rem",
   },
   components: {
     buttonPadding: 18,
-    buttonShadow: "0 1px 3px rgb(37 36 34 / 0.12)",
+    buttonShadow: "none",
     cardPadding: 24,
     cardHeaderHeight: 56,
     menuItemHeight: 40,
@@ -50,6 +51,12 @@ export default {
     inputPaddingBlock: 5,
   },
   radius: { small: "0.25rem", medium: "0.5rem", large: "0.75rem" },
-  shadow: "0 12px 32px rgb(15 23 42 / 0.12)",
-  controlHeight: 32,
+  shadow: "none",
+  controlHeight: 36,
+  status: {
+    success: { border: "#50565b" },
+    warning: { border: "#50565b" },
+    danger: { border: "#50565b" },
+    info: { border: "#50565b" },
+  },
 };

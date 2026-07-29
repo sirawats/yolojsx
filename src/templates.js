@@ -164,8 +164,14 @@ if (metadata?.icon) {
 }
 if (typeof metadata?.prismTheme === "string" && metadata.prismTheme) {
   const prismTheme = document.createElement("style");
+  const prismImport = metadata.prismTheme.match(/^@import[^;]+;\\s*/)?.[0] ?? "";
   prismTheme.dataset.yolojsxPrismTheme = "";
-  prismTheme.textContent = metadata.prismTheme;
+  prismTheme.textContent = \`\${prismImport}@layer components {
+\${metadata.prismTheme.slice(prismImport.length)}
+.token.operator {
+  background: transparent;
+}
+}\`;
   document.head.append(prismTheme);
 }
 

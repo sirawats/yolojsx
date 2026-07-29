@@ -60,7 +60,7 @@ The package SHALL treat `github`, `material`, `solarized`, `gruvbox`, `everfores
 
 ### Requirement: Coordinated semantic theme contract
 
-Each preset SHALL define one semantic theme manifest that maps page, surface, foreground, border, interaction, status, selection, focus, code, typography, radius, shadow, and density values into conventional unbranded Tailwind v4 theme variables, generated global styles, and official Ant Design algorithms, global tokens, and component tokens.
+Each preset SHALL define one semantic theme manifest that maps page, surface, foreground, border, interaction, link, status fill and border, selection, focus, code, typography, radius, shadow, and density values into conventional unbranded Tailwind v4 theme variables, generated global styles, and official Ant Design algorithms, global tokens, and component tokens.
 
 #### Scenario: Tailwind and Ant Design share a preset
 
@@ -77,6 +77,16 @@ Each preset SHALL define one semantic theme manifest that maps page, surface, fo
 - **WHEN** representative controls and surfaces are built under visually distinct presets such as `github-light` and `material-light`
 - **THEN** their generated Ant Design component tokens and global styles express meaningful differences in typography, density, radius, elevation, and interaction treatment as well as color
 
+#### Scenario: Theme families retain structural identity
+
+- **WHEN** representative presets from each named family render headings, cards, menus, and controls
+- **THEN** GitHub is compact and border-led, Material spacious and elevated, One Dark tonal and flat, Solarized restrained, Gruvbox dense and square, Everforest soft and relaxed, Catppuccin rounded, Obsidian Minimal whitespace-led, and Obsidian Baseline typographic and structurally bordered
+
+#### Scenario: Theme-specific status treatment
+
+- **WHEN** distinct preset families render Ant Design alerts
+- **THEN** GitHub and Everforest alerts use colored status borders, Obsidian Baseline alerts use neutral structural borders, and the remaining families use borderless status fills
+
 ### Requirement: Theme-transparent JSX authoring
 
 The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use a yolojsx-specific class-name vocabulary.
@@ -89,7 +99,7 @@ The CLI-managed stylesheet graph SHALL make the selected preset available throug
 #### Scenario: Conventional semantic Tailwind utility
 
 - **WHEN** an entry needs an explicit muted foreground or themed surface
-- **THEN** it can use conventional semantic utilities such as `text-muted-foreground`, `bg-card`, or `border-border` without a `yolo-` prefix
+- **THEN** it can use conventional semantic utilities such as `text-muted-foreground`, `bg-card`, `border-border`, or `font-heading` without a `yolo-` prefix
 
 #### Scenario: No branded compatibility vocabulary
 

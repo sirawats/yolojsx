@@ -253,7 +253,7 @@ export default function APIDocs() {
   const prismLang = language === "cURL" ? "bash" : language.toLowerCase();
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen">
       <header className="border-b border-border bg-card">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center gap-4 px-4 py-4 sm:px-6">
           <Avatar shape="square">{"{}"}</Avatar>
@@ -353,9 +353,7 @@ export default function APIDocs() {
               <Card>
                 <Space wrap>
                   <Tag color="green">GET</Tag>
-                  <code className="break-all rounded-sm bg-code px-2 py-1 text-sm">
-                    {url}
-                  </code>
+                  <code className="break-all px-2 py-1 text-sm">{url}</code>
                 </Space>
               </Card>
             </section>
@@ -450,7 +448,7 @@ export default function APIDocs() {
                   </span>
                 </div>
                 <pre
-                  className={`language-${prismLang} max-w-full overflow-x-auto bg-code p-4 text-sm leading-6`}
+                  className={`language-${prismLang} max-w-full overflow-x-auto p-4 text-sm leading-6`}
                 >
                   <code
                     className={`language-${prismLang}`}
@@ -462,7 +460,7 @@ export default function APIDocs() {
               </Card>
 
               <Card className="mt-6" title="Example response shape">
-                <pre className="language-json max-w-full overflow-x-auto bg-code p-4 text-sm leading-6">
+                <pre className="language-json max-w-full overflow-x-auto p-4 text-sm leading-6">
                   <code
                     className="language-json"
                     dangerouslySetInnerHTML={{

@@ -11,6 +11,7 @@
   --color-border: var(--border);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-link: var(--link);
   --color-ring: var(--ring);
   --color-selection: var(--selection);
   --color-selection-foreground: var(--selection-foreground);
@@ -18,21 +19,37 @@
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-background: var(--success-background);
+  --color-success-border: var(--success-border);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-background: var(--warning-background);
+  --color-warning-border: var(--warning-border);
   --color-danger: var(--danger);
   --color-danger-foreground: var(--danger-foreground);
   --color-danger-background: var(--danger-background);
+  --color-danger-border: var(--danger-border);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-info-background: var(--info-background);
+  --color-info-border: var(--info-border);
   --font-sans: var(--font-body);
+  --font-heading: var(--font-title);
   --font-mono: var(--font-code);
   --radius-sm: var(--theme-radius-sm);
   --radius-md: var(--theme-radius-md);
   --radius-lg: var(--theme-radius-lg);
   --shadow-card: var(--card-shadow);
+}
+
+@layer components {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-title);
+  }
 }
 
 @layer base {
@@ -69,7 +86,7 @@
   }
 
   a {
-    color: var(--primary);
+    color: var(--link);
     text-underline-offset: 0.16em;
   }
 
@@ -98,6 +115,12 @@
     border-radius: inherit;
     background: transparent;
     color: inherit;
+  }
+
+  pre[class*="language-"],
+  code[class*="language-"] {
+    font-size: inherit;
+    line-height: inherit;
   }
 
   blockquote {
