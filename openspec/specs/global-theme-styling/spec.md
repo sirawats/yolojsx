@@ -87,6 +87,11 @@ Each preset SHALL define one semantic theme manifest that maps page, surface, fo
 - **WHEN** distinct preset families render Ant Design alerts
 - **THEN** GitHub and Everforest alerts use colored status borders, Obsidian Baseline alerts use neutral structural borders, and the remaining families use borderless status fills
 
+#### Scenario: Shared interaction borders remain visible
+
+- **WHEN** Ant Design components such as sliders, upload draggers, and date pickers consume the shared primary-border aliases under any built-in preset
+- **THEN** the preset defines those aliases once at the global token level with at least 3:1 contrast against component surfaces while disabled states remain subdued
+
 ### Requirement: Theme-transparent JSX authoring
 
 The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use a yolojsx-specific class-name vocabulary.

@@ -10,6 +10,7 @@ import {
   FIXED_THEMES,
   THEME_CSS_PROPERTIES,
   THEMES,
+  contrastRatio,
   renderThemeCatalog,
   renderThemeCss,
   resolveTheme,
@@ -227,6 +228,13 @@ test("uses official serializable Ant Design component configuration", () => {
   assert.ok(material.components.Button.defaultHoverBg);
   assert.ok(material.components.Button.defaultActiveBg);
   assert.ok(material.components.Button.defaultBgDisabled);
+  for (const theme of THEMES) {
+    const { colors } = theme.semantic;
+    const { token } = theme.antDesign;
+    assert.equal(token.colorPrimaryBorder, colors.focus);
+    assert.equal(token.colorPrimaryBorderHover, colors.link);
+    assert.ok(contrastRatio(token.colorPrimaryBorder, colors.surface) >= 3);
+  }
   assert.doesNotThrow(() =>
     JSON.stringify(createThemeRuntime(resolveTheme("material"))),
   );
@@ -243,6 +251,14 @@ test("uses official serializable Ant Design component configuration", () => {
   assert.throws(
     () => validateThemeCatalog([unsupported]),
     /unsupported Ant Design component configuration/,
+  );
+
+  const lowContrastPrimaryBorder = structuredClone(resolveTheme("one-dark"));
+  lowContrastPrimaryBorder.antDesign.token.colorPrimaryBorder =
+    lowContrastPrimaryBorder.semantic.colors.surface;
+  assert.throws(
+    () => validateThemeCatalog([lowContrastPrimaryBorder]),
+    /insufficient primary border contrast/,
   );
 });
 

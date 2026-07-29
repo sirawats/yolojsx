@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Keep shared Ant Design interaction borders, including enabled sliders,
+  visibly distinct from disabled states across dark themes.
+- Add an exhaustive Ant Design component showcase for reviewing theme states.
+
 ## 0.1.5 - 2026-07-29
 
 - **Breaking:** make direct HTML builds load exact-version React and Ant Design

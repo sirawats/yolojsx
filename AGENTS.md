@@ -133,6 +133,46 @@ Run it locally before handing work off.
 - Treat JSX and custom CSS as trusted local code, but keep path and output
   validation at every filesystem boundary.
 
+## Theme and Ant Design Tokens
+
+Theme values from `src/themes/*.js` enter `fixedTheme()`. Global
+`antDesign.token` values then pass through the algorithm selected in
+`src/templates.js` → Ant map and alias tokens → default component tokens.
+`createAntDesignComponents()` instead supplies direct component overrides,
+which bypass the algorithm unless a component-level algorithm is enabled. Seed
+tokens such as `colorPrimary` are algorithm inputs, not guaranteed final
+colors. Check the installed `antd` version and matching Context7 docs; inspect
+`node_modules/antd/es/<component>/style/` and `rg` token consumers when behavior
+depends on Ant's internal mapping.
+
+Choose the narrowest token layer:
+
+- preset semantic values define the palette and semantic relationships;
+- `antDesign.token` defines shared Ant Seed/Alias Tokens;
+- `antDesign.components.<Component>` defines component-specific structure or
+  state;
+- application classes/CSS define application-specific styling, not built-in
+  theme behavior.
+
+`ANT_DESIGN_COMPONENT_NAMES` allows intentional overrides; it is not the Ant
+component catalog. Do not copy upstream defaults or add components
+speculatively. Remove redundant overrides, use installed-version official token
+names, and keep runtime token values serializable primitives.
+
+Validate final colors against their actual canvas/container/elevated
+surface/rail, compositing alpha first. Require 4.5:1 for normal text and 3:1 for
+large text, controls, focus, and selected indicators; enabled and disabled
+states must remain distinct. Check both `colors.surface` and
+`colors.surfaceRaised`.
+
+Protect catalog-wide constraints in `validateThemeCatalog()` and token mappings
+with focused unit tests. Validate representative light and dark presets and
+inspect rendered output when relevant. For public changes update the theme spec
+and changelog, mirror edited examples into the skill, and run `npm run verify`.
+
+On Ant upgrades, recheck overridden token names, `prepareComponentToken`
+mappings, contrast constraints, and representative rendered components.
+
 ## Website and Examples
 
 - The website derives examples with `import.meta.glob("../examples/*.jsx")` and

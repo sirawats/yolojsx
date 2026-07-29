@@ -366,6 +366,8 @@ function fixedTheme(definition) {
       cssVar: true,
       token: {
         colorPrimary: colors.primary,
+        colorPrimaryBorder: colors.focus,
+        colorPrimaryBorderHover: colors.link,
         colorInfo: status.info.seed,
         colorInfoBg: status.info.background,
         colorInfoBorder: status.info.border,
@@ -618,6 +620,27 @@ export function validateThemeCatalog(themes = THEMES) {
         }
       }
     }
+    requireContrast(
+      theme,
+      "primary border",
+      antDesign.token.colorPrimaryBorder,
+      colors.surface,
+      3,
+    );
+    requireContrast(
+      theme,
+      "primary border hover",
+      antDesign.token.colorPrimaryBorderHover,
+      colors.surface,
+      3,
+    );
+    requireContrast(
+      theme,
+      "primary border on elevated surfaces",
+      antDesign.token.colorPrimaryBorder,
+      colors.surfaceRaised,
+      3,
+    );
     for (const field of ["sans", "heading", "mono"]) {
       if (!theme.semantic.typography?.[field]) {
         throw new Error(`${theme.id} is missing typography.${field}.`);
