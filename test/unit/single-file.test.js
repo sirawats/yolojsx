@@ -139,6 +139,15 @@ async function runBootstrap(
 ) {
   const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)];
   const encoded = scripts[0][1];
+  let finish;
+  let timeout;
+  const finished = new Promise((resolve, reject) => {
+    finish = resolve;
+    timeout = setTimeout(
+      () => reject(new Error("Bootstrap did not finish.")),
+      5000,
+    );
+  });
   const body = {
     innerHTML: "",
     children: [],
@@ -149,9 +158,16 @@ async function runBootstrap(
     append(child) {
       this.children.push(child);
       if (child.type === "module") {
-        setImmediate(() =>
-          moduleError ? child.onerror?.() : child.onload?.(),
-        );
+        setImmediate(() => {
+          if (moduleError) {
+            child.onerror?.();
+          } else {
+            child.onload?.();
+            finish();
+          }
+        });
+      } else {
+        finish();
       }
     },
   };
@@ -193,8 +209,10 @@ async function runBootstrap(
       : {}),
   };
   vm.runInNewContext(scripts[1][1], context);
-  for (let index = 0; index < 10; index += 1) {
-    await new Promise((resolve) => setImmediate(resolve));
+  try {
+    await finished;
+  } finally {
+    clearTimeout(timeout);
   }
   return { body, document, head };
 }
