@@ -41,13 +41,16 @@ function injectPrismTheme(code, value, filename) {
 ${code.slice(0, value.start)}${identifier}${code.slice(value.end)}`;
 }
 
-export function createHtml() {
+export function createHtml(importMap) {
+  const importMapScript = importMap
+    ? `\n    <script type="importmap">${JSON.stringify(importMap).replaceAll("<", "\\u003c")}</script>`
+    : "";
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>yolojsx</title>
+    <title>yolojsx</title>${importMapScript}
   </head>
   <body>
     <div id="root"></div>
@@ -161,8 +164,14 @@ if (metadata?.icon) {
 }
 if (typeof metadata?.prismTheme === "string" && metadata.prismTheme) {
   const prismTheme = document.createElement("style");
+  const prismImport = metadata.prismTheme.match(/^@import[^;]+;\\s*/)?.[0] ?? "";
   prismTheme.dataset.yolojsxPrismTheme = "";
-  prismTheme.textContent = metadata.prismTheme;
+  prismTheme.textContent = \`\${prismImport}@layer components {
+\${metadata.prismTheme.slice(prismImport.length)}
+.token.operator {
+  background: transparent;
+}
+}\`;
   document.head.append(prismTheme);
 }
 
@@ -243,11 +252,28 @@ export function createSingleFileHtml(encodedPayload, payloadVersion) {
             style.textContent = css;
             document.head.append(style);
           }
+          if (payload.importMap) {
+            if (
+              typeof HTMLScriptElement !== "function" ||
+              typeof HTMLScriptElement.supports !== "function" ||
+              !HTMLScriptElement.supports("importmap")
+            ) {
+              throw new Error("This browser does not support import maps required by this application.");
+            }
+            const importMap = document.createElement("script");
+            importMap.type = "importmap";
+            importMap.textContent = JSON.stringify(payload.importMap);
+            document.head.append(importMap);
+          }
           document.body.innerHTML = payload.body;
           const script = document.createElement("script");
           script.type = payload.scriptType;
           script.textContent = payload.script;
-          document.body.append(script);
+          await new Promise((resolve, reject) => {
+            script.onload = resolve;
+            script.onerror = () => reject(new Error("Could not load the application runtime."));
+            document.body.append(script);
+          });
         };
 
         start().catch(showError);

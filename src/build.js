@@ -4,7 +4,12 @@ import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { build } from "vite";
-import { createCoreAliases, resolvePackageImport } from "./dependencies.js";
+import {
+  createCdnImportMap,
+  createCoreAliases,
+  isCdnExternalImport,
+  resolvePackageImport,
+} from "./dependencies.js";
 import { YoloJsxError } from "./errors.js";
 import {
   cleanupDirectory,
@@ -22,14 +27,18 @@ import {
 import { resolveFoundationStylesheet } from "./theme-css.js";
 import { renderThemeCss } from "./themes.js";
 
-async function createWorkspace(entry, sourceDirectory, theme, customCss) {
+async function createWorkspace(entry, sourceDirectory, theme, customCss, cdn) {
   const temporaryWorkspace = await mkdtemp(
     path.join(os.tmpdir(), "yolojsx-work-"),
   );
   const workspace = await realpath(temporaryWorkspace);
   const themeCssPath = path.join(workspace, "theme.css");
   await Promise.all([
-    writeFile(path.join(workspace, "index.html"), createHtml(), "utf8"),
+    writeFile(
+      path.join(workspace, "index.html"),
+      createHtml(cdn ? createCdnImportMap() : undefined),
+      "utf8",
+    ),
     writeFile(path.join(workspace, "main.jsx"), createMainModule(), "utf8"),
     writeFile(themeCssPath, renderThemeCss(theme), "utf8"),
     writeFile(
@@ -64,6 +73,7 @@ export async function withTemporaryApplicationBuild(
     sourceDirectory = path.dirname(entry),
     base,
     singleFile = false,
+    cdn = false,
     theme,
     customCss,
     onWarning,
@@ -73,7 +83,13 @@ export async function withTemporaryApplicationBuild(
   let workspace;
 
   try {
-    workspace = await createWorkspace(entry, sourceDirectory, theme, customCss);
+    workspace = await createWorkspace(
+      entry,
+      sourceDirectory,
+      theme,
+      customCss,
+      cdn,
+    );
     const workspaceOutput = path.join(workspace, "dist");
     const prismThemes = await loadPrismThemeCatalog();
 
@@ -104,6 +120,7 @@ export async function withTemporaryApplicationBuild(
               cssCodeSplit: false,
               modulePreload: false,
               rolldownOptions: {
+                ...(cdn ? { external: isCdnExternalImport } : {}),
                 output: {
                   codeSplitting: false,
                 },

@@ -62,7 +62,8 @@ yolojsx has two first-class output modes:
 1. **Portable HTML:** the default build emits one `.html` file. Its application
    payload is gzip-compressed, embedded in the file, and restored by the
    browser's native `DecompressionStream("gzip")`. It requires no neighboring
-   local assets or server to start.
+   local assets or server, but loads exact-version supplied runtimes from a CDN
+   by default. `--self-contained` embeds those runtimes for offline use.
 2. **Deployable directory:** `--out-dir` emits a conventional `dist/`-style
    static asset directory for normal hosting, strict Content Security Policy,
    or application graphs that cannot be represented by the single-file packer.
@@ -72,10 +73,10 @@ but never weaken directory output to serve the default path. Correct behavior
 and an honest diagnostic are more important than forcing an incompatible
 application into one file.
 
-Portable does not mean every optional resource must be embedded. Remote fonts,
-images, and intentional API calls are allowed. Agents should preserve essential
-meaning when an important remote resource fails—for example with nearby text,
-useful `alt` text, or one focused fallback—without generating defensive markup
+Portable does not mean every resource must be embedded. Controlled runtime
+modules, remote fonts, images, and intentional API calls are allowed. Agents
+should preserve essential meaning when an important remote resource fails—for
+example with nearby text, useful `alt` text, or one focused fallback—without generating defensive markup
 for every enhancement.
 
 ## Priorities

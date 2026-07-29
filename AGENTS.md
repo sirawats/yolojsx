@@ -10,13 +10,16 @@ Optimize the CLI, diagnostics, documentation, and conventions for predictable,
 token-efficient agent use without making normal human-authored JSX awkward.
 
 The default build produces one portable `.html` file. Its application payload
-is gzip-compressed inside the file and restored in the browser. `--out-dir`
-instead produces a conventional deployable `dist/`-style asset directory. Both
-are first-class contracts; prefer the single-file workflow when requirements do
-not distinguish between them. A portable file should run without neighboring
-local assets. Remote fonts, images, and application data are allowed, and agents
-should consider graceful degradation when a remote resource is important, but
-must not bury compact, content-first JSX under exhaustive fallback code.
+is gzip-compressed inside the file and restored in the browser, while controlled
+runtime dependencies load from exact-version CDN URLs. `--self-contained`
+embeds those runtimes for offline use. `--out-dir` instead produces a
+conventional deployable `dist/`-style asset directory. All are first-class
+contracts; prefer the default single-file workflow when requirements do not
+distinguish between them. A portable file should run without neighboring local
+assets. Remote runtimes, fonts, images, and application data are allowed, and
+agents should consider graceful degradation when a remote resource is
+important, but must not bury compact, content-first JSX under exhaustive
+fallback code.
 
 Apply product priorities in this order:
 

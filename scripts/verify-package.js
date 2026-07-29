@@ -107,6 +107,12 @@ export default () => <main className="p-8"><Button>Package verification</Button>
   runCli(packageDirectory, ["--themes"]);
   runCli(packageDirectory, ["Home.jsx"]);
   runCli(packageDirectory, ["Home.jsx", "--output", "index.html"]);
+  runCli(packageDirectory, [
+    "Home.jsx",
+    "--self-contained",
+    "--output",
+    "offline.html",
+  ]);
   runCli(packageDirectory, ["Home.jsx", "--out-dir", "dist"]);
   runCli(packageDirectory, ["pack", "dist", "--output", "packed.html"]);
 
@@ -218,6 +224,7 @@ export default () => <main className="p-8"><Button>Package verification</Button>
     "Home.html",
     "index.html",
     "legacy.html",
+    "offline.html",
     "packed.html",
   ]) {
     const payload = readEmbeddedPayload(
@@ -230,11 +237,15 @@ export default () => <main className="p-8"><Button>Package verification</Button>
     ) {
       throw new Error(`Packed payload verification failed: ${name}`);
     }
+    const expectsCdn = name !== "offline.html" && name !== "packed.html";
+    if (Boolean(payload.importMap) !== expectsCdn) {
+      throw new Error(`Unexpected runtime delivery mode: ${name}`);
+    }
   }
 
   const artifactBytes = (await stat(path.join(workDirectory, "Home.html")))
     .size;
-  const artifactBudget = 1_000_000;
+  const artifactBudget = 100_000;
   if (artifactBytes > artifactBudget) {
     throw new Error(
       `Default themed artifact is ${artifactBytes} bytes, above the ${artifactBudget}-byte release budget.`,
@@ -243,6 +254,15 @@ export default () => <main className="p-8"><Button>Package verification</Button>
   process.stdout.write(
     `Default themed/provider artifact: ${artifactBytes} bytes (budget ${artifactBudget}).\n`,
   );
+  const selfContainedBytes = (
+    await stat(path.join(workDirectory, "offline.html"))
+  ).size;
+  const selfContainedBudget = 500_000;
+  if (selfContainedBytes > selfContainedBudget) {
+    throw new Error(
+      `Self-contained themed artifact is ${selfContainedBytes} bytes, above the ${selfContainedBudget}-byte release budget.`,
+    );
+  }
 
   process.stdout.write("Packed artifact verification passed.\n");
 } finally {

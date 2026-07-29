@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/yolo_chihuahua_sticker.png" alt="yolojsx logo" width="160" />
+  <img src="assets/yolo_chihuahua_sticker.png" alt="yolojsx" width="260" />
 </p>
 
 # yolojsx
@@ -10,83 +10,79 @@
 [![Node.js version][node-image]][node-url]
 [![License][license-image]][license-url]
 
-Build one JSX component into a portable compressed HTML application—without setting up a frontend project first.
+Turn one JSX component into one portable, interactive HTML app.
 
-`yolojsx` supplies React, Vite, Tailwind CSS, Ant Design, and an original global theme catalog. A normal invocation writes one `<EntryName>.html` file that can open directly; directory output remains available explicitly.
+**No frontend project. No Vite config. No deployment required.**
 
-## Key Features
+Write compact JSX with React, Tailwind CSS, Ant Design, React Icons, and
+PrismJS already available. yolojsx builds it into an HTML file you can open,
+upload, or send to someone.
 
-- 🚀 **Zero Configuration**: Turn any standalone `.jsx` component into a production-ready application.
-- 📦 **Complete Stack**: React 18, Vite, Tailwind CSS v4, and Ant Design bundled out of the box.
-- 🎨 **20+ Built-in Themes**: Visual presets with matched typography, spacing, and Ant Design design tokens.
-- 🗜️ **Single-File Compression**: Emits a self-contained `.html` file powered by browser-native `DecompressionStream("gzip")`.
-- 📁 **Flexible Output**: Supports single-file HTML or traditional static asset directories (`--out-dir`).
+**Easy and simple**
 
-## Table of Contents
-
-- [Requirements](#requirements)
-- [Install and Run](#install-and-run)
-- [AI Agent Skill](#ai-agent-skill)
-- [Component Contract](#component-contract)
-- [Output Modes](#output-modes)
-- [Themes](#themes)
-- [Custom CSS](#custom-css)
-- [CLI](#cli)
-- [Safe Output Replacement](#safe-output-replacement)
-- [Browser and Security Notes](#browser-and-security-notes)
-- [Development](#development)
-- [Contributing and Support](#contributing-and-support)
-- [License](#license)
-
-## Requirements
-
-- Node.js `^20.19.0` or `>=22.12.0`
-- A readable `.jsx` module that default-exports a React component
-
-## Install and Run
-
-```sh
-npm install -g yolojsx
-yolojsx Home.jsx
-# Outputs: ./Home.html
+```
+npx yolojsx Artifact.jsx --output artifact.html
 ```
 
-Or use an `npx` execution without installing globally:
+➡️ Give you a .html file with fully React interactive UI start from **15 KB**.
+
+[See examples at website](https://sirawats.github.io/yolojsx/)
+
+## AI agent skill
+
+Install the official yolojsx authoring skill through the universal Skills CLI
+or your agent's marketplace/plugin system.
+
+### Via Skills
+
+The [Skills CLI](https://github.com/vercel-labs/skills) supports Codex, Claude
+Code, Gemini CLI, Antigravity, OpenCode, Cursor, and other coding agents:
 
 ```sh
-npx yolojsx Home.jsx
+npx skills add sirawats/yolojsx --skill yolojsx
 ```
 
-The default artifact contains a small loader and a base64-encoded gzip payload. A modern browser restores it with `DecompressionStream("gzip")`, including when opened through `file://`; no adjacent asset directory or server is required.
+Add `--global` to make the skill available across projects.
 
-## AI Agent Skill
+### Via Marketplace/Plugin
 
-The repository includes a yolojsx authoring skill for AI agents. Install it
-directly from Git:
+The agent-specific adapters are distributed through Git and are not included in
+the npm package.
 
-### Codex
+<details>
+<summary>Codex</summary>
 
 ```sh
 codex plugin marketplace add sirawats/yolojsx
 codex plugin add yolojsx@yolojsx
 ```
 
-### Claude Code
+</details>
+
+<details>
+<summary>Claude Code</summary>
 
 ```text
 /plugin marketplace add sirawats/yolojsx
 /plugin install yolojsx@yolojsx
 ```
 
-### Antigravity or Gemini CLI
+</details>
+
+<details>
+<summary>Antigravity or Gemini CLI</summary>
 
 ```sh
 agy plugin install https://github.com/sirawats/yolojsx
-# Gemini CLI:
+
+# Gemini CLI
 gemini extensions install https://github.com/sirawats/yolojsx
 ```
 
-### OpenCode
+</details>
+
+<details>
+<summary>OpenCode</summary>
 
 Clone the repository, then add its adapter to your project or global
 `opencode.json`:
@@ -101,14 +97,154 @@ git clone https://github.com/sirawats/yolojsx.git /path/to/yolojsx
 }
 ```
 
-All adapters load the canonical `skills/yolojsx` skill from the clone. Plugin
-files are distributed through Git and are not included in the yolojsx npm
-package.
+</details>
 
-## Component Contract
+Both installation paths use the canonical `skills/yolojsx` skill.
+
+## Quick start
+
+After installing the skill, ask your preferred AI agent:
+
+```text
+/yolojsx Create an API testing report that's ready to send to my frontend engineer colleague
+```
+
+Your agent creates the JSX, builds it with yolojsx, and gives you a portable
+HTML file you can open, upload, or send. No local server or adjacent asset
+directory is needed.
+
+Requires Node.js `^20.19.0` or `>=22.12.0`.
+
+## CLI
+
+```text
+Usage: yolojsx <entry.jsx> [options]
+       yolojsx themes | yolojsx --themes
+       yolojsx prism-themes | yolojsx --prism-themes
+       yolojsx pack <directory> --output <file.html> [options]
+
+Build a JSX component into one CDN-backed compressed HTML file by default.
+
+Options:
+      --output <path>    HTML output path (default: ./<EntryName>.html)
+  -o, --out-dir <path>  Build a directory instead of one HTML file
+      --base <path>     Directory-mode public base path (default: ./)
+      --self-contained  Embed runtime dependencies for offline use
+      --theme <preset>  Global theme preset (default: default)
+      --themes           List available theme names
+      --prism-themes     List available Prism theme names
+      --css <path>      Custom CSS loaded after the preset
+      --single-file     Deprecated alias for the default file mode
+      --force           Replace an existing protected output
+  -h, --help            Show this help
+  -v, --version         Show the installed version
+
+Run `yolojsx themes` or `yolojsx prism-themes` to list available themes.
+```
+
+`--output` and `--out-dir` conflict. `--base` requires `--out-dir`.
+`--self-contained` applies only to direct HTML builds; `pack` is already
+self-contained.
+
+Existing output requires confirmation. Non-interactive automation must pass
+`--force`. yolojsx rejects unsafe targets such as filesystem roots, symbolic
+links, the current directory, and outputs containing their source input.
+Builds are staged so a failed replacement preserves the last successful result.
+
+## Pick a theme
+
+```sh
+npx yolojsx themes
+
+# Output
+default
+github-light
+github-dark
+github-dark-dimmed
+material-light
+material-dark
+one-dark
+solarized-light
+solarized-dark
+gruvbox-light
+gruvbox-dark
+everforest-light
+everforest-dark
+catppuccin-latte
+catppuccin-frappe
+catppuccin-macchiato
+catppuccin-mocha
+obsidian-minimal-light
+obsidian-minimal-dark
+obsidian-baseline-light
+obsidian-baseline-dark
+```
+
+Then build with any preset:
+
+```sh
+npx yolojsx Report.jsx --theme catppuccin-mocha
+```
+
+Themes style the document and Ant Design together: typography, colors,
+spacing, surfaces, controls, focus states, and code.
+
+## Choose an output
+
+| Need                      | Command                                | Result                            |
+| :------------------------ | :------------------------------------- | :-------------------------------- |
+| A portable file           | `npx yolojsx App.jsx`                  | `App.html`                        |
+| A file that works offline | `npx yolojsx App.jsx --self-contained` | `App.html` with runtimes embedded |
+| A deployable static site  | `npx yolojsx App.jsx --out-dir dist`   | `dist/` with conventional assets  |
+
+The default portable file embeds your application, CSS, and local assets. Its
+pinned React and Ant Design runtimes load from a CDN. Use `--self-contained`
+when network access cannot be assumed.
+
+## Built for AI-authored apps
+
+yolojsx is useful when the rendered result matters more than maintaining a
+frontend project:
+
+- API test reports
+- Internal setup guides
+- Interactive technical documents
+- Design and feature comparisons
+- Calculators and focused browser tools
+- Product demos
+
+Give your coding agent the official yolojsx skill so it knows the component
+contract, supplied packages, themes, and output modes.
+
+[Install the agent skill](#ai-agent-skill) ·
+[Browse examples](examples) ·
+[See all CLI options](#cli)
+
+## Examples
+
+| Example                                         | Theme              | Demonstrates                                       |
+| :---------------------------------------------- | :----------------- | :------------------------------------------------- |
+| [Techspec.jsx](examples/Techspec.jsx)           | `github`           | Technical RFC, requirements, architecture, rollout |
+| [APIDocs.jsx](examples/APIDocs.jsx)             | `github-dark`      | Interactive endpoint reference and code samples    |
+| [TaxCalculator.jsx](examples/TaxCalculator.jsx) | `material`         | Stateful progressive tax calculator                |
+| [SaaS.jsx](examples/SaaS.jsx)                   | `catppuccin`       | Product preview and responsive pricing             |
+| [Analytics.jsx](examples/Analytics.jsx)         | `one-dark`         | Operational metrics and service health             |
+| [Editorial.jsx](examples/Editorial.jsx)         | `obsidian-minimal` | Long-form reading and typographic rhythm           |
+
+Try one from a repository clone:
+
+```sh
+node bin/yolojsx.js examples/APIDocs.jsx --theme github-dark
+```
+
+## Component contract
+
+The entry must be a readable `.jsx` module with a default-exported React
+component. Relative imports resolve from the entry file.
 
 ```jsx
 import { Button, Card } from "antd";
+import { FiDownload } from "react-icons/fi";
 import icon from "./icon.png";
 
 export const YOLOJSX = {
@@ -116,52 +252,73 @@ export const YOLOJSX = {
   icon,
 };
 
-export default function Home() {
+export default function Report() {
   return (
     <main className="min-h-screen p-8">
       <Card className="mx-auto max-w-xl">
-        <h1>Ship a themed page</h1>
-        <Button type="primary">Build it</Button>
+        <h1>Release report</h1>
+        <Button type="primary" icon={<FiDownload aria-hidden="true" />}>
+          Download
+        </Button>
       </Card>
     </main>
   );
 }
 ```
 
-The optional `YOLOJSX` export sets the browser-tab title and favicon. `icon` can
-be an imported local image or a remote/data URL. Without it, the title remains
-`yolojsx` and no favicon is added. To theme HTML generated by
-`Prism.highlight()`, select one supplied `prism-themes` stylesheet by name:
+The optional `YOLOJSX` export sets the browser-tab title and favicon. The icon
+may be an imported local image or a remote or data URL.
+
+The CLI supplies:
+
+- React and React DOM
+- Ant Design
+- Tailwind CSS
+- React Icons
+- PrismJS and Prism Themes
+
+Other bare package imports resolve from the input project's `node_modules`.
+
+### Prism themes
+
+Set syntax highlighting independently from the page theme:
 
 ```jsx
 export const YOLOJSX = { prismTheme: "prism" };
 ```
 
-`prism` is PrismJS's clean default theme. Run `yolojsx prism-themes` to list all
-names discovered from PrismJS and the installed Prism Themes package. Unknown
-names fall back to `prism` with a CLI warning.
+Run `npx yolojsx prism-themes` to discover installed Prism theme names. Unknown
+names warn and fall back to `prism`.
 
-Relative imports remain relative to the entry. Other bare packages resolve from
-the input project's `node_modules`. The CLI supplies React, React DOM, Ant
-Design, Tailwind, React Icons, PrismJS, and Prism Themes; `@ant-design/icons` is
-not part of the guaranteed stack.
+## Output modes
 
-## Output Modes
+### Portable HTML
 
-### Single-File HTML (Default)
-
-One HTML file is produced by default:
+The default command writes one CDN-backed compressed HTML file:
 
 ```sh
 yolojsx pages/Home.jsx
-# Outputs: ./Home.html
+# Output: ./Home.html
 
 yolojsx pages/Home.jsx --output public/index.html
 ```
 
-### Directory Output (`--out-dir`)
+Application code, generated CSS, local assets, selected Prism modules, and
+React Icons remain embedded. React, React DOM, Ant Design, and Ant Design
+CSS-in-JS load from pinned esm.sh URLs.
 
-Use `--out-dir` when you need ordinary deployable assets, strict CSP compatibility, or an application graph the single-file packer cannot normalize:
+### Offline HTML
+
+Embed the supplied runtimes when the file must work without network access:
+
+```sh
+yolojsx pages/Home.jsx --self-contained
+```
+
+### Static asset directory
+
+Use directory output for conventional hosting, strict Content Security Policy,
+or application graphs that cannot be packaged into one file:
 
 ```sh
 yolojsx pages/Home.jsx --out-dir dist
@@ -176,66 +333,60 @@ dist/
     └── index-*.js
 ```
 
-`--base` is available for directory output:
+Set a hosting base path when needed:
 
 ```sh
 yolojsx pages/Home.jsx --out-dir public/app --base /application/
 ```
 
-### Repackaging Existing Builds (`pack`)
+### Package an existing build
 
-The `pack` command packages an existing compatible directory build into a single HTML file without changing its input:
+Package a compatible directory build into self-contained HTML without changing
+the input:
 
 ```sh
 yolojsx pack dist --output index.html
 ```
 
 > [!NOTE]
-> The single-file packer rejects extra executable chunks, workers, service workers, runtime-loaded WASM, unresolved local files, and runtime-relative `fetch()` calls. When a default file build encounters one of those shapes, use `--out-dir dist`.
+> The single-file packer rejects extra executable chunks, workers, service
+> workers, runtime-loaded WASM, unresolved local files, and runtime-relative
+> `fetch()` calls. Use `--out-dir dist` for those application shapes.
 
-## Themes
+## Styling
 
-Theme selection is deterministic. Unsuffixed family names are convenient aliases for their light preset; dark styling is used only when a dark preset is named explicitly:
+Unsuffixed theme families select their light preset. Dark styling is used only
+when explicitly requested:
 
 ```sh
-yolojsx Home.jsx --theme material       # Resolves to material-light
-yolojsx Home.jsx --theme material-dark  # Explicitly dark
-yolojsx themes                          # List available presets
-yolojsx prism-themes                    # List available Prism themes
+yolojsx Home.jsx --theme material       # material-light
+yolojsx Home.jsx --theme material-dark  # explicitly dark
 ```
 
-### Theme Catalog
+Other aliases include `github`, `solarized`, `gruvbox`, `everforest`,
+`catppuccin`, `obsidian-minimal`, `obsidian-baseline`, and `onedark`.
 
-| Theme Family          | Default / Light Preset                                   | Dark Presets                                                    |
-| :-------------------- | :------------------------------------------------------- | :-------------------------------------------------------------- |
-| **Default**           | `default`                                                | —                                                               |
-| **GitHub**            | `github-light` _(alias: `github`)_                       | `github-dark`, `github-dark-dimmed`                             |
-| **Material**          | `material-light` _(alias: `material`)_                   | `material-dark`                                                 |
-| **One Dark**          | —                                                        | `one-dark` _(alias: `onedark`)_                                 |
-| **Solarized**         | `solarized-light` _(alias: `solarized`)_                 | `solarized-dark`                                                |
-| **Gruvbox**           | `gruvbox-light` _(alias: `gruvbox`)_                     | `gruvbox-dark`                                                  |
-| **Everforest**        | `everforest-light` _(alias: `everforest`)_               | `everforest-dark`                                               |
-| **Catppuccin**        | `catppuccin-latte` _(alias: `catppuccin`)_               | `catppuccin-frappe`, `catppuccin-macchiato`, `catppuccin-mocha` |
-| **Obsidian Minimal**  | `obsidian-minimal-light` _(alias: `obsidian-minimal`)_   | `obsidian-minimal-dark`                                         |
-| **Obsidian Baseline** | `obsidian-baseline-light` _(alias: `obsidian-baseline`)_ | `obsidian-baseline-dark`                                        |
+Application JSX needs no theme provider, theme CSS import, or page-level theme
+class. Let the document inherit global styling and use ordinary Ant Design
+props such as `type="primary"`, `danger`, and `disabled`.
 
-Themes never switch in response to the operating-system color preference. This keeps generated output visually stable across machines and viewing environments.
+Semantic Tailwind utilities are available when a layout needs explicit styling:
 
-Themes affect more than color: their checked-in CSS defines typography fallbacks, reading rhythm, heading weight and tracking, control density, radii, shadows, surface hierarchy, selection, focus, code, links, and native controls. The same semantic mapping configures the matching fixed Ant Design algorithm plus official global and component tokens for Button, Card, Input, Layout, Menu, Segmented, Tabs, and Typography.
+- Surfaces: `bg-background`, `bg-card`, `bg-popover`
+- Text: `text-foreground`, `text-muted-foreground`
+- Structure: `border-border`, `ring-ring`, `shadow-card`
+- Status: `text-success`, `text-warning`, `text-danger`, `text-info`
+- Typography and shape: `font-sans`, `font-mono`, `rounded-md`
 
-Application JSX does not need a theme provider, a CSS import, or page-level theme classes. The generated application supplies Ant Design's `ConfigProvider`, while native document elements inherit the selected background, text, typography, focus, selection, link, and code styles automatically. Prefer ordinary Ant Design props such as `type="primary"`, `danger`, `disabled`, and `Typography.Text type="secondary"` for component meaning.
+### Custom CSS
 
-These are original yolojsx adaptations, not exact reproductions or replacements for the referenced component libraries and products. No upstream or Obsidian CSS is bundled. See [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for reviewed sources, pinned revisions, licenses, and the non-endorsement notice.
-
-## Custom CSS
-
-Load a readable local `.css` file after the selected preset:
+Load one local stylesheet after the selected preset:
 
 ```sh
 yolojsx Home.jsx --theme material --css styles/application.css
 ```
 
-It participates in the same Tailwind v4 CSS-first graph, so supported directives such as `@theme`, `@utility`, and cascade layers work without a user Vite or Tailwind configuration:
+It participates in the Tailwind v4 CSS-first graph:
 
 ```css
 @theme {
@@ -246,107 +397,33 @@ It participates in the same Tailwind v4 CSS-first graph, so supported directives
   --primary: #7346a8;
   --ring: #7346a8;
 }
-
-@layer components {
-  .brand-card {
-    background-image: url("./mark.svg");
-  }
-}
 ```
 
-URLs remain relative to the custom stylesheet. Vite emits them for directory builds and embeds compatible local assets in packaged HTML.
+URLs stay relative to the stylesheet. Vite emits them in directory mode and
+embeds compatible local assets in packaged HTML.
 
-The stable cascade is `theme, base, antd, components, utilities`. Tailwind Preflight is the only reset; Ant Design reset CSS is not imported. Stored theme files live in `src/themes/`, import the shared `foundation.css`, and are compiled before custom CSS. Custom CSS can override semantic variables and rules, but it does not rewrite the generated Ant Design token object; wrap user code in another `ConfigProvider` when application-specific Ant configuration is needed.
-
-The CLI exposes conventional semantic Tailwind names for explicit styling:
-
-- **Surfaces**: `bg-background`, `bg-card`, `bg-popover`
-- **Text**: `text-foreground`, `text-muted-foreground`, `text-primary-foreground`
-- **Structure and focus**: `border-border`, `ring-ring`, `shadow-card`
-- **Accent and code**: `bg-primary`, `text-primary`, `bg-code`
-- **Status**: `text-success`, `text-warning`, `text-danger`, `text-info`, with matching `*-background` colors
-- **Typography and shape**: `font-sans`, `font-mono`, `rounded-sm`, `rounded-md`, `rounded-lg`
-
-These utilities are escape hatches for custom layouts, not required theme plumbing. Let the document inherit its theme and let Ant Design style its own components whenever possible.
-
-Use `--css` for deliberate application-wide stylesheet extensions; do not import theme CSS from JSX. Built-in Ant Design styling is generated from supported official tokens rather than `.ant-*` selector patches.
-
-## CLI
-
-```text
-Usage: yolojsx <entry.jsx> [options]
-       yolojsx themes | yolojsx --themes
-       yolojsx prism-themes | yolojsx --prism-themes
-       yolojsx pack <directory> --output <file.html> [options]
-
-Build a JSX component into one compressed HTML file by default.
-
-Options:
-      --output <path>   HTML output path (default: ./<EntryName>.html)
-  -o, --out-dir <path> Build a directory instead of one HTML file
-      --base <path>    Directory-mode public base path (default: ./)
-      --theme <preset> Global theme preset (default: default)
-      --themes          List available theme names
-      --prism-themes    List available Prism theme names
-      --css <path>     Custom CSS loaded after the preset
-      --single-file    Deprecated alias for the default file mode
-      --force          Replace an existing protected output
-  -h, --help           Show this help
-  -v, --version        Show the installed version
-
-Run `yolojsx themes` or `yolojsx prism-themes` to list available themes.
-```
-
-`--output` and `--out-dir` conflict. `--base` requires `--out-dir`. Theme and
-CSS options apply to JSX builds, not discovery or `pack` commands.
-
-## Safe Output Replacement
-
-Existing HTML files and output directories require confirmation. In a non-interactive session the CLI refuses replacement and directs automation to use `--force`. Symbolic-link outputs, filesystem roots, the current directory, directory outputs containing the source entry, and `pack` destinations inside their input are rejected.
-
-Directory output uses `.yolojsx-output.json` ownership markers. Both modes stage publication so a failed rebuild preserves the last successful result. Custom CSS and JSX inputs are treated as read-only trusted local code.
-
-## Browser and Security Notes
+## Browser and security notes
 
 > [!IMPORTANT]
-> Single-file output requires native gzip `DecompressionStream`. Its loader and restored application execute inline scripts and styles, so it is not suitable for a strict Content Security Policy (CSP) that disallows inline code. Use directory mode (`--out-dir`) for strict hosting policies. Compression is not a security boundary.
+> Portable HTML requires native gzip `DecompressionStream`. Default output also
+> requires import-map support and network access to `https://esm.sh`. File modes
+> execute inline scripts and styles, so use directory output for a strict CSP.
+> Compression is not a security boundary.
 
-Current limitations include JSX-only input, one page per invocation, no dev server/watch/SSR, no user Vite or HTML configuration, no automatic `public/` copying, and single-file graph limitations described above.
+Current limitations include JSX-only input, one page per invocation, no
+dev-server/watch/SSR mode, no user Vite or HTML configuration, and no automatic
+`public/` directory copying.
 
-## Development
+## Development and support
 
 ```sh
-npm install
+npm ci
 npm run verify
 ```
 
-The repository includes a varied example gallery:
-
-| Example                                         | Suggested theme    | Demonstrates                                       |
-| :---------------------------------------------- | :----------------- | :------------------------------------------------- |
-| [Techspec.jsx](examples/Techspec.jsx)           | `github`           | Technical RFC, requirements, architecture, rollout |
-| [APIDocs.jsx](examples/APIDocs.jsx)             | `github-dark`      | Interactive endpoint reference and code samples    |
-| [TaxCalculator.jsx](examples/TaxCalculator.jsx) | `material`         | Stateful progressive tax calculator                |
-| [SaaS.jsx](examples/SaaS.jsx)                   | `catppuccin`       | Marketing, product preview, and responsive pricing |
-| [Analytics.jsx](examples/Analytics.jsx)         | `one-dark`         | Dense operational metrics and service health       |
-| [Editorial.jsx](examples/Editorial.jsx)         | `obsidian-minimal` | Long-form reading and typographic rhythm           |
-
-For example:
-
-```sh
-node bin/yolojsx.js examples/APIDocs.jsx --theme github-dark
-node bin/yolojsx.js examples/TaxCalculator.jsx --theme material
-```
-
-`npm run verify` runs formatting, linting, syntax checks, unit and integration coverage, package-content inspection, and a smoke test against the extracted npm artifact, including theme assets and the default artifact-size budget. See [RELEASING.md](https://github.com/sirawats/yolojsx/blob/master/RELEASING.md).
-
-First-time npm maintainers can follow the [npm publishing guide](https://github.com/sirawats/yolojsx/blob/master/docs/maintainers/npm-publishing.md), which separates safe dry runs from the live publication command.
-
-## Contributing and Support
-
-See [CONTRIBUTING.md](https://github.com/sirawats/yolojsx/blob/master/CONTRIBUTING.md) for development and pull-request guidance and [SUPPORT.md](https://github.com/sirawats/yolojsx/blob/master/SUPPORT.md) for usage help. Community participation follows [CODE_OF_CONDUCT.md](https://github.com/sirawats/yolojsx/blob/master/CODE_OF_CONDUCT.md).
-
-Report vulnerabilities privately using [SECURITY.md](https://github.com/sirawats/yolojsx/blob/master/SECURITY.md).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for repository development,
+[SUPPORT.md](SUPPORT.md) for usage help, and [SECURITY.md](SECURITY.md) for
+private vulnerability reporting.
 
 ## License
 

@@ -38,6 +38,7 @@ export default {
   components: {
     buttonPadding: 14,
     buttonShadow: "none",
+    cardBorderWidth: 0,
     cardPadding: 18,
     cardHeaderHeight: 48,
     menuItemHeight: 34,
@@ -50,6 +51,6 @@ export default {
     inputPaddingBlock: 4,
   },
   radius: { small: "0.25rem", medium: "0.375rem", large: "0.5rem" },
-  shadow: "0 8px 24px rgb(32 32 32 / 0.08)",
+  shadow: "none",
   controlHeight: 32,
 };

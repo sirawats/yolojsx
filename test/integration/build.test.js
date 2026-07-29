@@ -35,6 +35,8 @@ export default function Home() {
   assert.match(javascript, /Fixture application/);
   assert.match(javascript, /data:image\/svg\+xml;base64/);
   assert.match(javascript, /anticon/);
+  assert.ok(javascript.length < 500_000);
+  assert.doesNotMatch(javascript, /ant-table|ant-picker|ant-upload/);
   const markerName = ".yolojsx-output.json";
   assert.ok((await readdir(output)).includes(markerName));
   const marker = JSON.parse(
@@ -111,6 +113,8 @@ export default function App() {
   assert.match(javascript, /supplied-dep-test/);
   assert.match(javascript, /tax/);
   assert.match(javascript, /yolojsxPrismTheme/);
+  assert.match(javascript, /@layer components/);
+  assert.match(javascript, /background:\s*transparent/);
   assert.match(javascript, /token\.keyword/);
   assert.match(javascript, /#f5f2f0/);
 

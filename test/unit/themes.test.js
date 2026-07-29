@@ -49,6 +49,17 @@ test("validates the complete immutable theme catalog", async () => {
         );
       }
     }
+    for (const [field, property] of Object.entries(
+      THEME_CSS_PROPERTIES.typography,
+    )) {
+      assert.match(
+        stylesheet,
+        new RegExp(
+          `${escapeRegExp(property)}:\\s*${escapeRegExp(theme.semantic.typography[field])}`,
+        ),
+        `${theme.id}: ${property}`,
+      );
+    }
     assert.match(
       stylesheet,
       new RegExp(
@@ -65,6 +76,21 @@ test("validates the complete immutable theme catalog", async () => {
     assert.deepEqual(Object.keys(theme.antDesign.components), [
       ...ANT_DESIGN_COMPONENT_NAMES,
     ]);
+    const statuses = {
+      Info: "info",
+      Success: "success",
+      Warning: "warning",
+      Error: "danger",
+    };
+    for (const [token, status] of Object.entries(statuses)) {
+      const values = theme.semantic.colors.status[status];
+      assert.equal(theme.antDesign.token[`color${token}Bg`], values.background);
+      assert.equal(theme.antDesign.token[`color${token}Border`], values.border);
+      assert.equal(
+        theme.antDesign.token[`color${token}Text`],
+        values.foreground,
+      );
+    }
   }
 });
 
@@ -97,10 +123,11 @@ test("stored presets include typography, density, and original semantic values",
   assert.match(material, /Roboto/);
   assert.match(material, /--control-height: 40px/);
   assert.match(github, /BlinkMacSystemFont/);
-  assert.match(github, /--control-height: 30px/);
+  assert.match(github, /--control-height: 32px/);
   assert.match(foundation, /--color-background/);
   assert.match(foundation, /--color-muted-foreground/);
   assert.match(foundation, /--color-primary-foreground/);
+  assert.match(foundation, /--font-heading:\s*var\(--font-title\)/);
   assert.match(foundation, /--color-border/);
   assert.match(foundation, /button:not\(\[class\]\)/);
   assert.match(foundation, /:not\(pre\) > code,\s*kbd/);
@@ -115,15 +142,83 @@ test("stored presets include typography, density, and original semantic values",
   );
 });
 
+test("theme families express distinct structural identities", () => {
+  const borderlessCards = new Set([
+    "material-light",
+    "material-dark",
+    "one-dark",
+    "everforest-light",
+    "everforest-dark",
+    "catppuccin-latte",
+    "catppuccin-frappe",
+    "catppuccin-macchiato",
+    "catppuccin-mocha",
+    "obsidian-minimal-light",
+    "obsidian-minimal-dark",
+  ]);
+  for (const theme of THEMES) {
+    assert.equal(
+      theme.antDesign.components.Card.lineWidth,
+      borderlessCards.has(theme.id) ? 0 : 1,
+      `${theme.id} card separation`,
+    );
+  }
+
+  assert.equal(resolveTheme("github-light").semantic.controlHeight, 32);
+  assert.equal(resolveTheme("solarized-light").semantic.controlHeight, 34);
+  assert.equal(resolveTheme("everforest-light").semantic.controlHeight, 36);
+  assert.equal(resolveTheme("material-light").semantic.controlHeight, 40);
+  assert.equal(resolveTheme("gruvbox-light").semantic.shadow, "none");
+  assert.equal(resolveTheme("obsidian-minimal-light").semantic.shadow, "none");
+  assert.notEqual(
+    resolveTheme("everforest-light").semantic.typography.heading,
+    resolveTheme("everforest-light").semantic.typography.sans,
+  );
+  assert.notEqual(
+    resolveTheme("obsidian-baseline-light").semantic.typography.heading,
+    resolveTheme("obsidian-baseline-light").semantic.typography.sans,
+  );
+});
+
 test("uses official serializable Ant Design component configuration", () => {
   const github = resolveTheme("github-light").antDesign;
   const material = resolveTheme("material-light").antDesign;
   assert.equal(github.cssVar, true);
   assert.equal(material.cssVar, true);
-  assert.equal(github.token.controlHeight, 30);
+  assert.equal(github.token.controlHeight, 32);
   assert.equal(material.token.controlHeight, 40);
-  assert.equal(github.components.Button.paddingInline, 12);
+  assert.equal(github.components.Button.paddingInline, 14);
   assert.equal(material.components.Button.paddingInline, 24);
+  const coloredBorders = new Set([
+    "github-light",
+    "github-dark",
+    "github-dark-dimmed",
+    "everforest-light",
+    "everforest-dark",
+  ]);
+  const neutralBorders = new Set([
+    "obsidian-baseline-light",
+    "obsidian-baseline-dark",
+  ]);
+  for (const theme of THEMES) {
+    for (const status of Object.values(theme.semantic.colors.status)) {
+      if (coloredBorders.has(theme.id)) {
+        assert.equal(status.border, status.seed, `${theme.id} colored border`);
+      } else if (neutralBorders.has(theme.id)) {
+        assert.equal(
+          status.border,
+          theme.semantic.colors.border,
+          `${theme.id} neutral border`,
+        );
+      } else {
+        assert.equal(
+          status.border,
+          status.background,
+          `${theme.id} borderless`,
+        );
+      }
+    }
+  }
   assert.notEqual(
     github.components.Card.bodyPadding,
     material.components.Card.bodyPadding,

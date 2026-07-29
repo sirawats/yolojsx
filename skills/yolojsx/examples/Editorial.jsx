@@ -18,7 +18,7 @@ export default function Editorial() {
       <header className="border-b border-border px-5 py-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4">
           <a
-            className="font-serif text-2xl font-semibold tracking-tight text-foreground"
+            className="font-serif text-2xl font-semibold tracking-tight"
             href="#story"
           >
             Field Notes
@@ -66,7 +66,7 @@ export default function Editorial() {
             >
               ✦
             </div>
-            <figcaption className="px-5 py-4 text-sm text-muted-foreground">
+            <figcaption className="px-5 py-4 text-sm">
               A system should make the next useful action obvious, not merely
               possible.
             </figcaption>
@@ -107,7 +107,7 @@ export default function Editorial() {
                 attention is fragmented and the work must still be resumed
                 without ceremony.
               </p>
-              <blockquote className="my-10 border-l-4 border-primary pl-6 font-serif text-2xl leading-snug sm:text-3xl">
+              <blockquote className="my-10 font-serif text-2xl leading-snug sm:text-3xl">
                 <p>
                   “A useful ritual preserves context long enough for courage to
                   return.”

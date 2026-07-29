@@ -138,7 +138,7 @@ export default function TaxCalculator() {
   ];
 
   return (
-    <main className="min-h-screen bg-background p-4 text-foreground sm:p-8">
+    <main className="min-h-screen p-4 sm:p-8">
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4">
           <div className="flex items-center gap-3">
@@ -163,12 +163,7 @@ export default function TaxCalculator() {
         <Alert
           type="info"
           showIcon
-          icon={
-            <LuShieldAlert
-              className="h-5 w-5 text-primary"
-              aria-hidden="true"
-            />
-          }
+          icon={<LuShieldAlert className="h-5 w-5" aria-hidden="true" />}
           message="Illustrative Model Disclaimer"
           description="This calculator uses invented profiles, brackets, and illustrative units to demonstrate progressive calculations and state management. It is not tied to any jurisdiction or currency and does not constitute tax, legal, or financial advice."
         />
@@ -182,7 +177,6 @@ export default function TaxCalculator() {
                   Tax Profile & Inputs
                 </span>
               }
-              className="shadow-sm"
             >
               <div className="space-y-6">
                 <div>
@@ -322,7 +316,7 @@ export default function TaxCalculator() {
                   Estimated Tax Summary
                 </span>
               }
-              className="h-full shadow-sm"
+              className="h-full"
             >
               <Row gutter={[16, 16]}>
                 <Col xs={12} sm={6}>
@@ -410,7 +404,6 @@ export default function TaxCalculator() {
                   Progressive Bracket Breakdown
                 </span>
               }
-              className="shadow-sm"
             >
               <Table
                 dataSource={bracketBreakdown.map((row, idx) => ({

@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.1.5 - 2026-07-29
+
+- **Breaking:** make direct HTML builds load exact-version React and Ant Design
+  runtimes from esm.sh by default, reducing generated file size while requiring
+  network access at startup.
+- Add `--self-contained` for offline HTML output and keep `pack` output
+  self-contained.
+- Resolve Ant Design and CSS-in-JS through their ESM entries so self-contained
+  and directory builds exclude unused component families.
+- Refine theme status colors, give GitHub and Everforest alerts colored borders,
+  Obsidian Baseline alerts neutral borders, and the remaining alerts borderless;
+  separate accessible GitHub links from actions.
+- Differentiate theme families through heading typography, density, radius,
+  elevation, and bordered versus borderless Card treatment.
+- Remove bundled example overrides that masked inherited document styles and
+  Ant Design component tokens.
+
 ## 0.1.4 - 2026-07-26
 
 - Supply `prism-themes`, resolve a named `YOLOJSX.prismTheme`, and add

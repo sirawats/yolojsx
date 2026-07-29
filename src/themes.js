@@ -49,6 +49,7 @@ export const THEME_CSS_PROPERTIES = Object.freeze({
     border: "--border",
     primary: "--primary",
     primaryText: "--primary-foreground",
+    link: "--link",
     focus: "--ring",
     selection: "--selection",
     selectionText: "--selection-foreground",
@@ -59,25 +60,30 @@ export const THEME_CSS_PROPERTIES = Object.freeze({
       seed: "--success",
       foreground: "--success-foreground",
       background: "--success-background",
+      border: "--success-border",
     }),
     warning: Object.freeze({
       seed: "--warning",
       foreground: "--warning-foreground",
       background: "--warning-background",
+      border: "--warning-border",
     }),
     danger: Object.freeze({
       seed: "--danger",
       foreground: "--danger-foreground",
       background: "--danger-background",
+      border: "--danger-border",
     }),
     info: Object.freeze({
       seed: "--info",
       foreground: "--info-foreground",
       background: "--info-background",
+      border: "--info-border",
     }),
   }),
   typography: Object.freeze({
     sans: "--font-body",
+    heading: "--font-title",
     mono: "--font-code",
   }),
   radius: Object.freeze({
@@ -129,6 +135,7 @@ const REQUIRED_COMPONENT_TOKENS = Object.freeze({
     "bodyPadding",
     "headerPadding",
     "actionsBg",
+    "lineWidth",
   ]),
   Input: Object.freeze([
     "paddingInline",
@@ -208,6 +215,7 @@ function createAntDesignComponents({
     },
     Card: {
       headerBg: colors.surface,
+      lineWidth: comp.cardBorderWidth ?? 1,
       headerHeight: comp.cardHeaderHeight,
       headerHeightSM: comp.cardHeaderHeight - 8,
       bodyPadding: comp.cardPadding,
@@ -312,22 +320,28 @@ function fixedTheme(definition) {
     appearance,
     source,
     aliases = [],
-    colors,
-    typography,
+    colors: definitionColors,
+    typography: definitionTypography,
     rhythm,
     radius,
     shadow,
     controlHeight,
   } = definition;
   const defaultStatus = appearance === "dark" ? DARK_STATUS : LIGHT_STATUS;
-  const status = definition.status
-    ? Object.fromEntries(
-        Object.entries(defaultStatus).map(([key, def]) => [
-          key,
-          definition.status[key] ?? def,
-        ]),
-      )
-    : defaultStatus;
+  const colors = {
+    ...definitionColors,
+    link: definitionColors.link ?? definitionColors.primary,
+  };
+  const typography = {
+    ...definitionTypography,
+    heading: definitionTypography.heading ?? definitionTypography.sans,
+  };
+  const status = Object.fromEntries(
+    Object.entries(defaultStatus).map(([key, defaults]) => {
+      const values = { ...defaults, ...definition.status?.[key] };
+      return [key, { ...values, border: values.border ?? values.background }];
+    }),
+  );
   const semantic = {
     colors: {
       ...colors,
@@ -352,10 +366,22 @@ function fixedTheme(definition) {
       cssVar: true,
       token: {
         colorPrimary: colors.primary,
-        colorInfo: colors.primary,
+        colorInfo: status.info.seed,
+        colorInfoBg: status.info.background,
+        colorInfoBorder: status.info.border,
+        colorInfoText: status.info.foreground,
         colorSuccess: status.success.seed,
+        colorSuccessBg: status.success.background,
+        colorSuccessBorder: status.success.border,
+        colorSuccessText: status.success.foreground,
         colorWarning: status.warning.seed,
+        colorWarningBg: status.warning.background,
+        colorWarningBorder: status.warning.border,
+        colorWarningText: status.warning.foreground,
         colorError: status.danger.seed,
+        colorErrorBg: status.danger.background,
+        colorErrorBorder: status.danger.border,
+        colorErrorText: status.danger.foreground,
         colorBgBase: colors.canvas,
         colorBgLayout: colors.canvas,
         colorBgContainer: colors.surface,
@@ -363,7 +389,7 @@ function fixedTheme(definition) {
         colorText: colors.text,
         colorTextSecondary: colors.textMuted,
         colorBorder: colors.border,
-        colorLink: colors.primary,
+        colorLink: colors.link,
         borderRadius: Number.parseFloat(radius.medium) * 16,
         controlHeight,
         fontFamily: typography.sans,
@@ -434,6 +460,7 @@ const REQUIRED_COLORS = [
   "border",
   "primary",
   "primaryText",
+  "link",
   "focus",
   "selection",
   "selectionText",
@@ -514,8 +541,10 @@ export function validateThemeCatalog(themes = THEMES) {
     for (const status of ["success", "warning", "danger", "info"]) {
       const pair = colors.status?.[status];
       if (
+        !HEX_COLOR.test(pair?.seed ?? "") ||
         !HEX_COLOR.test(pair?.foreground ?? "") ||
-        !HEX_COLOR.test(pair?.background ?? "")
+        !HEX_COLOR.test(pair?.background ?? "") ||
+        !HEX_COLOR.test(pair?.border ?? "")
       ) {
         throw new Error(`${theme.id} has an invalid ${status} status pair.`);
       }
@@ -530,6 +559,7 @@ export function validateThemeCatalog(themes = THEMES) {
     requireContrast(theme, "body text", colors.text, colors.canvas, 4.5);
     requireContrast(theme, "surface text", colors.text, colors.surface, 4.5);
     requireContrast(theme, "muted text", colors.textMuted, colors.canvas, 3);
+    requireContrast(theme, "link", colors.link, colors.canvas, 4.5);
     requireContrast(
       theme,
       "primary control",
@@ -588,7 +618,7 @@ export function validateThemeCatalog(themes = THEMES) {
         }
       }
     }
-    for (const field of ["sans", "mono"]) {
+    for (const field of ["sans", "heading", "mono"]) {
       if (!theme.semantic.typography?.[field]) {
         throw new Error(`${theme.id} is missing typography.${field}.`);
       }
@@ -645,6 +675,7 @@ export function renderThemeCss(theme) {
   --border: ${colors.border};
   --primary: ${colors.primary};
   --primary-foreground: ${colors.primaryText};
+  --link: ${colors.link};
   --ring: ${colors.focus};
   --selection: ${colors.selection};
   --selection-foreground: ${colors.selectionText};
@@ -652,16 +683,21 @@ export function renderThemeCss(theme) {
   --success: ${status.success.seed};
   --success-foreground: ${status.success.foreground};
   --success-background: ${status.success.background};
+  --success-border: ${status.success.border};
   --warning: ${status.warning.seed};
   --warning-foreground: ${status.warning.foreground};
   --warning-background: ${status.warning.background};
+  --warning-border: ${status.warning.border};
   --danger: ${status.danger.seed};
   --danger-foreground: ${status.danger.foreground};
   --danger-background: ${status.danger.background};
+  --danger-border: ${status.danger.border};
   --info: ${status.info.seed};
   --info-foreground: ${status.info.foreground};
   --info-background: ${status.info.background};
+  --info-border: ${status.info.border};
   --font-body: ${typography.sans};
+  --font-title: ${typography.heading};
   --font-code: ${typography.mono};
   --theme-radius-sm: ${radius.small};
   --theme-radius-md: ${radius.medium};
