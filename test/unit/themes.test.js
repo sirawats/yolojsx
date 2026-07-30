@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { theme as antTheme } from "antd";
 import {
   createThemeRuntime,
   resolveFoundationStylesheet,
@@ -19,6 +20,28 @@ import {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function compositeColor(foreground, background) {
+  const rgba = /^rgba\(\s*(\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\s*\)$/.exec(
+    foreground,
+  );
+  if (!rgba) {
+    return foreground;
+  }
+  const alpha = Number(rgba[4]);
+  const backgroundChannels = [1, 3, 5].map((index) =>
+    Number.parseInt(background.slice(index, index + 2), 16),
+  );
+  return `#${rgba
+    .slice(1, 4)
+    .map(Number)
+    .map((channel, index) =>
+      Math.round(channel * alpha + backgroundChannels[index] * (1 - alpha))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
 }
 
 test("validates the complete immutable theme catalog", async () => {
@@ -158,11 +181,19 @@ test("theme families express distinct structural identities", () => {
     "obsidian-minimal-dark",
   ]);
   for (const theme of THEMES) {
+    const card = theme.antDesign.components.Card;
     assert.equal(
-      theme.antDesign.components.Card.lineWidth,
+      card.lineWidth,
       borderlessCards.has(theme.id) ? 0 : 1,
       `${theme.id} card separation`,
     );
+    if (card.lineWidth === 0) {
+      assert.notEqual(
+        theme.semantic.colors.surface,
+        theme.semantic.colors.canvas,
+        `${theme.id} borderless card surface`,
+      );
+    }
   }
 
   assert.equal(resolveTheme("github-light").semantic.controlHeight, 32);
@@ -228,13 +259,6 @@ test("uses official serializable Ant Design component configuration", () => {
   assert.ok(material.components.Button.defaultHoverBg);
   assert.ok(material.components.Button.defaultActiveBg);
   assert.ok(material.components.Button.defaultBgDisabled);
-  for (const theme of THEMES) {
-    const { colors } = theme.semantic;
-    const { token } = theme.antDesign;
-    assert.equal(token.colorPrimaryBorder, colors.focus);
-    assert.equal(token.colorPrimaryBorderHover, colors.link);
-    assert.ok(contrastRatio(token.colorPrimaryBorder, colors.surface) >= 3);
-  }
   assert.doesNotThrow(() =>
     JSON.stringify(createThemeRuntime(resolveTheme("material"))),
   );
@@ -260,6 +284,45 @@ test("uses official serializable Ant Design component configuration", () => {
     () => validateThemeCatalog([lowContrastPrimaryBorder]),
     /insufficient primary border contrast/,
   );
+});
+
+test("maps semantic colors to matching Ant Design roles", () => {
+  for (const theme of THEMES) {
+    const { colors } = theme.semantic;
+    const { components, token } = theme.antDesign;
+    assert.equal(token.colorPrimaryBorder, colors.focus);
+    assert.equal(token.colorPrimaryBorderHover, colors.link);
+    assert.equal(components.Slider.trackBg, colors.primaryAccent);
+    assert.equal(components.Slider.trackHoverBg, colors.primaryAccentHover);
+    assert.equal(components.Slider.handleColor, colors.primaryAccent);
+    assert.equal(components.Progress.defaultColor, colors.primaryAccent);
+    assert.equal(
+      components.Notification.progressBg,
+      `linear-gradient(90deg, ${colors.primaryAccentHover}, ${colors.primaryAccent})`,
+    );
+    assert.equal(components.Input.activeShadow, `0 0 0 2px ${colors.focus}`);
+    assert.equal(components.Menu.itemSelectedBg, colors.selection);
+    assert.equal(components.Menu.itemSelectedColor, colors.selectionText);
+    assert.ok(contrastRatio(components.Slider.trackBg, colors.surface) >= 3);
+    assert.ok(
+      contrastRatio(components.Slider.trackHoverBg, colors.surfaceRaised) >= 3,
+    );
+    const algorithm =
+      theme.appearance === "dark"
+        ? antTheme.darkAlgorithm
+        : antTheme.defaultAlgorithm;
+    const resolved = antTheme.getDesignToken({ algorithm, token });
+    const rail = compositeColor(
+      resolved.colorFillTertiary,
+      resolved.colorBgContainer,
+    );
+    const hoverRail = compositeColor(
+      resolved.colorFillSecondary,
+      resolved.colorBgContainer,
+    );
+    assert.ok(contrastRatio(components.Slider.trackBg, rail) >= 3);
+    assert.ok(contrastRatio(components.Slider.trackHoverBg, hoverRail) >= 3);
+  }
 });
 
 test("theme discovery prints only canonical theme names", () => {

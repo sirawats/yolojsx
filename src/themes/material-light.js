@@ -13,7 +13,7 @@ export default {
   },
   colors: {
     canvas: "#fffbfe",
-    surface: "#fffbfe",
+    surface: "#f3edf7",
     surfaceRaised: "#f3edf7",
     text: "#1d1b20",
     textMuted: "#49454f",

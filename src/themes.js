@@ -107,7 +107,10 @@ export const ANT_DESIGN_COMPONENT_NAMES = Object.freeze([
   "Input",
   "Layout",
   "Menu",
+  "Notification",
+  "Progress",
   "Segmented",
+  "Slider",
   "Tabs",
   "Typography",
 ]);
@@ -154,12 +157,20 @@ const REQUIRED_COMPONENT_TOKENS = Object.freeze({
     "itemHoverBg",
     "itemSelectedBg",
   ]),
+  Notification: Object.freeze(["progressBg"]),
+  Progress: Object.freeze(["defaultColor"]),
   Segmented: Object.freeze([
     "itemColor",
     "itemHoverColor",
     "itemSelectedBg",
     "itemSelectedColor",
     "trackBg",
+  ]),
+  Slider: Object.freeze([
+    "trackBg",
+    "trackHoverBg",
+    "handleColor",
+    "dotActiveBorderColor",
   ]),
   Tabs: Object.freeze([
     "cardBg",
@@ -236,7 +247,7 @@ function createAntDesignComponents({
       addonBg: colors.codeBackground,
       hoverBorderColor: colors.primary,
       activeBorderColor: colors.primary,
-      activeShadow: `0 0 0 2px ${colors.selection}`,
+      activeShadow: `0 0 0 2px ${colors.focus}`,
       hoverBg: colors.surface,
       activeBg: colors.surface,
     },
@@ -260,8 +271,8 @@ function createAntDesignComponents({
       subMenuItemBorderRadius: radiusPixels,
       itemColor: colors.textMuted,
       itemHoverColor: colors.text,
-      itemSelectedColor: colors.primary,
-      subMenuItemSelectedColor: colors.primary,
+      itemSelectedColor: colors.selectionText,
+      subMenuItemSelectedColor: colors.selectionText,
       itemDisabledColor: colors.textMuted,
       dangerItemColor: status.danger.foreground,
       dangerItemHoverColor: status.danger.foreground,
@@ -278,6 +289,12 @@ function createAntDesignComponents({
       itemMarginBlock: comp.menuItemMargin,
       popupBg: colors.surfaceRaised,
     },
+    Notification: {
+      progressBg: `linear-gradient(90deg, ${colors.primaryAccentHover}, ${colors.primaryAccent})`,
+    },
+    Progress: {
+      defaultColor: colors.primaryAccent,
+    },
     Segmented: {
       itemColor: colors.textMuted,
       itemHoverColor: colors.text,
@@ -287,6 +304,12 @@ function createAntDesignComponents({
       itemSelectedColor: colors.text,
       trackPadding: comp.segmentedPadding,
       trackBg: colors.codeBackground,
+    },
+    Slider: {
+      trackBg: colors.primaryAccent,
+      trackHoverBg: colors.primaryAccentHover,
+      handleColor: colors.primaryAccent,
+      dotActiveBorderColor: colors.primaryAccent,
     },
     Tabs: {
       cardBg: colors.codeBackground,
@@ -331,6 +354,11 @@ function fixedTheme(definition) {
   const colors = {
     ...definitionColors,
     link: definitionColors.link ?? definitionColors.primary,
+    primaryAccent: definitionColors.primaryAccent ?? definitionColors.primary,
+    primaryAccentHover:
+      definitionColors.primaryAccentHover ??
+      definitionColors.primaryAccent ??
+      definitionColors.primary,
   };
   const typography = {
     ...definitionTypography,
@@ -461,6 +489,8 @@ const REQUIRED_COLORS = [
   "textMuted",
   "border",
   "primary",
+  "primaryAccent",
+  "primaryAccentHover",
   "primaryText",
   "link",
   "focus",
@@ -569,7 +599,49 @@ export function validateThemeCatalog(themes = THEMES) {
       colors.primary,
       4.5,
     );
+    requireContrast(
+      theme,
+      "primary accent",
+      colors.primaryAccent,
+      colors.surface,
+      3,
+    );
+    requireContrast(
+      theme,
+      "primary accent hover",
+      colors.primaryAccentHover,
+      colors.surface,
+      3,
+    );
+    requireContrast(
+      theme,
+      "primary accent on elevated surfaces",
+      colors.primaryAccent,
+      colors.surfaceRaised,
+      3,
+    );
+    requireContrast(
+      theme,
+      "primary accent hover on elevated surfaces",
+      colors.primaryAccentHover,
+      colors.surfaceRaised,
+      3,
+    );
     requireContrast(theme, "focus indicator", colors.focus, colors.canvas, 3);
+    requireContrast(
+      theme,
+      "focus indicator on surfaces",
+      colors.focus,
+      colors.surface,
+      3,
+    );
+    requireContrast(
+      theme,
+      "focus indicator on elevated surfaces",
+      colors.focus,
+      colors.surfaceRaised,
+      3,
+    );
     requireContrast(
       theme,
       "selection",
@@ -638,6 +710,13 @@ export function validateThemeCatalog(themes = THEMES) {
       theme,
       "primary border on elevated surfaces",
       antDesign.token.colorPrimaryBorder,
+      colors.surfaceRaised,
+      3,
+    );
+    requireContrast(
+      theme,
+      "primary border hover on elevated surfaces",
+      antDesign.token.colorPrimaryBorderHover,
       colors.surfaceRaised,
       3,
     );

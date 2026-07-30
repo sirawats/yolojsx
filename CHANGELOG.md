@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Give borderless Material Light cards a distinct tonal surface.
+- Keep normal Ant Design progress and interaction accents on each preset's
+  brand palette while preserving focus, selection, link, and status colors.
 - Keep shared Ant Design interaction borders, including enabled sliders,
   visibly distinct from disabled states across dark themes.
 - Add an exhaustive Ant Design component showcase for reviewing theme states.

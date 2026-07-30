@@ -18,6 +18,8 @@ export default {
     textMuted: "#b8c4bd",
     border: "#43646b",
     primary: "#2aa198",
+    primaryAccent: "#2aa198",
+    primaryAccentHover: "#30ada4",
     primaryText: "#002b36",
     focus: "#2aa198",
     selection: "#1f5864",

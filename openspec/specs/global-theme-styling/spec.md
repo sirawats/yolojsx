@@ -87,10 +87,15 @@ Each preset SHALL define one semantic theme manifest that maps page, surface, fo
 - **WHEN** distinct preset families render Ant Design alerts
 - **THEN** GitHub and Everforest alerts use colored status borders, Obsidian Baseline alerts use neutral structural borders, and the remaining families use borderless status fills
 
-#### Scenario: Shared interaction borders remain visible
+#### Scenario: Interaction borders remain visible
 
-- **WHEN** Ant Design components such as sliders, upload draggers, and date pickers consume the shared primary-border aliases under any built-in preset
-- **THEN** the preset defines those aliases once at the global token level with at least 3:1 contrast against component surfaces while disabled states remain subdued
+- **WHEN** Ant Design components render brand tracks or focus-related borders under any built-in preset
+- **THEN** brand tracks use component-level on-surface primary accents, focus-related borders use the shared focus and link aliases, both have at least 3:1 contrast against their actual component surfaces, and disabled states remain subdued
+
+#### Scenario: Component colors preserve their semantic roles
+
+- **WHEN** Ant Design components render normal progress and interaction accents, links, focus indicators, selections, or semantic feedback under any built-in preset
+- **THEN** normal accents use the preset's on-surface primary brand colors, links use link colors, focus uses focus colors, selections use the paired selection colors, and info, success, warning, and error feedback retain their matching status colors
 
 ### Requirement: Theme-transparent JSX authoring
 
