@@ -36,7 +36,7 @@ jobs:
         run: npm ci
 
       - name: Build Website Home Page
-        run: node bin/yolojsx.js website/index.jsx --out-dir dist
+        run: npm run build && node lib/bin.js website/index.tsx --out-dir dist
 
       - name: Upload Pages Artifact
         uses: actions/upload-pages-artifact@v3

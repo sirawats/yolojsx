@@ -64,13 +64,13 @@ practices.
 
 ## Architecture and Layout
 
-- `bin/yolojsx.js` is the executable entry point; runtime ES modules live in
-  `src/`. There is no compilation step for the CLI.
+- `src/bin.ts` is the executable source entry point; runtime TypeScript modules
+  live in `src/` and compile to the untracked `lib/` package directory.
 - `scripts/` contains development and release verification tools.
 - Tests use Node's built-in runner and are split between `test/unit/` and
-  `test/integration/`; shared fixture helpers live in `test/helpers.js`.
+  `test/integration/`; shared fixture helpers live in `test/helpers.ts`.
 - `examples/` contains the canonical standalone JSX inputs;
-  `skills/yolojsx/examples/` is their exact skill-side copy. `website/index.jsx`
+  `skills/yolojsx/examples/` is their exact skill-side copy. `website/index.tsx`
   is the project website and imports the example and theme catalogs dynamically.
 - Public requirements live in `openspec/specs/`; active change artifacts live in
   `openspec/changes/`; completed records under `openspec/changes/archive/` are
@@ -82,17 +82,19 @@ practices.
   intentionally changing dependencies, and commit the resulting lockfile.
 - The published CLI supports Node `^20.19.0 || >=22.12.0`. Repository
   development on the Node 22 line requires `>=22.13.0` because of ESLint 10.
-- `npm run dev` starts Vite with hot reload for `website/index.jsx`. Do not start
+- `npm run dev` starts Vite with hot reload for `website/index.tsx`. Do not start
   this persistent server automatically; the user runs it when needed. To serve a
-  custom entry, run `node scripts/dev.js <entry>`.
-- `node bin/yolojsx.js examples/TaxCalculator.jsx` performs a manual CLI smoke test.
+  custom entry, run `npx tsx scripts/dev.ts <entry>`.
+- `npm run cli -- <entry> [options]` runs `src/bin.ts` directly without first
+  compiling `lib/`; use it for source-level CLI development.
+- `npm run build && node lib/bin.js examples/TaxCalculator.jsx` performs a manual CLI smoke test.
   `--out-dir dist` exercises directory output.
 - `npm run test:unit` and `npm run test:integration` run focused test groups;
   `npm test` runs both serially.
 - `npm run format` writes Prettier changes; `npm run format:check` only checks.
 - `npm run lint` checks ESLint; `npm run lint:fix` applies safe fixes. To fix both,
   run `npm run lint:fix && npm run format`.
-- `npm run check` syntax-checks repository JavaScript.
+- `npm run check` type-checks repository TypeScript.
 - `npm run verify:package` packs and extracts the npm artifact, links existing
   dependencies, and exercises all CLI modes without downloading packages.
 - `npm run verify` is the required final gate: formatting, linting, tests, syntax,
@@ -110,10 +112,10 @@ Run it locally before handing work off.
 - Use native ECMAScript modules and explicit `.js` import extensions.
 - Prefer named exports and small modules with one clear responsibility.
 - Use `camelCase` for variables/functions, `UPPER_SNAKE_CASE` for constants, and
-  descriptive lowercase filenames such as `dependencies.js`.
+  descriptive lowercase filenames such as `dependencies.ts`.
 - ESLint scopes Node globals to CLI, source, script, config, and test files, and
-  browser globals to `examples/**/*.jsx` and `website/**/*.jsx`. Update
-  `eslint.config.js` if adding JavaScript outside those locations.
+  browser globals to `examples/**/*.jsx` and `website/**/*.tsx`. Update
+  `eslint.config.js` if adding TypeScript outside those locations.
 
 ## Implementation Rules
 
@@ -135,9 +137,9 @@ Run it locally before handing work off.
 
 ## Theme and Ant Design Tokens
 
-Theme values from `src/themes/*.js` enter `fixedTheme()`. Global
+Theme values from `src/themes/*.ts` enter `fixedTheme()`. Global
 `antDesign.token` values then pass through the algorithm selected in
-`src/templates.js` → Ant map and alias tokens → default component tokens.
+`src/templates.ts` → Ant map and alias tokens → default component tokens.
 `createAntDesignComponents()` instead supplies direct component overrides,
 which bypass the algorithm unless a component-level algorithm is enabled. Seed
 tokens such as `colorPrimary` are algorithm inputs, not guaranteed final
@@ -187,7 +189,7 @@ mappings, contrast constraints, and representative rendered components.
 
 ## Testing and Documentation
 
-- Name tests `*.test.js` and use `node:test` with `node:assert/strict`.
+- Name tests `*.test.ts` and use `node:test` with `node:assert/strict`.
 - Add unit tests for pure parsing, validation, and transformation logic.
 - Add integration tests for CLI builds, diagnostics, generated assets,
   filesystem safety, packaging, or other cross-module behavior.
@@ -200,5 +202,5 @@ mappings, contrast constraints, and representative rendered components.
 - Update README/help examples together, and add an `Unreleased` changelog entry
   for user-visible changes.
 
-Do not commit generated HTML, `dist/`, tarballs, temporary fixtures, credentials,
-or unrelated formatting.
+Do not commit generated HTML, `dist/`, `lib/`, tarballs, temporary fixtures,
+credentials, or unrelated formatting.

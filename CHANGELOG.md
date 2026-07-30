@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Rewrite the CLI, website, scripts, and tests in TypeScript while keeping the
+  bundled examples as JSX, and accept TSX application entries.
 - Give borderless Material Light cards a distinct tonal surface.
 - Keep normal Ant Design progress and interaction accents on each preset's
   brand palette while preserving focus, selection, link, and status colors.

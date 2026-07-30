@@ -2,13 +2,13 @@
 
 ## Purpose
 
-Define how the `yolojsx` CLI accepts one JSX component and produces an isolated, deployable static React application with actionable diagnostics.
+Define how the `yolojsx` CLI accepts one JSX or TSX component and produces an isolated, deployable static React application with actionable diagnostics.
 
 ## Requirements
 
 ### Requirement: CLI invocation
 
-The package SHALL expose a `yolojsx` executable that supports a JSX build form accepting exactly one JSX entry path and a `pack` form accepting exactly one build-directory path, and SHALL support invocation after global installation and through `npx yolojsx`.
+The package SHALL expose a `yolojsx` executable that supports a build form accepting exactly one JSX or TSX entry path and a `pack` form accepting exactly one build-directory path, and SHALL support invocation after global installation and through `npx yolojsx`.
 
 #### Scenario: Build through the global executable
 
@@ -32,7 +32,7 @@ The package SHALL expose a `yolojsx` executable that supports a JSX build form a
 
 ### Requirement: JSX component entry
 
-The CLI SHALL accept an existing `.jsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `YOLOJSX` metadata export containing `title`, `icon`, and `prismTheme` to the generated document.
+The CLI SHALL accept an existing `.jsx` or `.tsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `YOLOJSX` metadata export containing `title`, `icon`, and `prismTheme` to the generated document.
 
 #### Scenario: Default-exported component
 

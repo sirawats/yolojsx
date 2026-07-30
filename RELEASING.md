@@ -16,14 +16,14 @@ maintainer checklist.
 3. Confirm `yolojsx examples/TaxCalculator.jsx` creates `TaxCalculator.html`; open it through `file://` in a browser with gzip `DecompressionStream`, import-map, and network support. Repeat with `--self-contained` while offline.
 4. Run `yolojsx examples/TaxCalculator.jsx --out-dir dist`, serve it, and verify Tailwind utilities, global theme styles, and Ant Design components.
 5. Exercise an unsuffixed light alias such as `--theme material`, its explicit `material-dark` counterpart, the `onedark` alias, and `--css` with a relative local image or font in both modes; confirm system color preference never changes the selected theme.
-6. Run `yolojsx themes` and compare every id, light alias, fixed mode, description, revision, and license with `src/themes/`, `src/themes.js`, and `THIRD_PARTY_NOTICES.md`.
+6. Run `yolojsx themes` and compare every id, light alias, fixed mode, description, revision, and license with `src/themes/`, `src/themes.ts`, and `THIRD_PARTY_NOTICES.md`.
 7. Confirm all stored theme CSS is original yolojsx code: no upstream/Obsidian selectors or stylesheet blocks, no downloaded fonts/assets, and no endorsement claims.
 8. Review automated contrast results for text, muted text, primary controls, focus, selection, and status pairs.
 9. Verify the stable `theme, base, antd, components, utilities` cascade, Tailwind Preflight, and the absence of Ant Design reset CSS.
 10. Test existing file and directory targets with `no`, `yes`, non-interactive input, and `--force`; confirm failed rebuilds preserve prior output.
 11. Verify `--single-file` still builds with a deprecation warning, `--self-contained` embeds the runtime, and `--out-dir dist` remains the directory-mode selector.
 12. Run `yolojsx pack dist --output packed.html` and confirm `dist/` is unchanged; exercise a rejected graph and check its directory-mode recommendation.
-13. Run `npm pack --dry-run`. Confirm the tarball includes `src/themes/*.css`, `THIRD_PARTY_NOTICES.md`, and no output, temporary files, credentials, or unrelated artifacts.
+13. Run `npm pack --dry-run`. Confirm the tarball includes `lib/themes/*.css`, `THIRD_PARTY_NOTICES.md`, and no output, temporary files, credentials, or unrelated artifacts.
 14. Review the default and self-contained themed/provider artifact sizes reported by `npm run verify:package`; investigate before increasing their 100,000-byte and 500,000-byte release budgets.
 15. Install the tarball into an isolated prefix and test the executable through both a global-bin and npm-exec/npx-equivalent layout.
 16. Publish with an explicit pre-1.0 version, then verify the installed package can build the documented example in both output modes.

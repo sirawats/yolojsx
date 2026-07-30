@@ -2,7 +2,7 @@
 
 ## Component contract
 
-- Create a readable `.jsx` module with one default-exported React component.
+- Create a readable `.jsx` or `.tsx` module with one default-exported React component.
 - Use relative imports for local modules and assets.
 - Assume yolojsx supplies React, React DOM, Ant Design, Tailwind CSS, React
   Icons, and PrismJS. Other bare imports must exist in the input project's

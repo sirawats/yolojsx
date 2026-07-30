@@ -30,7 +30,7 @@ Apply these in order:
    revising JSX.
 3. Read the closest complete example from the routing guide below. Read a second
    only when the requested artifact combines two patterns.
-4. Prefer one self-contained `.jsx` entry with a default-exported component.
+4. Prefer one self-contained `.jsx` or `.tsx` entry with a default-exported component.
    Split local components only when repetition or complexity makes the entry
    harder to understand.
 5. Use static markup for static content. Add React state only for interaction

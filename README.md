@@ -118,7 +118,7 @@ Requires Node.js `^20.19.0` or `>=22.12.0`.
 ## CLI
 
 ```text
-Usage: yolojsx <entry.jsx> [options]
+Usage: yolojsx <entry.jsx|entry.tsx> [options]
        yolojsx themes | yolojsx --themes
        yolojsx prism-themes | yolojsx --prism-themes
        yolojsx pack <directory> --output <file.html> [options]
@@ -234,13 +234,14 @@ contract, supplied packages, themes, and output modes.
 Try one from a repository clone:
 
 ```sh
-node bin/yolojsx.js examples/APIDocs.jsx --theme github-dark
+npm run build
+node lib/bin.js examples/APIDocs.jsx --theme github-dark
 ```
 
 ## Component contract
 
-The entry must be a readable `.jsx` module with a default-exported React
-component. Relative imports resolve from the entry file.
+The entry must be a readable `.jsx` or `.tsx` module with a default-exported
+React component. Relative imports resolve from the entry file.
 
 ```jsx
 import { Button, Card } from "antd";
