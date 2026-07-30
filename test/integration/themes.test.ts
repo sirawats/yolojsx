@@ -23,7 +23,7 @@ export default function Catalog() {
         <Button disabled>Disabled</Button>
       </Space>
     </section>
-    <Alert type="success" message="Ready" />
+    <Alert type="success" title="Ready" />
   </main>;
 }`,
   });

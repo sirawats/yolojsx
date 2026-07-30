@@ -164,7 +164,7 @@ export default function TaxCalculator() {
           type="info"
           showIcon
           icon={<LuShieldAlert className="h-5 w-5" aria-hidden="true" />}
-          message="Illustrative Model Disclaimer"
+          title="Illustrative Model Disclaimer"
           description="This calculator uses invented profiles, brackets, and illustrative units to demonstrate progressive calculations and state management. It is not tied to any jurisdiction or currency and does not constitute tax, legal, or financial advice."
         />
 

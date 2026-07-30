@@ -222,14 +222,17 @@ contract, supplied packages, themes, and output modes.
 
 ## Examples
 
-| Example                                         | Theme              | Demonstrates                                       |
-| :---------------------------------------------- | :----------------- | :------------------------------------------------- |
-| [Techspec.jsx](examples/Techspec.jsx)           | `github`           | Technical RFC, requirements, architecture, rollout |
-| [APIDocs.jsx](examples/APIDocs.jsx)             | `github-dark`      | Interactive endpoint reference and code samples    |
-| [TaxCalculator.jsx](examples/TaxCalculator.jsx) | `material`         | Stateful progressive tax calculator                |
-| [SaaS.jsx](examples/SaaS.jsx)                   | `catppuccin`       | Product preview and responsive pricing             |
-| [Analytics.jsx](examples/Analytics.jsx)         | `one-dark`         | Operational metrics and service health             |
-| [Editorial.jsx](examples/Editorial.jsx)         | `obsidian-minimal` | Long-form reading and typographic rhythm           |
+| Example                                               | Theme                | Demonstrates                                           |
+| :---------------------------------------------------- | :------------------- | :----------------------------------------------------- |
+| [APITestReport.jsx](examples/APITestReport.jsx)       | `github`             | Filterable API failures and request/response evidence  |
+| [CodeReviewReport.jsx](examples/CodeReviewReport.jsx) | `github-dark-dimmed` | Actionable findings, severity filters, suggested diffs |
+| [SetupGuide.jsx](examples/SetupGuide.jsx)             | `gruvbox`            | Guided setup checklist, commands, troubleshooting      |
+| [Techspec.jsx](examples/Techspec.jsx)                 | `github`             | Technical RFC, requirements, architecture, rollout     |
+| [APIDocs.jsx](examples/APIDocs.jsx)                   | `github-dark`        | Interactive endpoint reference and code samples        |
+| [TaxCalculator.jsx](examples/TaxCalculator.jsx)       | `material`           | Stateful progressive tax calculator                    |
+| [SaaS.jsx](examples/SaaS.jsx)                         | `catppuccin`         | Product preview and responsive pricing                 |
+| [Analytics.jsx](examples/Analytics.jsx)               | `one-dark`           | Operational metrics and service health                 |
+| [Editorial.jsx](examples/Editorial.jsx)               | `obsidian-minimal`   | Long-form reading and typographic rhythm               |
 
 Try one from a repository clone:
 

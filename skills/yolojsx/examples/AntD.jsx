@@ -298,7 +298,7 @@ function Showcase() {
         <Alert
           showIcon
           type="info"
-          message="How to review"
+          title="How to review"
           description="Change the yolojsx theme, scan every section, and interact with hover, focus, selected, disabled, popup, and portal states. Infrastructure-only exports are documented at the end."
         />
 
@@ -842,7 +842,7 @@ function Showcase() {
                   key={type}
                   type={type}
                   showIcon
-                  message={`${type[0].toUpperCase()}${type.slice(1)} alert`}
+                  title={`${type[0].toUpperCase()}${type.slice(1)} alert`}
                   description="Foreground, background, border, and icon state."
                 />
               ))}

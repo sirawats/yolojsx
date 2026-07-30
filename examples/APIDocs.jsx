@@ -280,7 +280,7 @@ export default function APIDocs() {
           <Alert
             type="info"
             showIcon
-            message="Live third-party services"
+            title="Live third-party services"
             description="Examples follow the linked public documentation. Check each maintainer's current usage policy before relying on an API in production."
           />
         </section>

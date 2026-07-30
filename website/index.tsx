@@ -339,7 +339,8 @@ export default function Website() {
   };
   const loadPreview = (event: SyntheticEvent<HTMLIFrameElement>) => {
     const frameDocument = event.currentTarget.contentDocument;
-    if (!frameDocument) return;
+    const frameWindow = frameDocument?.defaultView;
+    if (!frameDocument || !frameWindow) return;
     const base = frameDocument.createElement("base");
     base.href = document.baseURI;
     const styles = [
@@ -351,7 +352,7 @@ export default function Website() {
     frameDocument.body.style.margin = "0";
     frameDocument.body.style.overflowX = "hidden";
     frameDocument.addEventListener("click", (event) => {
-      if (!(event.target instanceof Element)) return;
+      if (!(event.target instanceof frameWindow.Element)) return;
       const anchor = event.target.closest("a");
       if (!anchor) return;
       const href = anchor.getAttribute("href");

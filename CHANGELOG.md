@@ -13,6 +13,9 @@
 - Keep explicit dark menus on dark presets aligned with each preset instead of
   Ant Design's built-in navy surfaces.
 - Add an exhaustive Ant Design component showcase for reviewing theme states.
+- Add API test report, internal setup guide, and code review report examples
+  centered on actionable, human-readable agent output.
+- Keep fragment navigation inside the website's isolated example preview.
 
 ## 0.1.5 - 2026-07-29
 
