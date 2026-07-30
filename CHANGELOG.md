@@ -9,6 +9,9 @@
   brand palette while preserving focus, selection, link, and status colors.
 - Keep shared Ant Design interaction borders, including enabled sliders,
   visibly distinct from disabled states across dark themes.
+- Keep disabled Ant Design menu items visually distinct from enabled items.
+- Keep explicit dark menus on dark presets aligned with each preset instead of
+  Ant Design's built-in navy surfaces.
 - Add an exhaustive Ant Design component showcase for reviewing theme states.
 
 ## 0.1.5 - 2026-07-29

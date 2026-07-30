@@ -7,8 +7,8 @@ import {
   resolveFoundationStylesheet,
 } from "../../src/theme-css.js";
 import {
-  ANT_DESIGN_COMPONENT_NAMES,
   FIXED_THEMES,
+  OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES,
   THEME_CSS_PROPERTIES,
   THEMES,
   contrastRatio,
@@ -106,15 +106,15 @@ test("validates the complete immutable theme catalog", async () => {
     );
     assert.doesNotMatch(stylesheet, /--yolo-|\.yolo-|\.ant-/);
     assert.deepEqual(Object.keys(theme.antDesign.components), [
-      ...ANT_DESIGN_COMPONENT_NAMES,
+      ...OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES,
     ]);
-    const statuses = {
-      Info: "info",
-      Success: "success",
-      Warning: "warning",
-      Error: "danger",
-    } as const;
-    for (const [token, status] of Object.entries(statuses)) {
+    const statuses = [
+      ["Info", "info"],
+      ["Success", "success"],
+      ["Warning", "warning"],
+      ["Error", "danger"],
+    ] as const;
+    for (const [token, status] of statuses) {
       const values = theme.semantic.colors.status[status];
       assert.equal(theme.antDesign.token[`color${token}Bg`], values.background);
       assert.equal(theme.antDesign.token[`color${token}Border`], values.border);
@@ -146,6 +146,21 @@ test("family aliases always resolve to fixed light presets", async () => {
     assert.match(css, /color-scheme: light/);
     assert.doesNotMatch(css, /prefers-color-scheme/);
   }
+});
+
+test("rejects a canonical theme id that collides with an earlier alias", () => {
+  const first = structuredClone(resolveTheme("default"));
+  first.id = "first";
+  first.name = "First";
+  first.aliases = ["second"];
+  const second = structuredClone(resolveTheme("default"));
+  second.id = "second";
+  second.name = "Second";
+
+  assert.throws(
+    () => validateThemeCatalog([first, second]),
+    /Invalid or duplicate theme id: second/,
+  );
 });
 
 test("stored presets include typography, density, and original semantic values", async () => {
@@ -276,14 +291,17 @@ test("uses official serializable Ant Design component configuration", () => {
   );
 
   const missing = structuredClone(resolveTheme("default"));
-  delete missing.antDesign.components.Button;
+  delete (missing.antDesign.components as unknown as Record<string, unknown>)
+    .Button;
   assert.throws(
     () => validateThemeCatalog([missing]),
     /unsupported Ant Design component configuration/,
   );
 
   const unsupported = structuredClone(resolveTheme("default"));
-  unsupported.antDesign.components.Unknown = {};
+  (
+    unsupported.antDesign.components as unknown as Record<string, unknown>
+  ).Unknown = {};
   assert.throws(
     () => validateThemeCatalog([unsupported]),
     /unsupported Ant Design component configuration/,
@@ -315,6 +333,19 @@ test("maps semantic colors to matching Ant Design roles", () => {
     assert.equal(components.Input.activeShadow, `0 0 0 2px ${colors.focus}`);
     assert.equal(components.Menu.itemSelectedBg, colors.selection);
     assert.equal(components.Menu.itemSelectedColor, colors.selectionText);
+    assert.equal(components.Menu.itemDisabledColor, undefined);
+    if (theme.appearance === "dark") {
+      assert.equal(components.Menu.darkItemColor, colors.textMuted);
+      assert.equal(components.Menu.darkItemHoverColor, colors.text);
+      assert.equal(components.Menu.darkItemSelectedColor, colors.selectionText);
+      assert.equal(components.Menu.darkItemBg, colors.surface);
+      assert.equal(components.Menu.darkPopupBg, colors.surfaceRaised);
+      assert.equal(components.Menu.darkSubMenuItemBg, colors.surface);
+      assert.equal(components.Menu.darkItemSelectedBg, colors.selection);
+      assert.equal(components.Menu.darkItemHoverBg, colors.codeBackground);
+    } else {
+      assert.equal(components.Menu.darkItemBg, undefined);
+    }
     assert.ok(contrastRatio(components.Slider.trackBg, colors.surface) >= 3);
     assert.ok(
       contrastRatio(components.Slider.trackHoverBg, colors.surfaceRaised) >= 3,
@@ -324,6 +355,7 @@ test("maps semantic colors to matching Ant Design roles", () => {
         ? antTheme.darkAlgorithm
         : antTheme.defaultAlgorithm;
     const resolved = antTheme.getDesignToken({ algorithm, token });
+    assert.notEqual(resolved.colorTextDisabled, colors.textMuted);
     const rail = compositeColor(
       resolved.colorFillTertiary,
       resolved.colorBgContainer,

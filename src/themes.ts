@@ -1,3 +1,4 @@
+import type { ThemeConfig } from "antd";
 import { YoloJsxError } from "./errors.js";
 
 import defaultDef from "./themes/default.js";
@@ -24,7 +25,27 @@ import obsidianBaselineDarkDef from "./themes/obsidian-baseline-dark.js";
 
 type Appearance = "light" | "dark";
 type StatusName = "success" | "warning" | "danger" | "info";
-type TokenValue = string | number | boolean;
+
+export const OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES = Object.freeze([
+  "Button",
+  "Card",
+  "Input",
+  "Layout",
+  "Menu",
+  "Notification",
+  "Progress",
+  "Segmented",
+  "Slider",
+  "Tabs",
+  "Typography",
+] as const);
+
+type AntDesignComponents = Required<
+  Pick<
+    NonNullable<ThemeConfig["components"]>,
+    (typeof OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES)[number]
+  >
+>;
 
 interface StatusColors {
   seed: string;
@@ -52,7 +73,7 @@ interface ThemeColors {
   status: Record<StatusName, StatusColors>;
 }
 
-interface AntTokens extends Record<string, TokenValue> {
+interface AntTokens extends NonNullable<ThemeConfig["token"]> {
   colorPrimaryBorder: string;
   colorPrimaryBorderHover: string;
 }
@@ -122,9 +143,9 @@ export interface Theme {
   };
   antDesign: {
     algorithm: Appearance;
-    cssVar: Record<string, never>;
+    cssVar: NonNullable<ThemeConfig["cssVar"]>;
     token: AntTokens;
-    components: Record<string, Record<string, TokenValue>>;
+    components: AntDesignComponents;
   };
   provenance: ThemeDefinition["source"] & {
     attribution: string;
@@ -211,20 +232,6 @@ export const THEME_CSS_PROPERTIES = Object.freeze({
   controlHeight: "--control-height",
 });
 
-export const ANT_DESIGN_COMPONENT_NAMES = Object.freeze([
-  "Button",
-  "Card",
-  "Input",
-  "Layout",
-  "Menu",
-  "Notification",
-  "Progress",
-  "Segmented",
-  "Slider",
-  "Tabs",
-  "Typography",
-]);
-
 const REQUIRED_COMPONENT_TOKENS = Object.freeze({
   Button: Object.freeze([
     "primaryColor",
@@ -292,7 +299,7 @@ const REQUIRED_COMPONENT_TOKENS = Object.freeze({
   Typography: Object.freeze(["titleMarginTop", "titleMarginBottom"]),
 });
 
-function createAntDesignComponents({
+function createAntDesignComponentOverrides({
   colors,
   controlHeight,
   radius,
@@ -306,7 +313,7 @@ function createAntDesignComponents({
   shadow: string;
   status: Record<StatusName, StatusColors>;
   definition: ThemeDefinition;
-}) {
+}): AntDesignComponents {
   const radiusPixels = Number.parseFloat(radius.medium) * 16;
   const comp = definition.components;
   return {
@@ -390,7 +397,6 @@ function createAntDesignComponents({
       itemHoverColor: colors.text,
       itemSelectedColor: colors.selectionText,
       subMenuItemSelectedColor: colors.selectionText,
-      itemDisabledColor: colors.textMuted,
       dangerItemColor: status.danger.foreground,
       dangerItemHoverColor: status.danger.foreground,
       dangerItemSelectedColor: status.danger.foreground,
@@ -405,6 +411,19 @@ function createAntDesignComponents({
       itemMarginInline: comp.menuItemMargin,
       itemMarginBlock: comp.menuItemMargin,
       popupBg: colors.surfaceRaised,
+      ...(definition.appearance === "dark"
+        ? {
+            darkItemColor: colors.textMuted,
+            darkItemHoverColor: colors.text,
+            darkGroupTitleColor: colors.textMuted,
+            darkItemSelectedColor: colors.selectionText,
+            darkItemBg: colors.surface,
+            darkPopupBg: colors.surfaceRaised,
+            darkSubMenuItemBg: colors.surface,
+            darkItemSelectedBg: colors.selection,
+            darkItemHoverBg: colors.codeBackground,
+          }
+        : {}),
     },
     Notification: {
       progressBg: `linear-gradient(90deg, ${colors.primaryAccentHover}, ${colors.primaryAccent})`,
@@ -551,7 +570,7 @@ function fixedTheme(definition: ThemeDefinition): Theme {
         lineHeight: rhythm.lineHeight,
         boxShadow: shadow,
       },
-      components: createAntDesignComponents({
+      components: createAntDesignComponentOverrides({
         colors,
         controlHeight,
         radius,
@@ -660,7 +679,11 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
   const names = new Set<string>();
   const aliases = new Set<string>();
   for (const theme of themes) {
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(theme.id) || ids.has(theme.id)) {
+    if (
+      !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(theme.id) ||
+      ids.has(theme.id) ||
+      aliases.has(theme.id)
+    ) {
       throw new Error(`Invalid or duplicate theme id: ${theme.id}`);
     }
     ids.add(theme.id);
@@ -787,11 +810,16 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
     ) {
       throw new Error(`${theme.id} is missing Ant Design configuration.`);
     }
-    const componentNames = Object.keys(antDesign.components).sort();
+    const components = antDesign.components as Record<
+      string,
+      Record<string, unknown>
+    >;
+    const componentNames = Object.keys(components).sort();
     if (
-      componentNames.length !== ANT_DESIGN_COMPONENT_NAMES.length ||
+      componentNames.length !== OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES.length ||
       componentNames.some(
-        (name, index) => name !== [...ANT_DESIGN_COMPONENT_NAMES].sort()[index],
+        (name, index) =>
+          name !== [...OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES].sort()[index],
       )
     ) {
       throw new Error(
@@ -801,7 +829,7 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
     for (const [componentName, requiredTokens] of Object.entries(
       REQUIRED_COMPONENT_TOKENS,
     )) {
-      const component = antDesign.components[componentName];
+      const component = components[componentName];
       for (const tokenName of requiredTokens) {
         const value = component?.[tokenName];
         if (
