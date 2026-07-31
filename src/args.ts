@@ -1,6 +1,6 @@
 import { DEFAULT_BASE, PACKAGE_VERSION } from "./constants.js";
 import { YoloJsxError } from "./errors.js";
-import { DEFAULT_THEME_ID, resolveTheme } from "./themes.js";
+import { DEFAULT_THEME_ID } from "./themes.js";
 
 export const USAGE = `Usage: yolojsx <entry.jsx|entry.tsx> [options]
        yolojsx themes | yolojsx --themes
@@ -14,10 +14,9 @@ Options:
   -o, --out-dir <path>  Build a directory instead of one HTML file
       --base <path>     Directory-mode public base path (default: ./)
       --self-contained  Embed runtime dependencies for offline use
-      --theme <preset>  Global theme preset (default: default)
+      --theme <value>   Global theme preset or .ts/.jsx module (default: default)
       --themes           List available theme names
       --prism-themes     List available Prism theme names
-      --css <path>      Custom CSS loaded after the preset
       --single-file     Deprecated alias for the default file mode
       --force           Replace an existing protected output
   -h, --help            Show this help
@@ -33,7 +32,6 @@ interface BuildArguments {
   base: string;
   output?: string;
   theme: string;
-  css?: string;
   force: boolean;
   deprecatedSingleFile: boolean;
   selfContained: boolean;
@@ -92,7 +90,6 @@ export function parseArgs(argv: string[]): ParsedArguments {
     base: string;
     output?: string;
     theme: string;
-    css?: string;
     force: boolean;
     singleFile: boolean;
     selfContained: boolean;
@@ -104,7 +101,6 @@ export function parseArgs(argv: string[]): ParsedArguments {
     base: DEFAULT_BASE,
     output: undefined,
     theme: DEFAULT_THEME_ID,
-    css: undefined,
     force: false,
     singleFile: false,
     selfContained: false,
@@ -147,7 +143,6 @@ export function parseArgs(argv: string[]): ParsedArguments {
       ["--out-dir", "outDir"],
       ["--base", "base"],
       ["--theme", "theme"],
-      ["--css", "css"],
     ] as const;
     let matched = false;
     for (const [name, property] of valueOptions) {
@@ -206,7 +201,6 @@ export function parseArgs(argv: string[]): ParsedArguments {
       "--out-dir",
       "--base",
       "--theme",
-      "--css",
     ].filter((name) => seen.has(name));
     if (rejected.length > 0) {
       throw invalid(`The pack command does not accept ${rejected.join(", ")}.`);
@@ -238,8 +232,6 @@ export function parseArgs(argv: string[]): ParsedArguments {
       "--self-contained cannot be combined with --out-dir or --base.",
     );
   }
-  resolveTheme(options.theme);
-
   return {
     action: "build",
     entry: positionals[0],
@@ -248,7 +240,6 @@ export function parseArgs(argv: string[]): ParsedArguments {
     base: options.base,
     output: options.output,
     theme: options.theme,
-    css: options.css,
     force: options.force,
     deprecatedSingleFile: options.singleFile,
     selfContained: options.selfContained,

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+- Add local `.ts` and `.jsx` modules to `--theme`, using their validated default
+  manifests for semantic CSS and Ant Design while allowing explicitly imported
+  named component exports.
+- Preserve yolojsx-supplied React, Ant Design, React Icons, and Tailwind support
+  for zero-install JSX theme modules in every output mode.
+- Author every bundled preset manifest as checked JSX while preserving its
+  existing catalog behavior and published JavaScript path.
+- **Breaking:** remove `--css`; import application-specific CSS from JSX or TSX,
+  and use a theme module for coordinated global semantics and component tokens.
+
 ## 0.1.6 - 2026-07-31
 
 - Rewrite the CLI, website, scripts, and tests in TypeScript while keeping the

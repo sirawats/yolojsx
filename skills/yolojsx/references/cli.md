@@ -65,20 +65,35 @@ yolojsx pack dist --output Report.html
 Packing reads a compatible directory build without modifying it and produces a
 self-contained artifact.
 
-## Themes and CSS
+## Themes and theme modules
 
 ```sh
 yolojsx themes
 yolojsx prism-themes
 yolojsx Report.jsx --theme material
 yolojsx Report.jsx --theme material-dark
-yolojsx Report.jsx --theme github --css styles/report.css
+yolojsx Report.jsx --theme ./company-theme.jsx
 ```
 
 Unsuffixed family aliases resolve to fixed light presets; dark mode is selected
 only by naming a dark preset. `prism-themes` lists syntax themes discovered from
-the installed PrismJS and Prism Themes packages. Theme and CSS options apply to
-JSX builds, not discovery or `pack` commands.
+the installed PrismJS and Prism Themes packages.
+
+`--theme` also accepts a readable local `.ts` or `.jsx` module resolved from the
+invocation directory. Its default export is the complete declarative theme
+manifest. Applications import named exports, including reusable components,
+normally; yolojsx does not inject them. Theme modules are trusted local code
+compiled and executed before output is created. They apply to JSX builds, not
+discovery or `pack` commands, and do not appear in `yolojsx themes`.
+
+Import application-specific CSS from the JSX or TSX entry:
+
+```tsx
+import "./styles/report.css";
+```
+
+Vite preserves stylesheet-relative assets. There is no `--css` option or
+privileged post-theme CSS slot.
 
 ## Option constraints
 

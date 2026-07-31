@@ -55,7 +55,6 @@ async function startDevServer() {
         resolvePackageImport("tailwindcss/index.css"),
         resolveFoundationStylesheet(),
         themeCssPath,
-        undefined,
       ),
       "utf8",
     ),

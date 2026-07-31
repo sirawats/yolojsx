@@ -2,10 +2,20 @@ import assert from "node:assert/strict";
 import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { readEmbeddedPayload } from "../../src/single-file.js";
 import { loadPrismThemeCatalog } from "../../src/prism-themes.js";
 import { THEMES } from "../../src/themes.js";
 import { invoke, makeFixture, readAsset, writeFixture } from "../helpers.js";
+
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
+const defaultDefinition = await readFile(
+  path.join(repository, "src/themes/default.jsx"),
+  "utf8",
+);
 
 test("builds every fixed preset with global, Tailwind, and Ant Design styling", async (t) => {
   const fixture = await makeFixture();
@@ -58,55 +68,33 @@ export default function Catalog() {
   }
 });
 
-test("applies custom CSS after the preset with CSS-first utilities and local assets in both modes", async (t) => {
+test("processes application-imported CSS and local assets in both modes", async (t) => {
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
     "Custom.jsx": `import { Button } from "antd";
-export default () => <main className="custom-card bg-brand content-auto p-8"><Button>Custom</Button></main>;`,
-    "styles/custom.css": `@theme { --color-brand: #7346a8; }
-:root { --primary: #7346a8; }
-@layer components {
-  .custom-card { background-image: url("./mark.svg"); border: 3px solid var(--primary); }
+import "./styles/custom.css";
+export default () => <main className="custom-card content-auto p-8"><Button>Custom</Button></main>;`,
+    "styles/custom.css": `.custom-card {
+  background-image: url("./mark.svg");
+  border: 3px solid #7346a8;
 }
-@utility content-auto { content-visibility: auto; }`,
+.content-auto { content-visibility: auto; }`,
     "styles/mark.svg": `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><circle cx="4" cy="4" r="4" fill="#7346a8"/></svg>`,
   });
 
   const directory = await invoke(
-    [
-      "Custom.jsx",
-      "--theme",
-      "material-light",
-      "--css",
-      "styles/custom.css",
-      "--out-dir",
-      "site",
-    ],
+    ["Custom.jsx", "--theme", "material-light", "--out-dir", "site"],
     { cwd: fixture },
   );
   assert.equal(directory.exitCode, 0, directory.stderr);
   const directoryCss = await readAsset(path.join(fixture, "site"), ".css");
-  assert.match(directoryCss, /\.bg-brand\{/);
   assert.match(directoryCss, /\.content-auto\{/);
   assert.match(directoryCss, /\.custom-card\{/);
   assert.match(directoryCss, /data:image\/svg\+xml/);
-  assert.ok(
-    directoryCss.lastIndexOf("--primary:#7346a8") >
-      directoryCss.indexOf("--primary:#6750a4"),
-    "custom semantic variables should follow preset variables",
-  );
 
   const packaged = await invoke(
-    [
-      "Custom.jsx",
-      "--theme",
-      "material-light",
-      "--css",
-      "styles/custom.css",
-      "--output",
-      "Custom.html",
-    ],
+    ["Custom.jsx", "--theme", "material-light", "--output", "Custom.html"],
     { cwd: fixture },
   );
   assert.equal(packaged.exitCode, 0, packaged.stderr);
@@ -114,10 +102,139 @@ export default () => <main className="custom-card bg-brand content-auto p-8"><Bu
     await readFile(path.join(fixture, "Custom.html"), "utf8"),
   );
   const packagedCss = payload.styles.join("\n");
-  assert.match(packagedCss, /\.bg-brand\{/);
   assert.match(packagedCss, /\.content-auto\{/);
   assert.match(packagedCss, /data:image\/svg\+xml/);
   assert.match(payload.script, /Custom/);
+});
+
+test("builds TypeScript and JSX theme modules in every output mode", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "app/Home.jsx": `import { CompanyPanel } from "../brand/company-theme.jsx";
+export default function Home() {
+  return <main className="min-h-screen bg-background p-8"><CompanyPanel /></main>;
+}`,
+    "app/Plain.jsx": `export default () => <main className="bg-background p-8">Plain company theme</main>;`,
+    "brand/base.ts": defaultDefinition,
+    "brand/company-theme.ts": `import base from "./base.ts";
+export default {
+  ...base,
+  id: "company-ts",
+  name: "Company TS",
+  aliases: [],
+  colors: { ...base.colors, canvas: "#f0f7ff", primary: "#0057b8" },
+};`,
+    "brand/company-theme.jsx": `import { Button } from "antd";
+import { LuPlane } from "react-icons/lu";
+import base from "./base.ts";
+
+export function CompanyPanel({ children = "Company panel" }) {
+  return <section className="rounded-lg bg-card p-6 outline-[7px] outline-primary">
+    <Button type="primary"><LuPlane aria-hidden="true" />{children}</Button>
+  </section>;
+}
+
+export default {
+  ...base,
+  id: "company-jsx",
+  name: "Company JSX",
+  aliases: [],
+  colors: { ...base.colors, canvas: "#f0f7ff", primary: "#0057b8" },
+};`,
+  });
+  const app = path.join(fixture, "app");
+
+  const directory = await invoke(
+    ["Home.jsx", "--theme", "../brand/company-theme.jsx", "--out-dir", "site"],
+    { cwd: app },
+  );
+  assert.equal(directory.exitCode, 0, directory.stderr);
+  const directoryCss = await readAsset(path.join(app, "site"), ".css");
+  const directoryScript = await readAsset(path.join(app, "site"), ".js");
+  assert.match(directoryCss, /--primary:#0057b8/);
+  assert.match(directoryCss, /outline-width:7px/);
+  assert.match(directoryScript, /Company panel/);
+  assert.match(directoryScript, /colorPrimary/);
+
+  const file = await invoke(
+    [
+      "Plain.jsx",
+      "--theme",
+      "../brand/company-theme.ts",
+      "--output",
+      "Company.html",
+    ],
+    { cwd: app },
+  );
+  assert.equal(file.exitCode, 0, file.stderr);
+  const filePayload = readEmbeddedPayload(
+    await readFile(path.join(app, "Company.html"), "utf8"),
+  );
+  assert.match(filePayload.styles.join("\n"), /--primary:#0057b8/);
+  assert.match(filePayload.script, /Plain company theme/);
+
+  const selfContained = await invoke(
+    [
+      "Home.jsx",
+      "--theme",
+      "../brand/company-theme.jsx",
+      "--self-contained",
+      "--output",
+      "CompanyOffline.html",
+    ],
+    { cwd: app },
+  );
+  assert.equal(selfContained.exitCode, 0, selfContained.stderr);
+  const offlinePayload = readEmbeddedPayload(
+    await readFile(path.join(app, "CompanyOffline.html"), "utf8"),
+  );
+  assert.equal(offlinePayload.importMap, undefined);
+  assert.match(offlinePayload.styles.join("\n"), /outline-width:7px/);
+  assert.match(offlinePayload.script, /Company panel/);
+});
+
+test("rejects invalid theme inputs before mutating output", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "Home.jsx": `export default () => <main>Theme failure</main>;`,
+    "base.ts": defaultDefinition,
+    "invalid.ts": `import base from "./base.ts";
+export default { ...base, colors: { ...base.colors, primary: "invalid" } };`,
+    "unsupported.tsx": "export default {};",
+    "site/keep.txt": "preserve",
+  });
+
+  const invalid = await invoke(
+    ["Home.jsx", "--theme", "invalid.ts", "--out-dir", "site", "--force"],
+    { cwd: fixture },
+  );
+  assert.equal(invalid.exitCode, 1);
+  assert.match(invalid.stderr, /invalid semantic color: primary/);
+  assert.equal(
+    await readFile(path.join(fixture, "site/keep.txt"), "utf8"),
+    "preserve",
+  );
+
+  const unknown = await invoke(["Home.jsx", "--theme", "missing"], {
+    cwd: fixture,
+  });
+  assert.equal(unknown.exitCode, 1);
+  assert.match(unknown.stderr, /Unknown theme: missing/);
+  assert.match(unknown.stderr, /yolojsx themes/);
+
+  const unsupported = await invoke(["Home.jsx", "--theme", "unsupported.tsx"], {
+    cwd: fixture,
+  });
+  assert.equal(unsupported.exitCode, 1);
+  assert.match(unsupported.stderr, /must be a .ts or .jsx file/);
+
+  const removedCss = await invoke(["Home.jsx", "--css", "custom.css"], {
+    cwd: fixture,
+  });
+  assert.equal(removedCss.exitCode, 1);
+  assert.match(removedCss.stderr, /Unknown option: --css/);
 });
 
 test("lists themes and resolves aliases through the CLI", async (t) => {

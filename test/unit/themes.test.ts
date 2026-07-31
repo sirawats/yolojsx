@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { theme as antTheme } from "antd";
 import {
   createThemeRuntime,
@@ -17,6 +19,11 @@ import {
   resolveTheme,
   validateThemeCatalog,
 } from "../../src/themes.js";
+
+const repository = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "../..",
+);
 
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -123,6 +130,22 @@ test("validates the complete immutable theme catalog", async () => {
         values.foreground,
       );
     }
+  }
+});
+
+test("stores every bundled preset as a checked JSX manifest", async () => {
+  const themeDirectory = path.join(repository, "src/themes");
+  const presetFiles = (await readdir(themeDirectory))
+    .filter((filename) => filename !== "foundation.css")
+    .sort();
+  assert.equal(presetFiles.length, FIXED_THEMES.length);
+  assert.ok(presetFiles.every((filename) => filename.endsWith(".jsx")));
+  for (const filename of presetFiles) {
+    assert.match(
+      await readFile(path.join(themeDirectory, filename), "utf8"),
+      /@satisfies \{import\("\.\.\/themes\.js"\)\.ThemeDefinition\}/,
+      filename,
+    );
   }
 });
 

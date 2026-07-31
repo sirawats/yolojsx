@@ -11,7 +11,7 @@
 [![License][license-image]][license-url]
 
 **yolojsx** is a CLI tool for creating a portable, interactive **HTML Artifact** from
-a `.jsx` file. It lets AI agents write artifacts in JSX and take advantage of
+a `.jsx` or `.tsx` file. It lets AI agents write artifacts in JSX and take advantage of
 reusable React components, Ant Design, Tailwind CSS, React Icons, and
 PrismJS. Users and AI agents do not need to worry about the build—**yolojsx**
 handles it for them.
@@ -138,10 +138,9 @@ Options:
   -o, --out-dir <path>  Build a directory instead of one HTML file
       --base <path>     Directory-mode public base path (default: ./)
       --self-contained  Embed runtime dependencies for offline use
-      --theme <preset>  Global theme preset (default: default)
+      --theme <value>   Global theme preset or .ts/.jsx module (default: default)
       --themes           List available theme names
       --prism-themes     List available Prism theme names
-      --css <path>      Custom CSS loaded after the preset
       --single-file     Deprecated alias for the default file mode
       --force           Replace an existing protected output
   -h, --help            Show this help
@@ -378,6 +377,46 @@ yolojsx Home.jsx --theme material-dark  # explicitly dark
 Other aliases include `github`, `solarized`, `gruvbox`, `everforest`,
 `catppuccin`, `obsidian-minimal`, `obsidian-baseline`, and `onedark`.
 
+Select a local TypeScript or JSX theme module for a product-specific visual
+system:
+
+```sh
+yolojsx Home.jsx --theme ./company-theme.jsx
+```
+
+The module default export is a declarative theme manifest. Named exports remain
+ordinary modules that an application can import explicitly:
+
+```jsx
+// company-theme.jsx
+import { Button } from "antd";
+
+export default {
+  id: "company",
+  // colors, typography, rhythm, component values, and provenance
+};
+
+export function CompanyAction({ children }) {
+  return <Button type="primary">{children}</Button>;
+}
+```
+
+```jsx
+// Home.jsx
+import { CompanyAction } from "./company-theme.jsx";
+
+export default () => <CompanyAction>Continue</CompanyAction>;
+```
+
+The default export must include the complete theme-definition fields used by
+built-in manifests. See
+[`amexgbt-theme.jsx`](amexgbt-theme.jsx) for a complete JSX example with named
+components. Custom theme modules do not appear in `yolojsx themes`.
+
+> [!IMPORTANT]
+> Theme modules are trusted local build-time code. Selecting one compiles and
+> executes its module graph before output is created.
+
 Application JSX needs no theme provider, theme CSS import, or page-level theme
 class. Let the document inherit global styling and use ordinary Ant Design
 props such as `type="primary"`, `danger`, and `disabled`.
@@ -390,29 +429,20 @@ Semantic Tailwind utilities are available when a layout needs explicit styling:
 - Status: `text-success`, `text-warning`, `text-danger`, `text-info`
 - Typography and shape: `font-sans`, `font-mono`, `rounded-md`
 
-### Custom CSS
+### Application CSS
 
-Load one local stylesheet after the selected preset:
+Import application-specific CSS through the normal JSX or TSX module graph:
 
-```sh
-yolojsx Home.jsx --theme material --css styles/application.css
-```
-
-It participates in the Tailwind v4 CSS-first graph:
-
-```css
-@theme {
-  --color-brand: #7346a8;
-}
-
-:root {
-  --primary: #7346a8;
-  --ring: #7346a8;
-}
+```tsx
+import "./styles/application.css";
 ```
 
 URLs stay relative to the stylesheet. Vite emits them in directory mode and
 embeds compatible local assets in packaged HTML.
+
+The former `--css` option has been removed. Move coordinated semantic and Ant
+Design values into a theme module; use ordinary CSS imports for remaining
+application rules.
 
 ## Browser and security notes
 

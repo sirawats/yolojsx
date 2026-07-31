@@ -78,7 +78,7 @@ interface AntTokens extends NonNullable<ThemeConfig["token"]> {
   colorPrimaryBorderHover: string;
 }
 
-interface ThemeDefinition {
+export interface ThemeDefinition {
   id: string;
   name: string;
   aliases?: string[];
@@ -471,7 +471,7 @@ function originalAdaptation(source: ThemeDefinition["source"]) {
   });
 }
 
-function fixedTheme(definition: ThemeDefinition): Theme {
+export function createTheme(definition: ThemeDefinition): Theme {
   const {
     id,
     name,
@@ -619,7 +619,7 @@ function deepFreeze<T>(value: T): T {
 
 export const DEFAULT_THEME_ID = "default";
 export const FIXED_THEMES = Object.freeze(
-  DEFINITIONS.map(fixedTheme).map(deepFreeze),
+  DEFINITIONS.map(createTheme).map(deepFreeze),
 );
 export const THEMES = FIXED_THEMES;
 
@@ -896,6 +896,10 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
   return true;
 }
 
+export function validateTheme(theme: Theme) {
+  return validateThemeCatalog([theme]);
+}
+
 const registry = new Map<string, Theme>();
 for (const theme of THEMES) {
   registry.set(theme.id, theme);
@@ -905,7 +909,7 @@ for (const theme of THEMES) {
 }
 
 export function resolveTheme(themeId = DEFAULT_THEME_ID) {
-  const theme = registry.get(themeId);
+  const theme = findTheme(themeId);
   if (!theme) {
     throw new YoloJsxError(
       `Unknown theme: ${themeId}. Run \`yolojsx themes\` to list available themes.`,
@@ -913,6 +917,10 @@ export function resolveTheme(themeId = DEFAULT_THEME_ID) {
     );
   }
   return theme;
+}
+
+export function findTheme(themeId: string) {
+  return registry.get(themeId);
 }
 
 export function renderThemeCatalog() {

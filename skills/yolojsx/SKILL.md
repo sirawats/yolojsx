@@ -83,8 +83,8 @@ The copied examples are complete runnable references. Their shared
   generated output already supplies the theme boundary.
 - Do not use icons as the only accessible label. Mark decorative icons hidden
   from assistive technology and label icon-only controls.
-- Treat JSX and custom CSS as trusted local code, but validate user-entered
-  values and never expose secrets in a portable artifact.
+- Treat JSX theme modules and imported CSS as trusted local code, but
+  validate user-entered values and never expose secrets in a portable artifact.
 - Allow remote fonts, images, and intentional API calls when useful. Add one
   meaningful fallback when a remote resource is essential; avoid fallback
   boilerplate for every enhancement.
