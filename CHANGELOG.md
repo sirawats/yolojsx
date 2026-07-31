@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.7 - 2026-07-31
+
 - Add local `.ts` and `.jsx` modules to `--theme`, using their validated default
   manifests for semantic CSS and Ant Design while allowing explicitly imported
   named component exports.
