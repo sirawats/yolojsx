@@ -10,23 +10,31 @@
 [![Node.js version][node-image]][node-url]
 [![License][license-image]][license-url]
 
-Turn one JSX component into one portable, interactive HTML app.
+**yolojsx** is a CLI tool for creating a portable, interactive **HTML Artifact** from
+a `.jsx` file. It lets AI agents write artifacts in JSX and take advantage of
+reusable React components, Ant Design, Tailwind CSS, React Icons, and
+PrismJS. Users and AI agents do not need to worry about the build—**yolojsx**
+handles it for them.
 
-**No frontend project. No Vite config. No deployment required.**
+By default, it produces one shareable `.html` file starting at about **15 KB**.
 
-Write compact JSX with React, Tailwind CSS, Ant Design, React Icons, and
-PrismJS already available. yolojsx builds it into an HTML file you can open,
-upload, or send to someone.
-
-**Easy and simple**
+**One CLI command**
 
 ```
 npx yolojsx Artifact.jsx --output artifact.html
 ```
 
-➡️ Give you a .html file with fully React interactive UI start from **15 KB**.
+**Or use it with a skill**
+
+```
+/yolojsx Create an easy-to-read documentation guide I can send to my colleague.
+```
+
+➡️ Get a portable, interactive HTML artifact in one `.html` file.
 
 [See examples at website](https://sirawats.github.io/yolojsx/)
+
+_Powered by React, Tailwind CSS, Ant Design, React Icons, and PrismJS._
 
 ## AI agent skill
 
@@ -118,7 +126,7 @@ Requires Node.js `^20.19.0` or `>=22.12.0`.
 ## CLI
 
 ```text
-Usage: yolojsx <entry.jsx> [options]
+Usage: yolojsx <entry.jsx|entry.tsx> [options]
        yolojsx themes | yolojsx --themes
        yolojsx prism-themes | yolojsx --prism-themes
        yolojsx pack <directory> --output <file.html> [options]
@@ -222,25 +230,29 @@ contract, supplied packages, themes, and output modes.
 
 ## Examples
 
-| Example                                         | Theme              | Demonstrates                                       |
-| :---------------------------------------------- | :----------------- | :------------------------------------------------- |
-| [Techspec.jsx](examples/Techspec.jsx)           | `github`           | Technical RFC, requirements, architecture, rollout |
-| [APIDocs.jsx](examples/APIDocs.jsx)             | `github-dark`      | Interactive endpoint reference and code samples    |
-| [TaxCalculator.jsx](examples/TaxCalculator.jsx) | `material`         | Stateful progressive tax calculator                |
-| [SaaS.jsx](examples/SaaS.jsx)                   | `catppuccin`       | Product preview and responsive pricing             |
-| [Analytics.jsx](examples/Analytics.jsx)         | `one-dark`         | Operational metrics and service health             |
-| [Editorial.jsx](examples/Editorial.jsx)         | `obsidian-minimal` | Long-form reading and typographic rhythm           |
+| Example                                               | Theme                | Demonstrates                                           |
+| :---------------------------------------------------- | :------------------- | :----------------------------------------------------- |
+| [APITestReport.jsx](examples/APITestReport.jsx)       | `github`             | Filterable API failures and request/response evidence  |
+| [CodeReviewReport.jsx](examples/CodeReviewReport.jsx) | `github-dark-dimmed` | Actionable findings, severity filters, suggested diffs |
+| [SetupGuide.jsx](examples/SetupGuide.jsx)             | `gruvbox`            | Guided setup checklist, commands, troubleshooting      |
+| [Techspec.jsx](examples/Techspec.jsx)                 | `github`             | Technical RFC, requirements, architecture, rollout     |
+| [APIDocs.jsx](examples/APIDocs.jsx)                   | `github-dark`        | Interactive endpoint reference and code samples        |
+| [TaxCalculator.jsx](examples/TaxCalculator.jsx)       | `material`           | Stateful progressive tax calculator                    |
+| [SaaS.jsx](examples/SaaS.jsx)                         | `catppuccin`         | Product preview and responsive pricing                 |
+| [Analytics.jsx](examples/Analytics.jsx)               | `one-dark`           | Operational metrics and service health                 |
+| [Editorial.jsx](examples/Editorial.jsx)               | `obsidian-minimal`   | Long-form reading and typographic rhythm               |
 
 Try one from a repository clone:
 
 ```sh
-node bin/yolojsx.js examples/APIDocs.jsx --theme github-dark
+npm run build
+node lib/bin.js examples/APIDocs.jsx --theme github-dark
 ```
 
 ## Component contract
 
-The entry must be a readable `.jsx` module with a default-exported React
-component. Relative imports resolve from the entry file.
+The entry must be a readable `.jsx` or `.tsx` module with a default-exported
+React component. Relative imports resolve from the entry file.
 
 ```jsx
 import { Button, Card } from "antd";

@@ -30,7 +30,7 @@ Apply these in order:
    revising JSX.
 3. Read the closest complete example from the routing guide below. Read a second
    only when the requested artifact combines two patterns.
-4. Prefer one self-contained `.jsx` entry with a default-exported component.
+4. Prefer one self-contained `.jsx` or `.tsx` entry with a default-exported component.
    Split local components only when repetition or complexity makes the entry
    harder to understand.
 5. Use static markup for static content. Add React state only for interaction
@@ -53,12 +53,18 @@ branding or content.
 
 - API reference, request explorer, copyable or highlighted code:
   [examples/APIDocs.jsx](examples/APIDocs.jsx)
+- API test results, failure triage, or request and response evidence:
+  [examples/APITestReport.jsx](examples/APITestReport.jsx)
 - Operational dashboard, metrics, filters, charts, or status tables:
   [examples/Analytics.jsx](examples/Analytics.jsx)
+- Code review findings, severity filters, or suggested diffs:
+  [examples/CodeReviewReport.jsx](examples/CodeReviewReport.jsx)
 - Long-form article, report, or highly readable narrative:
   [examples/Editorial.jsx](examples/Editorial.jsx)
 - Product landing page, feature presentation, or interactive pricing:
   [examples/SaaS.jsx](examples/SaaS.jsx)
+- Setup guide, procedural checklist, copyable commands, or troubleshooting:
+  [examples/SetupGuide.jsx](examples/SetupGuide.jsx)
 - Form, calculator, validation, derived totals, or breakdown table:
   [examples/TaxCalculator.jsx](examples/TaxCalculator.jsx)
 - RFC, technical specification, requirements matrix, or implementation plan:

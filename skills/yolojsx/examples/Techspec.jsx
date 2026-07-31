@@ -217,7 +217,7 @@ export default function Techspec() {
               className="mt-5"
               type="warning"
               showIcon
-              message="Decision: approve implementation behind a feature flag"
+              title="Decision: approve implementation behind a feature flag"
               description="Production rollout remains blocked until a multi-region drill proves that revocation reaches every region within 60 seconds."
             />
 
@@ -348,7 +348,7 @@ export default function Techspec() {
             <Alert
               type="error"
               showIcon
-              message="Primary risk: revocation propagation is not yet proven"
+              title="Primary risk: revocation propagation is not yet proven"
               description="The architecture is not production-ready until AUTH-02 passes under realistic cross-region delay and partial-failure conditions."
             />
             <div className="mt-5 grid gap-3">

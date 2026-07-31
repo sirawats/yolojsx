@@ -59,17 +59,17 @@ The CLI SHALL define one exact-version CDN mapping for the supported external ru
 
 ### Requirement: Supplied React Icons and Prism packages
 
-The CLI SHALL make the package's supported `react-icons` collection imports, `prismjs` runtime and language-module imports, and discovered PrismJS and `prism-themes` stylesheets available to JSX entries without requiring those packages to be installed beside the input file.
+The CLI SHALL make the package's supported `react-icons` collection imports, `prismjs` runtime, language-module and plugin imports, and discovered PrismJS and `prism-themes` stylesheets available to JSX entries without requiring those packages to be installed beside the input file.
 
 #### Scenario: Entry imports a React Icons collection
 
 - **WHEN** an entry imports a named icon from a supported collection such as `react-icons/lu` and the input project has no local React Icons installation
 - **THEN** the build succeeds using the React Icons package supplied by yolojsx and the rendered application includes the icon
 
-#### Scenario: Entry imports PrismJS and language definitions
+#### Scenario: Entry imports PrismJS language definitions and plugins
 
-- **WHEN** an entry imports PrismJS and the language definitions required by its code samples and the input project has no local PrismJS installation
-- **THEN** the build succeeds using the PrismJS package supplied by yolojsx and the rendered application includes the highlighted code
+- **WHEN** an entry imports PrismJS, the language definitions required by its code samples, and the line-numbers plugin with its stylesheet while the input project has no local PrismJS installation
+- **THEN** the build succeeds using the PrismJS package supplied by yolojsx and the rendered application includes highlighted code with theme-aligned line numbers
 
 #### Scenario: Entry selects a Prism theme
 

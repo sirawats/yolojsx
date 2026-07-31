@@ -182,7 +182,7 @@ export default function Analytics() {
           <Alert
             type="warning"
             showIcon
-            message="Checkout latency needs attention"
+            title="Checkout latency needs attention"
             description="Checkout API is the only degraded service shown: p95 latency is 842 ms, up 18% in this illustrative snapshot. Search index remains on watch."
             className="mb-4"
           />

@@ -40,7 +40,7 @@ npm run pack:check
 npm run verify:package
 ```
 
-Use `node bin/yolojsx.js examples/TaxCalculator.jsx` for a manual default-output smoke
+Use `npm run build && node lib/bin.js examples/TaxCalculator.jsx` for a manual default-output smoke
 test. It creates `TaxCalculator.html`, which is ignored. Use `--out-dir dist` to exercise
 directory output.
 
@@ -84,7 +84,7 @@ Tests use `node:test` and `node:assert/strict`.
 - Add unit tests for pure parsing, validation, and transformation logic.
 - Add integration tests for CLI builds, diagnostics, filesystem safety,
   generated assets, or package behavior.
-- Use the fixture helpers in `test/helpers.js`.
+- Use the fixture helpers in `test/helpers.ts`.
 - Register fixture cleanup with `t.after(...)`.
 - Preserve the output ownership marker and destructive-path protections.
 - Run `npm run verify` before submitting.

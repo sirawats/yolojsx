@@ -18,7 +18,7 @@ The website SHALL discover default-exported JSX modules from `examples/` at buil
 #### Scenario: Add a packaged example
 
 - **WHEN** a new default-exported JSX file is added to `examples/`
-- **THEN** the next website build includes it without changing `website/index.jsx`
+- **THEN** the next website build includes it without changing `website/index.tsx`
 
 ### Requirement: Interactive example preview
 
@@ -65,4 +65,4 @@ The website SHALL derive its theme controls from the canonical theme catalog, pa
 #### Scenario: Catalog gains a preset
 
 - **WHEN** a preset is added to the canonical theme catalog
-- **THEN** the next website build exposes it without adding a theme mapping to `website/index.jsx`
+- **THEN** the next website build exposes it without adding a theme mapping to `website/index.tsx`

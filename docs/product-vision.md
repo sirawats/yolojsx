@@ -17,7 +17,33 @@ Markdown file, a paginated PDF, or an ad hoc generated website.
 
 ## Why the Product Exists
 
-The product comes from recurring cases where the information matters more than
+Technical users already ask coding agents to test APIs, investigate systems,
+write guidelines, and produce technical documentation. The work becomes
+awkward when its results need to be delivered to other people:
+
+- **Markdown** is portable and efficient for an agent to write, but dense
+  technical reports can be difficult to navigate, scan, and explore.
+- **PDF** is familiar and easy to share, but pagination interrupts the reading
+  flow and makes useful interaction such as navigation, filtering, and
+  expandable JSON or code details difficult.
+- **Hand-generated HTML** can provide those interactions, but repeatedly
+  generating structure, styles, and behavior consumes agent tokens. Without
+  reusable components and themes, the result is also harder to keep polished
+  and visually consistent.
+- **A conventional frontend project** provides reuse and structure, but its
+  scaffolding, dependencies, build configuration, and deployment are excessive
+  when the goal is to share one bounded artifact.
+
+The core pain is the lack of a low-friction format for agent-authored technical
+content that is portable, human-readable, interactive, efficient to generate,
+and visually consistent. yolojsx fills that gap with an agent-facing JSX
+authoring contract and a human-facing application that can normally be shared
+as one HTML file.
+
+The initial use case was an API test report written by the same coding agent
+that performed the tests. The report needed to help an engineering team
+understand failures, navigate findings, and reveal detailed JSON only when
+needed. The same problem recurs anywhere the information matters more than
 maintaining a web project:
 
 - **API test reports:** preserve a continuous reading flow, expose details on

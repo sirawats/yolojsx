@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## 0.1.6 - 2026-07-31
+
+- Rewrite the CLI, website, scripts, and tests in TypeScript while keeping the
+  bundled examples as JSX, and accept TSX application entries.
+- Give borderless Material Light cards a distinct tonal surface.
+- Keep normal Ant Design progress and interaction accents on each preset's
+  brand palette while preserving focus, selection, link, and status colors.
+- Keep shared Ant Design interaction borders, including enabled sliders,
+  visibly distinct from disabled states across dark themes.
+- Keep disabled Ant Design menu items visually distinct from enabled items.
+- Keep explicit dark menus on dark presets aligned with each preset instead of
+  Ant Design's built-in navy surfaces.
+- Add an exhaustive Ant Design component showcase for reviewing theme states.
+- Add API test report, internal setup guide, and code review report examples
+  centered on actionable, human-readable agent output.
+- Keep fragment navigation inside the website's isolated example preview.
+- Keep PrismJS line-number gutters aligned with themed code typography in every
+  generated artifact and document the supported plugin pattern for AI agents.
+
 ## 0.1.5 - 2026-07-29
 
 - **Breaking:** make direct HTML builds load exact-version React and Ant Design
