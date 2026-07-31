@@ -35,9 +35,10 @@ Apply these in order:
    harder to understand.
 5. Use static markup for static content. Add React state only for interaction
    that improves exploration, comparison, validation, or task completion.
-6. Let the selected yolojsx theme handle global styling. Use Ant Design for
-   interactive components and Tailwind utilities for layout and focused
-   adjustments.
+6. Let the selected yolojsx theme handle global styling. When using or creating
+   custom theme modules, read [references/use-custom-theme.md](references/use-custom-theme.md).
+   Use Ant Design for interactive components and Tailwind utilities for layout and
+   focused adjustments.
 7. When the user wants a built artifact, needs an output-mode decision, or has a
    CLI/build failure, read [references/cli.md](references/cli.md), run the
    smallest relevant build, and fix actionable diagnostics.
