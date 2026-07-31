@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-
 ## 0.1.6 - 2026-07-31
 
 - Rewrite the CLI, website, scripts, and tests in TypeScript while keeping the
