@@ -36,6 +36,9 @@ import {
 import Prism from "prismjs";
 // @ts-expect-error PrismJS does not publish declarations for language modules.
 import "prismjs/components/prism-jsx";
+// @ts-expect-error PrismJS does not publish declarations for plugins.
+import "prismjs/plugins/line-numbers/prism-line-numbers";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 import packageJson from "../package.json" with { type: "json" };
 import { THEMES, renderThemeCss, type Theme } from "../src/themes.js";
 import logo from "../assets/yolo_chihuahua_sticker.png";
@@ -43,7 +46,7 @@ import logo from "../assets/yolo_chihuahua_sticker.png";
 const { version } = packageJson;
 
 export const YOLOJSX = {
-  title: "yolojsx — Build React JSX into portable HTML apps",
+  title: "yolojsx — Create portable HTML Artifacts from JSX",
   icon: logo,
   prismTheme: "prism",
 };
@@ -164,6 +167,11 @@ export default function App() {
 
 const highlightJsx = (code: string) =>
   Prism.highlight(code, Prism.languages.jsx, "jsx");
+
+// The line-numbers plugin hook runs through highlightElement(), not highlight().
+const highlightCodeElement = (element: HTMLElement | null) => {
+  if (element) Prism.highlightElement(element);
+};
 
 function ThemePicker({
   themeFamilies,
@@ -437,16 +445,17 @@ export default function Website() {
             className="mb-6"
           />
           <Typography.Title className="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
-            Build React JSX into portable HTML apps.
+            Create a portable HTML Artifact from JSX.
           </Typography.Title>
           <Typography.Paragraph
             type="secondary"
             className="text-xl leading-relaxed max-w-2xl mx-auto mb-8"
           >
-            Zero configuration. Turn any single{" "}
+            Let AI agents write artifacts in{" "}
             <code className="bg-code px-2 py-1 rounded text-primary">.jsx</code>{" "}
-            component into a portable compressed HTML application with React 19,
-            Tailwind CSS v4, and Ant Design 6.
+            and take advantage of reusable React components, Ant Design,
+            Tailwind CSS, React Icons, and PrismJS. Users and AI agents do not
+            need to worry about the build—yolojsx handles it for them.
           </Typography.Paragraph>
 
           {/* Terminal Command Box */}
@@ -713,13 +722,14 @@ export default function Website() {
                         {codeCopied ? "Copied! ✓" : "Copy Code"}
                       </Button>
                     </div>
-                    <pre className="language-jsx max-h-[500px] overflow-auto text-foreground font-mono text-xs leading-relaxed p-2">
+                    <pre className="language-jsx line-numbers max-h-[500px] overflow-auto text-foreground font-mono text-xs leading-relaxed p-2">
                       <code
+                        key={activeExample.id}
+                        ref={highlightCodeElement}
                         className="language-jsx"
-                        dangerouslySetInnerHTML={{
-                          __html: highlightJsx(activeExample.code),
-                        }}
-                      />
+                      >
+                        {activeExample.code}
+                      </code>
                     </pre>
                   </div>
                 )}

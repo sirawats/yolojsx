@@ -106,6 +106,11 @@ The CLI-managed stylesheet graph SHALL make the selected preset available throug
 - **WHEN** an entry renders semantic headings, paragraphs, links, code, selection, and focusable controls without theme classes
 - **THEN** the generated application applies the selected preset's appropriate typography, foreground, interaction, code, selection, and focus styling
 
+#### Scenario: PrismJS line numbers inherit code typography
+
+- **WHEN** an entry activates PrismJS's `line-numbers` plugin on a code block
+- **THEN** the generated line-number gutter inherits the code block's font metrics under every selected preset
+
 #### Scenario: Conventional semantic Tailwind utility
 
 - **WHEN** an entry needs an explicit muted foreground or themed surface

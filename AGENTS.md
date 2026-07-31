@@ -127,9 +127,8 @@ Run it locally before handing work off.
   dependencies.
 - Prefer standard, maintainable solutions over awkward or impractical
   workarounds.
-- Prefer a clean core change over a website/example workaround when the behavior
-  belongs to `yolojsx`; improve the core when that produces cleaner architecture,
-  better developer experience, or better user experience.
+- Fix shared behavior at its `yolojsx` root; do not patch `website/` or an
+  example unless the bug is specific to that page.
 - Preserve input-project resolution, Vite-config isolation, package aliases,
   theme application, and React/Tailwind/Ant Design integration unless the public
   specification explicitly changes.

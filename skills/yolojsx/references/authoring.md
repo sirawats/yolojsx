@@ -99,6 +99,29 @@ For a dynamic language selector, import every offered grammar and handle a
 missing grammar before calling `Prism.highlight()`. Insert only HTML returned by
 Prism into `dangerouslySetInnerHTML`; do not append unescaped HTML.
 
+For line numbers, import PrismJS's plugin and stylesheet, put `line-numbers` on
+the `<pre>`, and use `Prism.highlightElement()` so the plugin hook runs. yolojsx
+themes keep the generated gutter aligned with the code typography.
+
+```jsx
+import "prismjs/plugins/line-numbers/prism-line-numbers";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
+
+const highlightCode = (element) => {
+  if (element) Prism.highlightElement(element);
+};
+
+function NumberedCode({ source }) {
+  return (
+    <pre className="language-json line-numbers overflow-x-auto" tabIndex={0}>
+      <code key={source} ref={highlightCode} className="language-json">
+        {source}
+      </code>
+    </pre>
+  );
+}
+```
+
 ## Theme usage
 
 Let native elements inherit the theme and let Ant Design style its own

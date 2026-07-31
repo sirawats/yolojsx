@@ -10,23 +10,31 @@
 [![Node.js version][node-image]][node-url]
 [![License][license-image]][license-url]
 
-Turn one JSX component into one portable, interactive HTML app.
+**yolojsx** is a CLI tool for creating a portable, interactive **HTML Artifact** from
+a `.jsx` file. It lets AI agents write artifacts in JSX and take advantage of
+reusable React components, Ant Design, Tailwind CSS, React Icons, and
+PrismJS. Users and AI agents do not need to worry about the build—**yolojsx**
+handles it for them.
 
-**No frontend project. No Vite config. No deployment required.**
+By default, it produces one shareable `.html` file starting at about **15 KB**.
 
-Write compact JSX with React, Tailwind CSS, Ant Design, React Icons, and
-PrismJS already available. yolojsx builds it into an HTML file you can open,
-upload, or send to someone.
-
-**Easy and simple**
+**One CLI command**
 
 ```
 npx yolojsx Artifact.jsx --output artifact.html
 ```
 
-➡️ Give you a .html file with fully React interactive UI start from **15 KB**.
+**Or use it with a skill**
+
+```
+/yolojsx Create an easy-to-read documentation guide I can send to my colleague.
+```
+
+➡️ Get a portable, interactive HTML artifact in one `.html` file.
 
 [See examples at website](https://sirawats.github.io/yolojsx/)
+
+_Powered by React, Tailwind CSS, Ant Design, React Icons, and PrismJS._
 
 ## AI agent skill
 

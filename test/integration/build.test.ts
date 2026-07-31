@@ -90,15 +90,23 @@ test("builds apps using supplied icons and Prism packages without local installa
     "App.jsx": `import { LuCalculator } from "react-icons/lu";
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
+import "prismjs/plugins/line-numbers/prism-line-numbers";
+import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 
 export const YOLOJSX = { prismTheme: "prism" };
 
+const highlightCode = (element) => {
+  if (element) Prism.highlightElement(element);
+};
+
 export default function App() {
-  const code = Prism.highlight('{"tax":100}', Prism.languages.json, "json");
+  const code = '{"tax":100}';
   return (
     <main className="supplied-dep-test">
       <LuCalculator />
-      <pre dangerouslySetInnerHTML={{ __html: code }} />
+      <pre className="language-json line-numbers">
+        <code ref={highlightCode} className="language-json">{code}</code>
+      </pre>
     </main>
   );
 }`,
@@ -110,13 +118,19 @@ export default function App() {
   assert.equal(dirResult.exitCode, 0, dirResult.stderr);
   const output = path.join(fixture, "dist");
   const javascript = await readAsset(output, ".js");
+  const stylesheet = await readAsset(output, ".css");
   assert.match(javascript, /supplied-dep-test/);
   assert.match(javascript, /tax/);
+  assert.match(javascript, /line-numbers-rows/);
   assert.match(javascript, /yolojsxPrismTheme/);
   assert.match(javascript, /@layer components/);
   assert.match(javascript, /background:\s*transparent/);
   assert.match(javascript, /token\.keyword/);
   assert.match(javascript, /#f5f2f0/);
+  assert.match(
+    stylesheet,
+    /pre\.line-numbers\s*>\s*code\s*\{[^}]*font:\s*inherit/,
+  );
 
   const fileResult = await invoke(["App.jsx", "--output", "App.html"], {
     cwd: fixture,
@@ -126,9 +140,14 @@ export default function App() {
   const payload = readEmbeddedPayload(html);
   assert.match(payload.script, /supplied-dep-test/);
   assert.match(payload.script, /tax/);
+  assert.match(payload.script, /line-numbers-rows/);
   assert.match(payload.script, /yolojsxPrismTheme/);
   assert.match(payload.script, /token\.keyword/);
   assert.match(payload.script, /#f5f2f0/);
+  assert.match(
+    payload.styles.join("\n"),
+    /pre\.line-numbers\s*>\s*code\s*\{[^}]*font:\s*inherit/,
+  );
 });
 
 test("warns and uses the default Prism theme for an unknown name", async (t) => {

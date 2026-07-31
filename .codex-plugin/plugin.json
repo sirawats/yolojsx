@@ -1,6 +1,6 @@
 {
   "name": "yolojsx",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Build portable interactive HTML applications from compact JSX with yolojsx.",
   "author": { "name": "sirawats", "url": "https://github.com/sirawats" },
   "homepage": "https://github.com/sirawats/yolojsx",
