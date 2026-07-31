@@ -6,7 +6,7 @@ import process from "node:process";
 import { fileURLToPath } from "node:url";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
-import { createServer } from "vite";
+import { createServer, normalizePath } from "vite";
 import {
   createCoreAliases,
   resolvePackageImport,
@@ -27,6 +27,7 @@ const repository = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
+const themeRegistry = normalizePath(path.join(repository, "src/themes.ts"));
 
 async function startDevServer() {
   const entryArg = process.argv[2] || "website/index.tsx";
@@ -80,7 +81,7 @@ async function startDevServer() {
   const server = await createServer({
     root: workspace,
     configFile: false,
-    envFile: false,
+    envDir: false,
     publicDir: false,
     appType: "spa",
     server: {
@@ -90,6 +91,25 @@ async function startDevServer() {
       },
     },
     plugins: [
+      {
+        name: "yolojsx-source-themes",
+        enforce: "pre",
+        resolveId(source, importer) {
+          if (
+            importer !== themeRegistry ||
+            !source.startsWith("./themes/") ||
+            !source.endsWith(".js")
+          ) {
+            return null;
+          }
+          return normalizePath(
+            path.resolve(
+              path.dirname(importer),
+              source.replace(/\.js$/, ".jsx"),
+            ),
+          );
+        },
+      },
       createEntryPlugin(entry, theme, prismThemes, (message) => {
         process.stderr.write(`Warning: ${message}\n`);
       }),

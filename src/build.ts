@@ -122,7 +122,7 @@ export async function withTemporaryApplicationBuild<T>(
       root: workspace,
       base,
       configFile: false,
-      envFile: false,
+      envDir: false,
       publicDir: false,
       appType: "spa",
       logLevel: "silent",

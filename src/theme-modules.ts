@@ -58,7 +58,7 @@ export async function loadThemeModule(
     const result = await build({
       root: cwd,
       configFile: false,
-      envFile: false,
+      envDir: false,
       publicDir: false,
       appType: "custom",
       logLevel: "silent",
