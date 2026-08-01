@@ -47,7 +47,7 @@ The [Skills CLI](https://github.com/vercel-labs/skills) supports Codex, Claude
 Code, Gemini CLI, Antigravity, OpenCode, Cursor, and other coding agents:
 
 ```sh
-npx skills add sirawats/yolojsx --skill yolojsx
+npx skills add sirawats/yolojsx --skill yolojsx yolojsx-create-theme
 ```
 
 Add `--global` to make the skill available across projects.
