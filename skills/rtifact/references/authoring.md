@@ -57,6 +57,8 @@ produce a CLI warning.
   `danger`, `disabled`, and `Typography.Text type="secondary"`.
 - **Tailwind CSS v4:** responsive layout, spacing, sizing, and small utility
   adjustments. Prefer semantic utilities over hard-coded theme colors.
+  Write complete, statically discoverable class strings; map variants to static
+  strings instead of constructing classes such as `` `text-${tone}` ``.
 - **Rtifact themes:** global typography, surfaces, focus, selection, native
   elements, Ant Design tokens, and visual direction.
 - **React Icons:** recognizable supporting symbols. Import named icons from one

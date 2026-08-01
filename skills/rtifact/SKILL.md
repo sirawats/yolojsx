@@ -35,8 +35,10 @@ Apply these in order:
    harder to understand.
 5. Use static markup for static content. Add React state only for interaction
    that improves exploration, comparison, validation, or task completion.
-6. Let the selected Rtifact theme handle global styling. When using or creating
-   custom theme modules, read [references/use-custom-theme.md](references/use-custom-theme.md).
+6. Let the selected Rtifact theme handle global styling. When consuming an
+   existing custom theme, read [references/use-custom-theme.md](references/use-custom-theme.md).
+   When creating or revising one, use the `rtifact-create-theme` skill; read the
+   reference only when path, import, or runtime boundaries are relevant.
    Use Ant Design for interactive components and Tailwind utilities for layout and
    focused adjustments.
 7. When the user wants a built artifact, needs an output-mode decision, or has a

@@ -130,6 +130,13 @@ Run the smallest build matching the requested deliverable. Treat a successful
 build as the minimum check, then inspect the artifact in a supported browser
 when visual fidelity or interaction matters.
 
+The compact default loads exact-version runtimes from esm.sh. If it renders
+blank in an offline or network-restricted browser, check runtime requests before
+blaming the application. Use a temporary `--self-contained` build for offline
+inspection, but keep the user's requested output mode for the deliverable. If no
+browser tooling is available, verify the build and interaction paths from source,
+state the limitation, and do not claim visual correctness.
+
 When a build fails:
 
 1. Read the originating source path and diagnostic.

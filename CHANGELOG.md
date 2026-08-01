@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Update agent skills and reference documentation for custom theme creation, dual-export module patterns, Tailwind class generation, and offline CDN build troubleshooting.
+
 ## 1.0.0 - 2026-08-01
 
 - **Breaking:** rebrand the package, executable, plugins, skills, generated
