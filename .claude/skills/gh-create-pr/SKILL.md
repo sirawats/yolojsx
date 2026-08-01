@@ -7,6 +7,8 @@ description: Create GitHub pull requests with gh after reading repository PR tem
 
 ## Workflow
 
+Batch every independent read-only CLI inspection into one Bash tool call with newline-separated commands. Include `git`, `gh`, `rg`, and file-reading commands that can run with the inputs currently known; do not spend one tool call per command. When the diff reveals additional files to inspect, batch those reads into one follow-up Bash call. Keep state-changing operations such as fetch, push, temporary-file writes, and `gh pr create` separate.
+
 1. Establish the PR scope.
    - Require a Git repository, an authenticated `gh`, and a named current branch.
    - Use the user's target branch when provided; otherwise use `master`.
@@ -18,7 +20,7 @@ description: Create GitHub pull requests with gh after reading repository PR tem
    - Use the user's selected template. If there is one unambiguous default, use it. If multiple specialized templates apply and the choice changes the body, ask which one to use.
    - Treat the template as the body schema: preserve meaningful headings and required checklists, follow its comments, fill applicable fields, and remove irrelevant placeholder text.
 
-3. Inspect the committed branch delta, not only the working tree.
+3. Inspect the committed branch delta, not only the working tree. Run these and the read-only checks from steps 1-2 together in one Bash execution after resolving the base ref.
 
    ```bash
    git status --short
