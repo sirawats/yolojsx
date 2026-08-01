@@ -28,12 +28,12 @@ test("loads TypeScript and JSX theme definitions through Vite", async (t) => {
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
-    "base.ts": defaultDefinition,
-    "company.ts": `import base from "./base.ts";
+    "base.jsx": defaultDefinition,
+    "company.ts": `import base from "./base.js";
 export default { ...base, id: "company-ts", name: "Company TS", aliases: [] };`,
     "company.jsx": `import { Button } from "antd";
 import { LuPlane } from "react-icons/lu";
-import base from "./base.ts";
+import base from "./base.js";
 export function CompanyPanel() {
   return <Button><LuPlane aria-hidden="true" />Company</Button>;
 }

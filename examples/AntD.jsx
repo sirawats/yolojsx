@@ -31,7 +31,6 @@ import {
   Input,
   InputNumber,
   Layout,
-  List,
   Masonry,
   Mentions,
   Menu,
@@ -134,7 +133,6 @@ const CATALOG = {
     "Descriptions",
     "Empty",
     "Image",
-    "List",
     "Masonry",
     "Popover",
     "QRCode",
@@ -345,7 +343,7 @@ function Showcase() {
               <Tag>Flex two</Tag>
               <Tag>Flex three</Tag>
             </Flex>
-            <Divider orientation="left">Grid</Divider>
+            <Divider titlePlacement="left">Grid</Divider>
             <Row gutter={[8, 8]}>
               {[1, 2, 3, 4].map((value) => (
                 <Col key={value} xs={12} sm={6}>
@@ -358,7 +356,7 @@ function Showcase() {
             <Space
               className="mt-3"
               wrap
-              split={<Divider orientation="vertical" />}
+              separator={<Divider orientation="vertical" />}
             >
               <Typography.Text>Space</Typography.Text>
               <Typography.Text>with</Typography.Text>
@@ -768,25 +766,10 @@ function Showcase() {
           <Demo title="Timeline">
             <Timeline
               items={[
-                { color: "green", children: "Theme loaded" },
-                { color: "blue", children: "Components rendered" },
-                { color: "gray", children: "Visual review pending" },
+                { color: "green", content: "Theme loaded" },
+                { color: "blue", content: "Components rendered" },
+                { color: "gray", content: "Visual review pending" },
               ]}
-            />
-          </Demo>
-          <Demo title="List">
-            <List
-              bordered
-              dataSource={["Default state", "Selected state", "Disabled state"]}
-              renderItem={(item) => (
-                <List.Item actions={[<Button key="inspect">Inspect</Button>]}>
-                  <List.Item.Meta
-                    avatar={<Avatar>{item[0]}</Avatar>}
-                    title={item}
-                    description="Theme token sample"
-                  />
-                </List.Item>
-              )}
             />
           </Demo>
           <Demo title="Masonry">

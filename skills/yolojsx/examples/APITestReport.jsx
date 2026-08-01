@@ -261,7 +261,9 @@ export default function APITestReport() {
                   <Statistic
                     title="Passed"
                     value={tests.length - failures.length}
-                    valueStyle={{ color: "var(--color-success)" }}
+                    styles={{
+                      content: { color: "var(--color-success)" },
+                    }}
                   />
                 </Card>
               </Col>
@@ -270,7 +272,7 @@ export default function APITestReport() {
                   <Statistic
                     title="Failed"
                     value={failures.length}
-                    valueStyle={{ color: "var(--color-danger)" }}
+                    styles={{ content: { color: "var(--color-danger)" } }}
                   />
                 </Card>
               </Col>

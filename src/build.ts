@@ -8,6 +8,7 @@ import {
   createCdnImportMap,
   createCoreAliases,
   isCdnExternalImport,
+  jsxSourcePlugin,
   resolvePackageImport,
 } from "./dependencies.js";
 import { formatError, YoloJsxError } from "./errors.js";
@@ -127,6 +128,7 @@ export async function withTemporaryApplicationBuild<T>(
       appType: "spa",
       logLevel: "silent",
       plugins: [
+        jsxSourcePlugin,
         createEntryPlugin(entry, theme, prismThemes, onWarning),
         react(),
         tailwindcss(),

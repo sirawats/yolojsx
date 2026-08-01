@@ -254,17 +254,19 @@ export default function SaaS() {
                 <label htmlFor="team-size" className="mb-2 block font-semibold">
                   Team size
                 </label>
-                <InputNumber
-                  id="team-size"
-                  min={1}
-                  max={500}
-                  value={teamSize}
-                  onChange={(value) =>
-                    typeof value === "number" && setTeamSize(value)
-                  }
-                  className="w-full"
-                  addonAfter="people"
-                />
+                <Space.Compact block>
+                  <InputNumber
+                    id="team-size"
+                    min={1}
+                    max={500}
+                    value={teamSize}
+                    onChange={(value) =>
+                      typeof value === "number" && setTeamSize(value)
+                    }
+                    className="w-full"
+                  />
+                  <Button disabled>people</Button>
+                </Space.Compact>
               </div>
               <div role="group" aria-labelledby="billing-label">
                 <div id="billing-label" className="mb-2 font-semibold">

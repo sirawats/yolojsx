@@ -1,7 +1,7 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { build, normalizePath, type Plugin } from "vite";
-import { createCoreAliases } from "./dependencies.js";
+import { createCoreAliases, jsxSourcePlugin } from "./dependencies.js";
 import { formatError, YoloJsxError } from "./errors.js";
 import { resolveAndValidateThemeModule } from "./paths.js";
 import {
@@ -62,7 +62,7 @@ export async function loadThemeModule(
       publicDir: false,
       appType: "custom",
       logLevel: "silent",
-      plugins: [createThemeModulePlugin(themeSource), react()],
+      plugins: [jsxSourcePlugin, createThemeModulePlugin(themeSource), react()],
       resolve: {
         alias: createCoreAliases(),
         dedupe: ["react", "react-dom"],
