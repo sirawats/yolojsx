@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.1 - 2026-08-01
+
+- Update agent skills and reference documentation for custom theme creation, dual-export module patterns, Tailwind class generation, and offline CDN build troubleshooting.
+- Add Demo GIF showcase and section emojis to `README.md`.
+
 ## 1.0.0 - 2026-08-01
 
 - **Breaking:** rebrand the package, executable, plugins, skills, generated

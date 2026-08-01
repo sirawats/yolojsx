@@ -1,174 +1,188 @@
 ---
 name: rtifact-create-theme
-description: Create, revise, build, and evaluate custom Rtifact theme modules (.jsx or .tsx) that give portable HTML artifacts a coherent brand through a theme definition (default export) and optional reusable components (named exports) derived from website inspection or design specifications.
+description: Create, revise, build, and validate custom Rtifact theme modules (.ts or .jsx) from screenshots, websites, brand assets, or design specifications. Use when Codex must derive a palette and visual system, author a valid ThemeDefinition default export, add optional branded React components, or fix custom-theme provenance, schema, contrast, or build errors.
 ---
 
 # Rtifact theme creator
 
-Create one compact theme module that gives Rtifact artifacts coherent global styling and, when useful, reusable branded React components.
+Create one compact theme module that gives Rtifact artifacts coherent global styling. Export a valid theme definition by default; add named React components only when the artifact will actually reuse them.
 
-## Goal
+## Required workflow
 
-Enable AI agents to inspect a website or ingest brand design specifications and construct a single-file custom theme module (`<brand>-theme.jsx`) for readable, portable artifacts. The generated module fulfills two roles simultaneously:
+1. Inspect the supplied visual or textual source. For images, sample or estimate colors from representative large regions; treat small highlights as decorative until they pass the semantic contrast contract. Extract canvas, surfaces, text, muted text, primary control, accent, link, focus, selection, status, typography, radius, and shadow choices.
+2. When named brand components are needed, also extract only the relevant logo treatment, navigation and mobile behavior, hero/callout layout, footer/legal pattern, and responsive states.
+3. Choose semantic colors by role, not by visual prominence. A brand color may be decorative without being safe for controls or text.
+4. Read the contract and contrast matrix in the complete example below before writing the module.
+5. Keep the default export free of browser globals and secrets. Named components may use React hooks normally.
+6. Import named components from the theme module in the artifact; `--theme` applies only the default export.
+7. Build with `rtifact App.jsx --theme ./brand-theme.jsx --output App.html`. Fix every diagnostic and rebuild until it succeeds.
+8. Inspect the rendered artifact when visual fidelity matters. A successful build proves compatibility, not visual quality.
 
-1. **`default export`**: A `ThemeDefinition` object consumed by the `rtifact --theme` CLI flag to configure global CSS variables, typography, component tokens, status colors, and Ant Design algorithms.
-2. **`named exports`**: Optional reusable React components (`<Brand>Nav`, `<Brand>Footer`, `<Brand>Hero`, `<Brand>Section`, `<Brand>Callout`, `<Brand>Page`) imported directly by artifact `.jsx` sources.
+## Complete minimum theme
 
----
-
-## Target Extraction Outputs (Website / Design Inspection)
-
-Agents may use any available tool capability (browser automation, HTTP fetch, CSS parsing, screenshot analysis, or direct specification text) to extract the following design elements:
-
-| Output Area                 | Extracted Details                                                                                                                                         |
-| --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Color Schema**            | Primary brand hex, dark surface/navy hex, light canvas background, accent/highlight hex, link colors, and status colors (success, warning, danger, info). |
-| **Typography**              | Primary sans-serif font stack, monospaced font stack, heading weights (e.g., 600), line height, letter-spacing (e.g., `-0.02em`).                         |
-| **Geometry & Surfaces**     | Border radii (small, medium, large/pill `1.5rem`), card border widths, shadow elevations, control heights.                                                |
-| **Header / Nav Bar**        | Logo appearance/URL, navigation links layout, support/contact badges, CTA button style, mobile drawer behavior.                                           |
-| **Footer**                  | Background color, column layout structure, social links, legal disclaimers, copyright text.                                                               |
-| **Callout / Hero Patterns** | Distinctive background gradients, full-width section paddings, callout card shapes.                                                                       |
-
----
-
-## Single-File Dual Export Architecture
-
-A `rtifact` custom theme is authored in a single `.jsx` or `.tsx` file:
+Every field shown below is required unless marked optional. Do not replace required values with comments or ellipses.
 
 ```jsx
-// <brand>-theme.jsx
-
-import { useState } from "react";
-import { Button, Drawer, Space } from "antd";
-import { LuMenu, LuX } from "react-icons/lu";
-
-// 1. Internal Brand Design Tokens
-const BRAND = {
-  navy: "#00175a",
-  blue: "#006fcf",
-  canvas: "#f0f4fa",
-  white: "#ffffff",
-  border: "#c8d4e6",
+const C = {
+  canvas: "#0b0f14",
+  surface: "#141a22",
+  raised: "#1c2430",
+  text: "#f4f0e6",
+  muted: "#aeb8c5",
+  border: "#465262",
+  primary: "#d7b56d",
+  primaryText: "#111318",
 };
 
-// 2. Default Export — ThemeDefinition (Consumed by rtifact CLI engine)
-/** @satisfies {import("./src/themes.js").ThemeDefinition} */
 export default {
-  id: "brand-name",
-  name: "Brand Name",
-  appearance: "light",
-  description: "Custom brand theme definition",
-  source: { name: "Brand Web Audit", url: "https://example.com", revision: "1.0", license: "Proprietary" },
+  id: "brand-dark", // lowercase kebab-case; unique when installed
+  name: "Brand Dark",
+  appearance: "dark", // exactly "light" or "dark"
+  description: "Dark editorial adaptation of Brand.",
+  source: {
+    name: "Brand reference image",
+    url: "./brand-reference.png", // path, public URL, or descriptive URN for a prompt-only brief
+    revision: "captured 2026-08-01",
+    license: "User-supplied reference; rights not assessed",
+  },
   colors: {
-    canvas: BRAND.canvas,
-    surface: BRAND.white,
-    surfaceRaised: BRAND.white,
-    text: BRAND.navy,
-    textMuted: "#3d4f6f",
-    border: BRAND.border,
-    primary: BRAND.blue,
-    primaryText: BRAND.white,
-    link: BRAND.blue,
-    focus: BRAND.blue,
-    selection: "#d0e4f9",
-    selectionText: BRAND.navy,
-    codeBackground: "#e8f0f9",
+    canvas: C.canvas,
+    surface: C.surface,
+    surfaceRaised: C.raised,
+    text: C.text,
+    textMuted: C.muted,
+    border: C.border,
+    primary: C.primary,
+    primaryText: C.primaryText,
+    primaryAccent: C.primary, // optional; defaults to primary
+    primaryAccentHover: "#ebc97c", // optional; defaults to primaryAccent
+    link: C.primary, // optional; defaults to primary
+    focus: C.primary,
+    selection: C.primary,
+    selectionText: C.primaryText,
+    codeBackground: "#080b0f",
   },
   typography: {
-    sans: '"Segoe UI", Roboto, sans-serif',
+    sans: "Inter, ui-sans-serif, system-ui, sans-serif",
+    heading: "Georgia, serif", // optional; defaults to sans
     mono: '"SFMono-Regular", Consolas, monospace',
   },
-  rhythm: { lineHeight: 1.6, headingWeight: 600, letterSpacing: "-0.02em", contentMeasure: "78rem" },
-  components: {
-    buttonPadding: 20, buttonShadow: "0 1px 3px rgb(0 23 90 / 0.12)", cardBorderWidth: 0,
-    cardPadding: 24, cardHeaderHeight: 56, menuItemHeight: 42, menuItemMargin: 4,
-    segmentedPadding: 3, tabGutter: 28, titleMarginTop: "1.3em", titleMarginBottom: "0.5em",
-    inputPaddingInline: 14, inputPaddingBlock: 6,
+  rhythm: {
+    lineHeight: 1.6,
+    headingWeight: 600,
+    letterSpacing: "-0.01em",
+    contentMeasure: "76rem",
   },
-  radius: { small: "0.375rem", medium: "0.625rem", large: "1.5rem" },
-  shadow: "0 8px 24px rgb(0 23 90 / 0.10)",
-  controlHeight: 36,
+  components: {
+    buttonPadding: 18,
+    buttonShadow: "0 4px 18px rgb(0 0 0 / 0.3)",
+    cardBorderWidth: 1, // optional; defaults to 1
+    cardPadding: 24,
+    cardHeaderHeight: 56,
+    menuItemHeight: 40,
+    menuItemMargin: 4,
+    segmentedPadding: 2,
+    tabGutter: 28,
+    titleMarginTop: "1.25em",
+    titleMarginBottom: "0.5em",
+    inputPaddingInline: 12,
+    inputPaddingBlock: 5,
+  },
+  radius: { small: "0.25rem", medium: "0.5rem", large: "0.875rem" },
+  shadow: "0 18px 48px rgb(0 0 0 / 0.35)",
+  controlHeight: 38,
 };
-
-// 3. Named Exports — Reusable React Components (Imported by artifact applications)
-export function BrandLogo({ height = 36 }) { ... }
-export function BrandNav({ links, cta }) { ... }
-export function BrandHero({ title, subtitle, cta }) { ... }
-export function BrandFooter({ columns, copyright }) { ... }
-export function BrandSection({ title, children, background }) { ... }
-export function BrandCallout({ title, description, cta }) { ... }
-export function BrandPage({ navLinks, children }) { ... }
 ```
 
----
-
-## Key Techniques & Implementation Steps
-
-### Step 1: Define Internal Brand Tokens
-
-Declare a clean JavaScript object (`BRAND`) containing exact hex colors and layout constants extracted during inspection. Re-use these tokens across both the `default` theme definition and the `named` components to ensure single-source-of-truth consistency.
-
-### Step 2: Construct the `ThemeDefinition` Default Export
-
-Supply all required fields of the `ThemeDefinition` interface:
-
-- **`colors`**: Map semantic roles (`canvas`, `surface`, `text`, `border`, `primary`, `focus`, `selection`, `codeBackground`).
-- **`status`**: Define custom status object containing `success`, `warning`, `danger`, `info` (foreground, background, border, seed).
-- **`typography`**: Provide robust font stacks for `sans` and `mono`.
-- **`rhythm`**: Set `lineHeight`, `headingWeight`, `letterSpacing`, and `contentMeasure`.
-- **`components`**: Tune component-level tokens (`buttonPadding`, `cardPadding`, `cardHeaderHeight`, `inputPaddingBlock`, etc.).
-- **`radius`**: Configure `small`, `medium`, and `large` border-radius values.
-
-### Step 3: Build Reusable Branded React Components
-
-Export the standard set of branded UI layout components:
-
-1. **`<BrandLogo>`**: Renders brand logo mark and text with light/dark theme variants.
-2. **`<BrandNav>`**: Sticky header navigation bar with desktop link list, action CTA buttons, and a responsive mobile `Drawer` menu triggered by a hamburger button.
-3. **`<BrandHero>`**: Full-width prominent hero header with gradient backgrounds, responsive title scaling (`clamp(...)`), description, and CTA actions.
-4. **`<BrandSection>`**: Layout container with configurable background themes (`white`, `light`, `navy`, `blue`) and consistent horizontal padding (`maxWidth: 1440`).
-5. **`<BrandCallout>`**: High-contrast banner card with rounded corners (`1.5rem`), prominent title, description, and action button.
-6. **`<BrandFooter>`**: Multi-column footer with brand logo, social links, navigation groups, legal links, disclaimers, and copyright text.
-7. **`<BrandPage>`**: Full-page layout wrapper combining `BrandNav`, `<main style={{ flex: 1 }}>`, and `BrandFooter` in a flexbox column with sticky footer behavior (`minHeight: "100vh"`).
-
-### Step 4: Author Artifacts Using Named Exports
-
-In application `.jsx` files, import named components directly from the theme module:
+The built-in light/dark status palettes are used when `status` is omitted. Override only roles the brand genuinely needs:
 
 ```jsx
-import { BrandPage, BrandHero, BrandSection } from "./my-theme.jsx";
+status: {
+  danger: {
+    seed: "#d8574d",
+    foreground: "#ffd5d0",
+    background: "#5b1f1b",
+    border: "#d8574d",
+  },
+},
+```
 
-export default function App() {
+## Contrast contract
+
+Rtifact rejects invalid six-digit hex colors and these failing pairs:
+
+| Role                     | Pair                                                      | Minimum |
+| ------------------------ | --------------------------------------------------------- | ------: |
+| Body                     | `text` / `canvas`                                         |   4.5:1 |
+| Surface                  | `text` / `surface`                                        |   4.5:1 |
+| Muted                    | `textMuted` / `canvas`                                    |     3:1 |
+| Link                     | `link` / `canvas`                                         |   4.5:1 |
+| Filled control           | `primaryText` / `primary`                                 |   4.5:1 |
+| Accent                   | `primaryAccent` and hover / `surface` and `surfaceRaised` |     3:1 |
+| Focus and primary border | `focus` / `canvas`, `surface`, and `surfaceRaised`        |     3:1 |
+| Link border hover        | `link` / `surface` and `surfaceRaised`                    |     3:1 |
+| Selection                | `selectionText` / `selection`                             |   4.5:1 |
+| Status                   | each `foreground` / `background`                          |   4.5:1 |
+
+`primary`, `primaryAccent`, and `link` may be different. Use that escape hatch when one brand color cannot satisfy every role. For example, keep a dark red as a decorative token in named components while using accessible gold for `primary` and `primaryAccent`.
+
+## Optional named components
+
+Export only repeated brand structures. Prefer two small components over a speculative library:
+
+```jsx
+export function BrandPage({ children }) {
   return (
-    <BrandPage>
-      <BrandHero title="Artifact Title" />
-      <BrandSection title="Overview">{/* Application Content */}</BrandSection>
-    </BrandPage>
+    <div className="min-h-screen bg-background text-foreground">{children}</div>
+  );
+}
+
+export function BrandSection({ id, title, children }) {
+  return (
+    <section
+      id={id}
+      aria-labelledby={`${id}-title`}
+      className="mx-auto max-w-6xl px-5 py-14 sm:px-8"
+    >
+      <h2 id={`${id}-title`} className="font-heading text-4xl">
+        {title}
+      </h2>
+      {children}
+    </section>
   );
 }
 ```
 
-### Step 5: Verify via CLI
+Import them relative to the artifact source:
 
-Run the CLI build using the custom theme file:
-
-```sh
-# Package entry using the custom theme
-rtifact App.jsx --theme ./my-theme.jsx --output dist/index.html --force
+```jsx
+import { BrandPage, BrandSection } from "./brand-theme.jsx";
 ```
 
----
+Do not add navigation, drawers, heroes, footers, or wrappers unless the artifact needs them. Let Ant Design inherit the generated theme; do not add an application `ConfigProvider` or `.ant-*` overrides.
 
-## Evaluation Checklist
+## Failure guide
 
-Use this checklist to evaluate any custom theme module created for `rtifact`:
+- `missing provenance.*`: `provenance` is the CLI's internal name for `source`; fill all four `source` fields exactly as shown. For a prompt-only brief, use a descriptive URL such as `urn:rtifact-source:user-supplied-brand-brief`.
+- `insufficient primary control contrast`: change `primaryText`, `primary`, or both.
+- `insufficient primary accent contrast`: set a separate `primaryAccent` and optionally `primaryAccentHover`.
+- `insufficient selection contrast`: change `selectionText`, `selection`, or both.
+- `insufficient primary border contrast`: `focus` is unsafe on a surface.
+- `insufficient primary border hover contrast`: `link` is unsafe on a surface.
+- `invalid semantic color`: use a full `#rrggbb` value; shorthand, alpha hex, CSS variables, and named colors are invalid in the theme definition.
 
-- [ ] **Dual Export Compliance**: Does the theme module provide a valid `default export` object matching `ThemeDefinition` and `named exports` for reusable UI components?
-- [ ] **No Diagnostic Errors**: Does `rtifact <entry> --theme ./<theme>.jsx` compile cleanly with 0 build or import errors?
-- [ ] **Icon Imports**: Are all `react-icons` imports verified against the exact icon set (e.g. `LuCircleCheck` instead of non-existent `LuCheckCircle` in `react-icons/lu`)?
-- [ ] **Color Contrast**: Do text colors (`#00175a`) against canvas (`#f0f4fa`) and primary buttons (`#006fcf`) meet WCAG AA contrast (minimum 4.5:1 for body text)?
-- [ ] **Responsive Navigation**: Does `<BrandNav>` collapse cleanly into a mobile drawer on screens `< 640px`?
-- [ ] **Sticky Footer**: Does `<BrandPage>` keep the footer pinned to the bottom of the viewport on short content pages?
-- [ ] **Component Portability**: Can the theme and components be used for arbitrary content types (reports, setup guides, dashboards) beyond the original website subject matter?
-- [ ] **Ant Design Integration**: Do Ant Design components (`Button`, `Card`, `Collapse`, `Steps`, `Tag`) inherit theme styling properly without custom `.ant-*` CSS selector overrides?
-- [ ] **Artifact Readability**: Does the finished artifact preserve legible text, scannable structure, responsive layout, accessible interaction, and its intended audience action?
+Build after the minimum default export works, then add named components. This isolates schema and contrast failures from application JSX failures.
+
+## Final check
+
+- Complete `source` provenance and valid kebab-case `id`.
+- Exact `light` or `dark` appearance.
+- Every required field present; all semantic colors are `#rrggbb`.
+- Every contrast pair above passes.
+- No top-level `window`, `document`, or `localStorage`.
+- No unnecessary dependencies or application `ConfigProvider`.
+- Every imported React Icon name exists in the selected icon subpackage.
+- If present, navigation collapses accessibly on mobile and the page footer stays at the bottom on short pages.
+- Reusable named components remain content-agnostic; keep subject-specific layout in the artifact.
+- Artifact imports named exports normally and builds with `--theme`.
+- Rendered page remains legible, responsive, keyboard accessible, and faithful to the source.
