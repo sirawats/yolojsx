@@ -1,5 +1,7 @@
+import { existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
+import { normalizePath, type Plugin } from "vite";
 
 const require = createRequire(import.meta.url);
 
@@ -61,6 +63,25 @@ export function createCoreAliases() {
 
   return [...exactAliases, ...prefixAliases];
 }
+
+export const jsxSourcePlugin = {
+  name: "yolojsx-jsx-source",
+  enforce: "pre",
+  resolveId(source, importer) {
+    if (
+      !importer ||
+      (!source.startsWith("./") && !source.startsWith("../")) ||
+      !source.endsWith(".js")
+    ) {
+      return null;
+    }
+    const jsSource = path.resolve(path.dirname(importer), source);
+    const jsxSource = jsSource.replace(/\.js$/, ".jsx");
+    return !existsSync(jsSource) && existsSync(jsxSource)
+      ? normalizePath(jsxSource)
+      : null;
+  },
+} satisfies Plugin;
 
 export function resolvePackageImport(specifier: string) {
   return require.resolve(specifier);

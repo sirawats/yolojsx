@@ -9,6 +9,7 @@ import react from "@vitejs/plugin-react";
 import { createServer } from "vite";
 import {
   createCoreAliases,
+  jsxSourcePlugin,
   resolvePackageImport,
 } from "../src/dependencies.js";
 import { formatError } from "../src/errors.js";
@@ -55,7 +56,6 @@ async function startDevServer() {
         resolvePackageImport("tailwindcss/index.css"),
         resolveFoundationStylesheet(),
         themeCssPath,
-        undefined,
       ),
       "utf8",
     ),
@@ -81,7 +81,7 @@ async function startDevServer() {
   const server = await createServer({
     root: workspace,
     configFile: false,
-    envFile: false,
+    envDir: false,
     publicDir: false,
     appType: "spa",
     server: {
@@ -91,6 +91,7 @@ async function startDevServer() {
       },
     },
     plugins: [
+      jsxSourcePlugin,
       createEntryPlugin(entry, theme, prismThemes, (message) => {
         process.stderr.write(`Warning: ${message}\n`);
       }),

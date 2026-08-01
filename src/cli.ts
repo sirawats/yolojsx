@@ -7,7 +7,6 @@ import { confirmReplacement as promptForReplacement } from "./confirmation.js";
 import { NODE_ENGINE, PACKAGE_VERSION } from "./constants.js";
 import { formatError, hasErrorCode, YoloJsxError } from "./errors.js";
 import {
-  resolveAndValidateCss,
   resolveAndValidateEntry,
   resolveAndValidateHtmlOutput,
   resolveAndValidateInputDirectory,
@@ -21,7 +20,8 @@ import {
 } from "./output.js";
 import { renderPrismThemeCatalog } from "./prism-themes.js";
 import { createSingleFileArtifact } from "./single-file.js";
-import { renderThemeCatalog, resolveTheme } from "./themes.js";
+import { resolveThemeSelection } from "./theme-modules.js";
+import { renderThemeCatalog } from "./themes.js";
 
 type Writable = Pick<NodeJS.WritableStream, "write">;
 type ConfirmReplacement = (
@@ -115,8 +115,10 @@ export async function runCli(
     const entry = await resolveAndValidateEntry(options.entry, cwd);
     // ponytail: scan the invocation tree; follow Vite's module graph if large workspaces become slow.
     const sourceDirectory = isWithin(cwd, entry) ? cwd : path.dirname(entry);
-    const customCss = await resolveAndValidateCss(options.css, cwd);
-    const theme = resolveTheme(options.theme);
+    const { theme, source: themeSource } = await resolveThemeSelection(
+      options.theme,
+      cwd,
+    );
     const onWarning = (message: string) =>
       stderr.write(`Warning: ${message}\n`);
 
@@ -154,7 +156,7 @@ export async function runCli(
             singleFile: true,
             cdn: !options.selfContained,
             theme,
-            customCss,
+            themeSource,
             onWarning,
           },
           createSingleFileArtifact,
@@ -180,7 +182,12 @@ export async function runCli(
         code: "INVALID_ARGUMENTS",
       });
     }
-    const output = await resolveAndValidateOutput(options.outDir, cwd, entry);
+    const output = await resolveAndValidateOutput(
+      options.outDir,
+      cwd,
+      entry,
+      themeSource ? [themeSource] : [],
+    );
     const outputState = await inspectOutput(output, true);
 
     if (outputState.exists && !options.force) {
@@ -204,7 +211,7 @@ export async function runCli(
       output,
       base: options.base,
       theme,
-      customCss,
+      themeSource,
       onWarning,
     });
     stdout.write(`Built ${entry}\nOutput: ${output}\n`);

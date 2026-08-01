@@ -242,11 +242,13 @@ export default function CodeReviewReport() {
                     <Statistic
                       title={name}
                       value={counts[name]}
-                      valueStyle={{
-                        color:
-                          name === "Blocking"
-                            ? "var(--color-danger)"
-                            : undefined,
+                      styles={{
+                        content: {
+                          color:
+                            name === "Blocking"
+                              ? "var(--color-danger)"
+                              : undefined,
+                        },
                       }}
                     />
                   </Card>

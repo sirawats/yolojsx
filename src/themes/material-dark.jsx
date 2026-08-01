@@ -1,3 +1,4 @@
+/** @satisfies {import("../themes.js").ThemeDefinition} */
 export default {
   id: "material-dark",
   name: "Material Dark",

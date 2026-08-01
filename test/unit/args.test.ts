@@ -19,7 +19,6 @@ test("defaults JSX builds to a named HTML file", () => {
     base: "./",
     output: undefined,
     theme: "default",
-    css: undefined,
     force: false,
     deprecatedSingleFile: false,
     selfContained: false,
@@ -29,9 +28,7 @@ test("defaults JSX builds to a named HTML file", () => {
       "Home.jsx",
       "--output",
       "public/index.html",
-      "--theme=github",
-      "--css",
-      "app.css",
+      "--theme=./company-theme.jsx",
     ]),
     {
       action: "build",
@@ -40,8 +37,7 @@ test("defaults JSX builds to a named HTML file", () => {
       outDir: undefined,
       base: "./",
       output: "public/index.html",
-      theme: "github",
-      css: "app.css",
+      theme: "./company-theme.jsx",
       force: false,
       deprecatedSingleFile: false,
       selfContained: false,
@@ -66,7 +62,6 @@ test("selects directory mode only from an explicit output directory", () => {
       base: "/demo/",
       output: undefined,
       theme: "default",
-      css: undefined,
       force: true,
       deprecatedSingleFile: false,
       selfContained: false,
@@ -131,10 +126,11 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
     () => parseArgs(["A.jsx", "--theme", "github", "--theme", "material"]),
     /only be specified once/,
   );
-  assert.throws(
-    () => parseArgs(["A.jsx", "--theme", "missing"]),
-    /yolojsx themes/,
-  );
+  const unresolvedTheme = parseArgs(["A.jsx", "--theme", "missing"]);
+  assert.equal(unresolvedTheme.action, "build");
+  if (unresolvedTheme.action === "build") {
+    assert.equal(unresolvedTheme.theme, "missing");
+  }
   assert.throws(() => parseArgs(["themes", "--force"]), /does not accept/);
   assert.throws(() => parseArgs(["--themes", "--force"]), /does not accept/);
   assert.throws(
@@ -144,7 +140,11 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
   assert.throws(() => parseArgs(["pack", "dist"]), /requires --output/);
   assert.throws(
     () => parseArgs(["pack", "dist", "--output", "x.html", "--css", "x.css"]),
-    /does not accept --css/,
+    /Unknown option: --css/,
+  );
+  assert.throws(
+    () => parseArgs(["A.jsx", "--css", "x.css"]),
+    /Unknown option: --css/,
   );
   assert.throws(
     () => parseArgs(["pack", "dist", "--output", "x.html", "--self-contained"]),
@@ -157,4 +157,6 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
   assert.match(USAGE, /yolojsx prism-themes/);
   assert.match(USAGE, /--prism-themes/);
   assert.match(USAGE, /--out-dir/);
+  assert.match(USAGE, /\.ts\/\.jsx module/);
+  assert.doesNotMatch(USAGE, /--css/);
 });

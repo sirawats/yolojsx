@@ -7,10 +7,10 @@ export default [
   js.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked.map((config) => ({
     ...config,
-    files: ["**/*.{ts,tsx,mts}"],
+    files: ["**/*.{ts,tsx,mts}", "src/themes/**/*.jsx"],
   })),
   {
-    files: ["**/*.{ts,tsx,mts}"],
+    files: ["**/*.{ts,tsx,mts}", "src/themes/**/*.jsx"],
     languageOptions: { parserOptions: { projectService: true } },
   },
   {
@@ -19,6 +19,7 @@ export default [
       ".husky/**/*.mjs",
       "scripts/**/*.ts",
       "src/**/*.ts",
+      "src/themes/**/*.jsx",
       "test/**/*.ts",
       "*.config.js",
     ],

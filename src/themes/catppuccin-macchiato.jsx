@@ -1,3 +1,4 @@
+/** @satisfies {import("../themes.js").ThemeDefinition} */
 export default {
   id: "catppuccin-macchiato",
   name: "Catppuccin Macchiato",

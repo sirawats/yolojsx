@@ -1,3 +1,4 @@
+/** @satisfies {import("../themes.js").ThemeDefinition} */
 export default {
   id: "obsidian-baseline-light",
   name: "Obsidian Baseline Light",

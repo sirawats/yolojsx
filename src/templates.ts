@@ -97,21 +97,21 @@ export function createTailwindStyles(
   tailwindStylesheet: string,
   foundationStylesheet: string,
   themeStylesheet: string,
-  customStylesheet?: string,
+  themeSource?: string,
 ) {
   const source = toCssPath(path.relative(workspace, sourceDirectory) || ".");
   const stylesheet = toCssPath(tailwindStylesheet);
   const foundationImport = toCssPath(foundationStylesheet);
   const themeImport = toCssPath(themeStylesheet);
-  const customImport = customStylesheet
-    ? `@import "${toCssPath(customStylesheet)}";\n`
+  const themeModuleSource = themeSource
+    ? `\n@source "${toCssPath(path.relative(workspace, themeSource))}";`
     : "";
-  return `/* Stable package-owned cascade for Tailwind, Ant Design, and user CSS. */
+  return `/* Stable package-owned cascade for Tailwind and Ant Design. */
 @layer theme, base, antd, components, utilities;
 @import "${stylesheet}" source(none);
 @import "${foundationImport}";
 @import "${themeImport}";
-${customImport}@source "${source}";
+@source "${source}";${themeModuleSource}
 `;
 }
 

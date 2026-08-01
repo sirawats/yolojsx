@@ -137,8 +137,9 @@ needed:
   `font-mono`
 
 Avoid hard-coded page-wide palettes, `.ant-*` selector overrides, and large
-custom stylesheets. Use `--css` only for deliberate application-wide rules the
-theme and utilities cannot express cleanly.
+custom stylesheets. Use a `.ts` or `.jsx` theme module for coordinated semantic
+and Ant Design values. Import a local stylesheet from the application only for
+focused rules the theme and utilities cannot express cleanly.
 
 ## Information design
 

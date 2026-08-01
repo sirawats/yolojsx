@@ -46,49 +46,47 @@ export async function resolveAndValidateEntry(
   return realpath(entry);
 }
 
-export async function resolveAndValidateCss(
-  cssArgument: string | undefined,
+export async function resolveAndValidateThemeModule(
+  themeArgument: string,
   cwd: string,
 ) {
-  if (!cssArgument) {
-    return undefined;
-  }
-  const stylesheet = path.resolve(cwd, cssArgument);
-  if (path.extname(stylesheet).toLowerCase() !== ".css") {
+  const themeModule = path.resolve(cwd, themeArgument);
+  if (![".ts", ".jsx"].includes(path.extname(themeModule).toLowerCase())) {
     throw new YoloJsxError(
-      `Custom stylesheet must be a .css file: ${stylesheet}`,
+      `Theme module must be a .ts or .jsx file: ${themeModule}`,
       {
-        code: "INVALID_CSS",
+        code: "INVALID_THEME",
       },
     );
   }
   try {
-    const stylesheetStat = await stat(stylesheet);
-    if (!stylesheetStat.isFile()) {
-      throw new YoloJsxError(`Custom stylesheet is not a file: ${stylesheet}`, {
-        code: "INVALID_CSS",
+    const themeStat = await stat(themeModule);
+    if (!themeStat.isFile()) {
+      throw new YoloJsxError(`Theme module is not a file: ${themeModule}`, {
+        code: "INVALID_THEME",
       });
     }
-    await access(stylesheet, fsConstants.R_OK);
+    await access(themeModule, fsConstants.R_OK);
   } catch (error) {
     if (error instanceof YoloJsxError) {
       throw error;
     }
     throw new YoloJsxError(
-      `Custom stylesheet is not a readable file: ${stylesheet}`,
+      `Theme module is not a readable file: ${themeModule}`,
       {
-        code: "INVALID_CSS",
+        code: "INVALID_THEME",
         cause: error,
       },
     );
   }
-  return realpath(stylesheet);
+  return realpath(themeModule);
 }
 
 export async function resolveAndValidateOutput(
   outArgument: string,
   cwd: string,
   entry: string,
+  additionalInputs: string[] = [],
 ) {
   const output = path.resolve(cwd, outArgument);
   const root = path.parse(output).root;
@@ -110,6 +108,15 @@ export async function resolveAndValidateOutput(
   if (isWithin(output, entry)) {
     throw new YoloJsxError(
       `Refusing to use an output directory that contains the source entry: ${output}`,
+      { code: "DANGEROUS_OUTPUT" },
+    );
+  }
+  const containedInput = additionalInputs.find((input) =>
+    isWithin(output, input),
+  );
+  if (containedInput) {
+    throw new YoloJsxError(
+      `Refusing to use an output directory that contains the theme module: ${output}`,
       { code: "DANGEROUS_OUTPUT" },
     );
   }

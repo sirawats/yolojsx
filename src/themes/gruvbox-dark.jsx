@@ -1,3 +1,4 @@
+/** @satisfies {import("../themes.js").ThemeDefinition} */
 export default {
   id: "gruvbox-dark",
   name: "Gruvbox Dark",

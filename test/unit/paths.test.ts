@@ -3,11 +3,11 @@ import { rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
-  resolveAndValidateCss,
   resolveAndValidateEntry,
   resolveAndValidateHtmlOutput,
   resolveAndValidateInputDirectory,
   resolveAndValidateOutput,
+  resolveAndValidateThemeModule,
 } from "../../src/paths.js";
 import { makeFixture, writeFixture } from "../helpers.js";
 
@@ -16,17 +16,16 @@ test("resolves valid entry and output paths from cwd", async (t) => {
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
     "src/Home.jsx": "export default () => null;",
-    "styles/custom.css": ":root { --primary: red; }",
+    "themes/custom.jsx": "export default {};",
   });
 
   const entry = await resolveAndValidateEntry("src/Home.jsx", fixture);
   const output = await resolveAndValidateOutput("site", fixture, entry);
   assert.equal(output, path.join(fixture, "site"));
   assert.equal(
-    await resolveAndValidateCss("styles/custom.css", fixture),
-    path.join(fixture, "styles/custom.css"),
+    await resolveAndValidateThemeModule("themes/custom.jsx", fixture),
+    path.join(fixture, "themes/custom.jsx"),
   );
-  assert.equal(await resolveAndValidateCss(undefined, fixture), undefined);
 });
 
 test("resolves a valid TSX entry", async (t) => {
@@ -82,6 +81,7 @@ test("rejects invalid entries and dangerous output paths", async (t) => {
   await writeFixture(fixture, {
     "src/Home.jsx": "export default () => null;",
     "src/Home.js": "export default () => null;",
+    "src/Theme.tsx": "export default {};",
   });
 
   await assert.rejects(
@@ -89,11 +89,11 @@ test("rejects invalid entries and dangerous output paths", async (t) => {
     /must be a .jsx or .tsx file/,
   );
   await assert.rejects(
-    resolveAndValidateCss("src/Home.jsx", fixture),
-    /must be a .css/,
+    resolveAndValidateThemeModule("src/Theme.tsx", fixture),
+    /must be a .ts or .jsx/,
   );
   await assert.rejects(
-    resolveAndValidateCss("missing.css", fixture),
+    resolveAndValidateThemeModule("missing.ts", fixture),
     /not a readable file/,
   );
   const entry = await resolveAndValidateEntry("src/Home.jsx", fixture);
@@ -104,5 +104,11 @@ test("rejects invalid entries and dangerous output paths", async (t) => {
   await assert.rejects(
     resolveAndValidateOutput("src", fixture, entry),
     /contains the source entry/,
+  );
+  await assert.rejects(
+    resolveAndValidateOutput("themes", fixture, entry, [
+      path.join(fixture, "themes/custom.jsx"),
+    ]),
+    /contains the theme module/,
   );
 });

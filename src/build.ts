@@ -8,6 +8,7 @@ import {
   createCdnImportMap,
   createCoreAliases,
   isCdnExternalImport,
+  jsxSourcePlugin,
   resolvePackageImport,
 } from "./dependencies.js";
 import { formatError, YoloJsxError } from "./errors.js";
@@ -34,7 +35,7 @@ interface TemporaryBuildOptions {
   singleFile?: boolean;
   cdn?: boolean;
   theme: Theme;
-  customCss?: string;
+  themeSource?: string;
   onWarning: (message: string) => unknown;
 }
 
@@ -50,7 +51,7 @@ async function createWorkspace(
   entry: string,
   sourceDirectory: string,
   theme: Theme,
-  customCss: string | undefined,
+  themeSource: string | undefined,
   cdn: boolean,
 ) {
   const temporaryWorkspace = await mkdtemp(
@@ -74,7 +75,7 @@ async function createWorkspace(
         resolvePackageImport("tailwindcss/index.css"),
         resolveFoundationStylesheet(),
         themeCssPath,
-        customCss,
+        themeSource,
       ),
       "utf8",
     ),
@@ -100,7 +101,7 @@ export async function withTemporaryApplicationBuild<T>(
     singleFile = false,
     cdn = false,
     theme,
-    customCss,
+    themeSource,
     onWarning,
   }: TemporaryBuildOptions,
   consume: (workspaceOutput: string) => T | Promise<T>,
@@ -112,7 +113,7 @@ export async function withTemporaryApplicationBuild<T>(
       entry,
       sourceDirectory,
       theme,
-      customCss,
+      themeSource,
       cdn,
     );
     const workspaceOutput = path.join(workspace, "dist");
@@ -122,11 +123,12 @@ export async function withTemporaryApplicationBuild<T>(
       root: workspace,
       base,
       configFile: false,
-      envFile: false,
+      envDir: false,
       publicDir: false,
       appType: "spa",
       logLevel: "silent",
       plugins: [
+        jsxSourcePlugin,
         createEntryPlugin(entry, theme, prismThemes, onWarning),
         react(),
         tailwindcss(),
@@ -172,7 +174,7 @@ export async function buildApplication({
   output,
   base,
   theme,
-  customCss,
+  themeSource,
   onWarning,
 }: BuildApplicationOptions) {
   let stage: string | undefined;
@@ -181,7 +183,7 @@ export async function buildApplication({
     stage = await createOutputStage(output);
     const outputStage = stage;
     await withTemporaryApplicationBuild(
-      { entry, sourceDirectory, base, theme, customCss, onWarning },
+      { entry, sourceDirectory, base, theme, themeSource, onWarning },
       async (workspaceOutput) => {
         await cp(workspaceOutput, outputStage, { recursive: true });
         await writeOutputMarker(outputStage);
