@@ -1,5 +1,5 @@
 {
   "name": "rtifact",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Turn agent-authored JSX into portable, interactive HTML artifacts with Rtifact."
 }

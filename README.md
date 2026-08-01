@@ -34,12 +34,24 @@ npx rtifact Artifact.jsx --output artifact.html
 
 _Powered by React, Tailwind CSS, Ant Design, React Icons, and PrismJS._
 
+### 🎬 Demo
+
+<p align="center">
+  <img src="assets/rtifact_48x_5s-4m50s_github_hq.gif" alt="Rtifact Demo">
+</p>
+
+> **Prompt**:
+> Use the rtifact and rtifact-create-theme skills to quickly complete the following steps using npx:
+>
+> - Read House_of_the_Dragon_season_2.png and generate a custom light theme based on the image.
+> - Read HOUSE_OF_THE_DRAGON.md and build a shareable wiki site using that custom theme.
+
 ## AI agent skill
 
 Install the official Rtifact authoring skill through the universal Skills CLI
 or your agent's marketplace/plugin system.
 
-### Via Skills
+### 🪄 Via Skills
 
 The [Skills CLI](https://github.com/vercel-labs/skills) supports Codex, Claude
 Code, Gemini CLI, Antigravity, OpenCode, Cursor, and other coding agents:
@@ -50,7 +62,7 @@ npx skills add sirawats/rtifact --skill rtifact rtifact-create-theme
 
 Add `--global` to make the skill available across projects.
 
-### Via Marketplace/Plugin
+### 🧩 Via Marketplace/Plugin
 
 The agent-specific adapters are distributed through Git and are not included in
 the npm package.
