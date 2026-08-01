@@ -18,7 +18,7 @@ The project SHALL use **Rtifact** as its product name, `rtifact` as its npm pack
 #### Scenario: Active repository surfaces are scanned
 
 - **WHEN** tracked active product files and name-bearing paths are searched after the rebrand
-- **THEN** no previous product identifier remains outside OpenSpec change records
+- **THEN** no YOLO-derived product identifier remains outside OpenSpec change records
 
 ### Requirement: Artifact-first product positioning
 
@@ -50,9 +50,9 @@ The packaged authoring and theme skills SHALL use Rtifact identifiers and SHALL 
 
 ### Requirement: Rtifact visual identity
 
-Active public surfaces SHALL use a simple Rtifact identity and SHALL NOT retain branding assets or explanations derived from the previous product identity.
+Active public surfaces SHALL use a simple Rtifact identity and SHALL NOT retain YOLO- or Chihuahua-derived branding assets or explanations.
 
 #### Scenario: Public brand assets are inspected
 
 - **WHEN** README and website brand presentation and tracked assets are reviewed
-- **THEN** they present Rtifact without the previous visual identity
+- **THEN** they present Rtifact without the previous YOLO/Chihuahua identity

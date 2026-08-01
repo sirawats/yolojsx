@@ -40,7 +40,7 @@ The CLI SHALL identify output directories it generated through a valid `.rtifact
 
 #### Scenario: Rebuild managed output interactively
 
-- **WHEN** the selected output contains a valid `.rtifact-output.json` ownership marker and `--force` is absent
+- **WHEN** the selected output contains a valid Rtifact ownership marker and `--force` is absent
 - **THEN** the CLI prompts the user to type `yes` or `no` before replacing the directory
 
 #### Scenario: Confirm managed replacement
@@ -69,12 +69,12 @@ The CLI SHALL obtain explicit interactive confirmation before destructively clea
 
 #### Scenario: Confirm unowned replacement
 
-- **WHEN** the selected output is non-empty, has no valid ownership marker, and the interactive user types `yes`
+- **WHEN** the selected output is non-empty, has no valid Rtifact ownership marker, and the interactive user types `yes`
 - **THEN** the CLI warns that the directory is unowned and may replace it after a successful build
 
 #### Scenario: Decline unowned replacement
 
-- **WHEN** the selected output is non-empty, has no valid ownership marker, and the user types `no`
+- **WHEN** the selected output is non-empty, has no valid Rtifact ownership marker, and the user types `no`
 - **THEN** the CLI exits without deleting or overwriting its contents
 
 #### Scenario: Non-interactive unowned directory

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Create GitHub PR"
+  short_description: "Create focused, review-ready GitHub PRs"
+  default_prompt: "Use $gh-create-pr to inspect this branch and create a concise, review-ready GitHub pull request."

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-08-01
+
 - **Breaking:** rebrand the package, executable, plugins, skills, generated
   identifiers, and repository references as Rtifact with the `rtifact` command.
 - **Breaking:** rename JSX document metadata to `RTIFACT` and directory ownership
