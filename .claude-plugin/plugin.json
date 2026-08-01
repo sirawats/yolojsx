@@ -1,6 +1,6 @@
 {
   "name": "rtifact",
-  "version": "0.1.7",
+  "version": "1.0.0",
   "description": "Turn agent-authored JSX into portable, interactive HTML artifacts with Rtifact.",
   "author": { "name": "sirawats", "url": "https://github.com/sirawats" },
   "homepage": "https://github.com/sirawats/rtifact",
