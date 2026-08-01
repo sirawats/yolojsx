@@ -22,7 +22,8 @@ import {
   createTailwindStyles,
 } from "../src/templates.js";
 import { resolveFoundationStylesheet } from "../src/theme-css.js";
-import { renderThemeCss, resolveTheme } from "../src/themes.js";
+import { resolveThemeSelection } from "../src/theme-modules.js";
+import { renderThemeCss } from "../src/themes.js";
 
 const repository = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -31,11 +32,15 @@ const repository = path.resolve(
 
 async function startDevServer() {
   const entryArg = process.argv[2] || "website/index.tsx";
+  const themeArg = process.argv[3] || "default";
   const entry = await resolveAndValidateEntry(entryArg, repository);
   const sourceDirectory = isWithin(repository, entry)
     ? repository
     : path.dirname(entry);
-  const theme = resolveTheme("default");
+  const { theme, source: themeSource } = await resolveThemeSelection(
+    themeArg,
+    repository,
+  );
   const prismThemes = await loadPrismThemeCatalog();
 
   const temporaryWorkspace = await mkdtemp(
@@ -56,6 +61,7 @@ async function startDevServer() {
         resolvePackageImport("tailwindcss/index.css"),
         resolveFoundationStylesheet(),
         themeCssPath,
+        themeSource,
       ),
       "utf8",
     ),

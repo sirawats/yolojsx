@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "cli": "tsx src/bin.ts",
-    "dev": "tsx scripts/dev.ts website/index.tsx",
+    "dev": "tsx scripts/dev.ts website/index.tsx rtifact",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "lint": "eslint .",

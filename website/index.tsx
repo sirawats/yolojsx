@@ -8,7 +8,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import {
-  Badge,
   Button,
   Card,
   ConfigProvider,
@@ -559,7 +558,7 @@ export default function Website() {
   return (
     <main className="min-h-screen bg-background text-foreground">
       {/* Navigation */}
-      <nav className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50 px-6 py-4">
+      <nav className="border-b border-border bg-card/80 backdrop-blur sticky top-0 z-50 px-6 py-2">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-3 font-bold text-xl">
             <img src={favicon} alt="" aria-hidden="true" className="size-8" />
@@ -599,7 +598,7 @@ export default function Website() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative px-6 pt-20 pb-24 text-center overflow-hidden">
+      <section className="relative px-6 pt-8 pb-8 text-center overflow-hidden">
         <div className="pointer-events-none absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-primary opacity-10 blur-3xl" />
         <div className="relative mx-auto max-w-4xl">
           <img
@@ -607,28 +606,25 @@ export default function Website() {
             alt="Rtifact Chihuahua archaeologist uncovering an artifact"
             className="mx-auto mb-6 w-64 sm:w-72"
           />
-          <Badge
-            count="Open Source CLI Tool"
-            style={{ backgroundColor: "#57b926ff" }}
-            className="mb-6"
-          />
-          <Typography.Title className="text-5xl lg:text-6xl font-extrabold tracking-tight mb-6">
-            Create .html Artifact from .jsx
+          <Typography.Title className="text-5xl lg:text-6xl font-bold tracking-tight mb-6">
+            Create an .html Artifact from .jsx
           </Typography.Title>
           <Typography.Paragraph
             type="secondary"
-            className="text-xl leading-relaxed max-w-2xl mx-auto mb-8"
+            className="text-lg leading-loose max-w-4xl mx-auto mb-8"
           >
-            Why write .html when you can write responsive .jsx? <br />
+            Why write an .html file when you can write responsive .jsx? <br />
             Let your AI agent write artifacts in{" "}
-            <code className="bg-code px-2 py-1 rounded text-primary">
+            <code className="bg-code text-sm px-2 py-1 rounded text-primary">
               .jsx
             </code>{" "}
-            and let{" "}
-            <code className="bg-code px-2 py-1 rounded text-primary">
+            while{" "}
+            <code className="bg-code text-sm px-2 py-1 rounded text-primary">
               rtifact
             </code>{" "}
-            handle the rest.
+            handles the rest. <br />
+            Produces compressed <strong>HTML</strong> artifacts starting at ~15
+            KB with full React capability.
           </Typography.Paragraph>
 
           <div className="mx-auto mb-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm text-muted-foreground">

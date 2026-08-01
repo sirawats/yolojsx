@@ -86,9 +86,11 @@ practices.
   intentionally changing dependencies, and commit the resulting lockfile.
 - The published CLI supports Node `^20.19.0 || >=22.12.0`. Repository
   development on the Node 22 line requires `>=22.13.0` because of ESLint 10.
-- `npm run dev` starts Vite with hot reload for `website/index.tsx`. Do not start
-  this persistent server automatically; the user runs it when needed. To serve a
-  custom entry, run `npx tsx scripts/dev.ts <entry>`.
+- `npm run dev` starts Vite with hot reload for `website/index.tsx` using
+  the built-in `rtifact` theme. Do not start this persistent server automatically; the
+  user runs it when needed. To serve a custom entry, run
+  `npx tsx scripts/dev.ts <entry> [theme]`; the optional second positional value
+  accepts the same preset name or custom theme path resolved by the CLI.
 - `npm run cli -- <entry> [options]` runs `src/bin.ts` directly without first
   compiling `lib/`; use it for source-level CLI development.
 - `npm run build && node lib/bin.js examples/TaxCalculator.jsx` performs a manual CLI smoke test.
@@ -140,8 +142,9 @@ Run it locally before handing work off.
 
 ## Theme and Ant Design Tokens
 
-Theme values from `src/themes/*.ts` enter `fixedTheme()`. Global
-`antDesign.token` values then pass through the algorithm selected in
+Built-in definitions from `src/themes/*.jsx` and custom modules selected through
+`resolveThemeSelection()` enter `createTheme()`. Global `antDesign.token` values
+then pass through the algorithm selected in
 `src/templates.ts` → Ant map and alias tokens → default component tokens.
 `createAntDesignComponentOverrides()` instead supplies direct component
 overrides, which bypass the algorithm unless a component-level algorithm is
@@ -182,6 +185,15 @@ mappings, contrast constraints, and representative rendered components.
 
 - The website derives examples with `import.meta.glob("../examples/*.jsx")` and
   themes from `THEMES`; do not duplicate either catalog manually.
+- `src/themes/rtifact.jsx` is the website shell's built-in brand theme. Apply it through the
+  existing Rtifact build boundary, which generates the semantic CSS and outer
+  Ant Design provider. Do not import it into `website/index.tsx`, inject another
+  theme stylesheet, or add a nested page-level `ConfigProvider`.
+- Keep the website theme selection synchronized in the `npm run dev` script and
+  both GitHub Actions website builds. The production-style command is
+  `npm run build && node lib/bin.js website/index.tsx --out-dir dist --theme rtifact`.
+  The showcase preview remains independent and must continue applying the
+  visitor-selected built-in theme inside its iframe.
 - After editing `examples/`, copy the whole catalog into the skill with
   `cp -r examples/. skills/rtifact/examples/`. Keep both directories identical;
   remove any skill-side file whose canonical example was deleted.

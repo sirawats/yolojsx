@@ -117,7 +117,9 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
   );
 
   runCli(packageDirectory, ["--version"]);
-  runCli(packageDirectory, ["themes"]);
+  const themeCatalog = runCli(packageDirectory, ["themes"])
+    .stdout.trim()
+    .split(/\r?\n/);
   runCli(packageDirectory, ["--themes"]);
   runCli(packageDirectory, ["Home.tsx"]);
   runCli(packageDirectory, ["Home.tsx", "--output", "index.html"]);
@@ -152,7 +154,11 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
   const themeFiles = (
     await readdir(path.join(packageDirectory, "lib/themes"))
   ).filter((name) => name.endsWith(".js") || name.endsWith(".css"));
-  if (themeFiles.length !== 22 || !themeFiles.includes("foundation.css")) {
+  if (
+    themeFiles.length !== themeCatalog.length + 1 ||
+    !themeFiles.includes("foundation.css") ||
+    themeCatalog.some((id) => !themeFiles.includes(`${id}.js`))
+  ) {
     throw new Error(
       `Packed theme catalog is incomplete: ${themeFiles.length} files.`,
     );

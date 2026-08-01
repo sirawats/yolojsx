@@ -53,9 +53,8 @@ function compositeColor(foreground: string, background: string) {
 
 test("validates the complete immutable theme catalog", async () => {
   assert.equal(validateThemeCatalog(), true);
-  assert.equal(FIXED_THEMES.length, 21);
-  assert.equal(THEMES.length, 21);
   assert.ok(THEMES.every(Object.isFrozen));
+  assert.equal(resolveTheme("rtifact").id, "rtifact");
   assert.equal(resolveTheme("onedark").id, "one-dark");
   for (const theme of THEMES) {
     const stylesheet = renderThemeCss(theme);

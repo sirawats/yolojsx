@@ -2,6 +2,7 @@ import type { ThemeConfig } from "antd";
 import { RtifactError } from "./errors.js";
 
 import defaultDef from "./themes/default.js";
+import rtifactDef from "./themes/rtifact.js";
 import githubLightDef from "./themes/github-light.js";
 import githubDarkDef from "./themes/github-dark.js";
 import githubDarkDimmedDef from "./themes/github-dark-dimmed.js";
@@ -585,6 +586,7 @@ export function createTheme(definition: ThemeDefinition): Theme {
 
 const DEFINITIONS = [
   defaultDef,
+  rtifactDef,
   githubLightDef,
   githubDarkDef,
   githubDarkDimmedDef,

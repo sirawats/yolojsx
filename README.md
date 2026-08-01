@@ -10,9 +10,9 @@
 [![Node.js version][node-image]][node-url]
 [![License][license-image]][license-url]
 
-**Rtifact turns agent-authored JSX into portable, interactive HTML artifacts.**
-Write a `.jsx` or `.tsx` file with React, Ant Design, Tailwind CSS, React Icons,
-and PrismJS; Rtifact handles the build and produces the finished artifact.
+**Rtifact turns a .jsx into portable, interactive .html artifacts.**
+
+Why write an `.html` file when you can write responsive `.jsx`? Let your AI agent create `.jsx` with React, AntD, Tailwind CSS, React Icons, and PrismJS. **Rtifact** handles the build and produces the finished artifact.
 
 By default, it produces one shareable `.html` file starting at about **15 KB**.
 
