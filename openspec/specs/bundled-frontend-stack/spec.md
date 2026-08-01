@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the zero-configuration React, Tailwind CSS, and Ant Design environment supplied by `yolojsx`, including dependency-resolution and runtime compatibility guarantees.
+Define the zero-configuration React, Tailwind CSS, and Ant Design environment supplied by Rtifact, including dependency-resolution and runtime compatibility guarantees.
 
 ## Requirements
 
@@ -13,7 +13,7 @@ The CLI SHALL supply compatible React and React DOM runtime instances without re
 #### Scenario: React is not installed in the input directory
 
 - **WHEN** a valid entry uses React JSX and the input directory has no local React installation
-- **THEN** the build succeeds using the React runtime supplied by `yolojsx`
+- **THEN** the build succeeds using the React runtime supplied by Rtifact
 
 #### Scenario: One React instance
 
@@ -50,7 +50,7 @@ The CLI SHALL define one exact-version CDN mapping for the supported external ru
 #### Scenario: Default file versions match the supplied stack
 
 - **WHEN** a default JSX file build is generated
-- **THEN** every remote runtime mapping uses the exact corresponding version controlled and tested by the installed yolojsx package
+- **THEN** every remote runtime mapping uses the exact corresponding version controlled and tested by the installed Rtifact package
 
 #### Scenario: Application-specific packages remain embedded
 
@@ -64,22 +64,46 @@ The CLI SHALL make the package's supported `react-icons` collection imports, `pr
 #### Scenario: Entry imports a React Icons collection
 
 - **WHEN** an entry imports a named icon from a supported collection such as `react-icons/lu` and the input project has no local React Icons installation
-- **THEN** the build succeeds using the React Icons package supplied by yolojsx and the rendered application includes the icon
+- **THEN** the build succeeds using the React Icons package supplied by Rtifact and the rendered application includes the icon
 
 #### Scenario: Entry imports PrismJS language definitions and plugins
 
 - **WHEN** an entry imports PrismJS, the language definitions required by its code samples, and the line-numbers plugin with its stylesheet while the input project has no local PrismJS installation
-- **THEN** the build succeeds using the PrismJS package supplied by yolojsx and the rendered application includes highlighted code with theme-aligned line numbers
+- **THEN** the build succeeds using the PrismJS package supplied by Rtifact and the rendered application includes highlighted code with theme-aligned line numbers
 
 #### Scenario: Entry selects a Prism theme
 
-- **WHEN** an entry names a theme discovered from the supplied `prism-themes` package in `YOLOJSX.prismTheme`
+- **WHEN** an entry names a theme discovered from the supplied `prism-themes` package in `RTIFACT.prismTheme`
 - **THEN** the build includes only the selected theme stylesheet
 
 #### Scenario: Entry selects an unknown Prism theme
 
 - **WHEN** an entry names a Prism theme that is not installed
 - **THEN** the build includes PrismJS's default stylesheet and reports the fallback as a warning
+
+### Requirement: Supplied stack in theme modules
+
+The CLI SHALL compile selected TypeScript and JSX theme modules with the same supplied frontend-package resolution and compatible React deduplication used by the application build, without requiring those packages to be installed beside the theme file.
+
+#### Scenario: Zero-install JSX theme component
+
+- **WHEN** a selected `.jsx` theme module imports React and Ant Design, named-exports a component, and the input directory has no local frontend packages
+- **THEN** theme loading and the application build both succeed using the compatible packages supplied by Rtifact
+
+#### Scenario: Theme component imports React Icons
+
+- **WHEN** a named component exported by a selected theme module imports an icon from a supported `react-icons` collection
+- **THEN** the application build resolves the supplied icon package and includes the imported icon
+
+#### Scenario: Theme module imports local helper
+
+- **WHEN** a selected theme module derives its default definition from an imported local TypeScript helper
+- **THEN** the theme loader resolves and evaluates that local module through the isolated Vite graph
+
+#### Scenario: Theme module imports non-core dependency
+
+- **WHEN** a selected theme module imports a non-core package
+- **THEN** the loader applies normal input-project resolution and reports the importing theme source if the package is unavailable
 
 ### Requirement: Supplied Ant Design theme integration
 
@@ -98,7 +122,7 @@ The CLI SHALL supply one compatible Ant Design runtime graph and SHALL apply eac
 #### Scenario: Standard component variants need no theme classes
 
 - **WHEN** an entry renders supported Ant Design default, primary, text, link, ghost, or danger component variants using ordinary Ant Design props
-- **THEN** the preset's official component tokens determine their normal, hover, active, focus, and disabled appearance without a yolojsx class name
+- **THEN** the preset's official component tokens determine their normal, hover, active, focus, and disabled appearance without an Rtifact-specific class name
 
 #### Scenario: Built-in themes avoid generated selector overrides
 
@@ -107,7 +131,7 @@ The CLI SHALL supply one compatible Ant Design runtime graph and SHALL apply eac
 
 ### Requirement: Tailwind utility generation
 
-The CLI SHALL process Tailwind CSS for the input component and its local source tree without requiring user-authored Tailwind or Vite configuration.
+The CLI SHALL process Tailwind CSS for the input component, its local source tree, and the selected local theme module without requiring user-authored Tailwind or Vite configuration.
 
 #### Scenario: Entry uses a Tailwind utility
 
@@ -119,6 +143,11 @@ The CLI SHALL process Tailwind CSS for the input component and its local source 
 - **WHEN** a local component imported by the entry contains a supported Tailwind utility class
 - **THEN** the generated CSS contains the styles required for that imported component
 
+#### Scenario: Theme component uses a utility outside the entry tree
+
+- **WHEN** a selected JSX theme module outside the entry's scanned source directory contains a supported Tailwind utility and the application imports that component
+- **THEN** the generated CSS contains the styles required for that theme component
+
 #### Scenario: Ant Design and Tailwind are used together
 
 - **WHEN** an application renders Ant Design components alongside elements using Tailwind utilities
@@ -126,17 +155,17 @@ The CLI SHALL process Tailwind CSS for the input component and its local source 
 
 ### Requirement: Tailwind CSS-first theme processing
 
-The CLI SHALL compose built-in semantic variables and optional custom CSS through the supplied Tailwind v4 CSS-first build path without loading a user-authored Tailwind configuration file.
+The CLI SHALL compose semantic variables from the selected built-in preset or local theme manifest through the supplied Tailwind v4 CSS-first build path without loading a user-authored Tailwind configuration file.
 
 #### Scenario: Preset exposes Tailwind theme values
 
-- **WHEN** a selected preset defines semantic colors used by generated utilities or custom CSS
+- **WHEN** a selected built-in preset defines semantic colors used by generated utilities
 - **THEN** Tailwind processes those values from the controlled CSS entry and emits the required styles
 
-#### Scenario: Custom CSS uses Tailwind directives
+#### Scenario: Custom theme exposes Tailwind theme values
 
-- **WHEN** a validated custom stylesheet uses supported Tailwind v4 CSS-first directives within the documented extension contract
-- **THEN** the controlled Tailwind integration processes them without requiring a `tailwind.config.js`
+- **WHEN** a selected local theme manifest defines semantic colors used by generated utilities
+- **THEN** Tailwind processes the normalized values from the controlled CSS entry and emits the required styles
 
 ### Requirement: Coordinated cascade layers
 
@@ -154,7 +183,7 @@ The supplied frontend stack SHALL integrate Tailwind and Ant Design using a decl
 
 ### Requirement: Non-core dependency resolution
 
-The CLI SHALL preserve normal input-project resolution for bare imports that are not part of the stack guaranteed by `yolojsx`.
+The CLI SHALL preserve normal input-project resolution for bare imports that are not part of the stack guaranteed by Rtifact.
 
 #### Scenario: Locally installed user dependency
 

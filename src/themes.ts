@@ -1,7 +1,8 @@
 import type { ThemeConfig } from "antd";
-import { YoloJsxError } from "./errors.js";
+import { RtifactError } from "./errors.js";
 
 import defaultDef from "./themes/default.js";
+import rtifactDef from "./themes/rtifact.js";
 import githubLightDef from "./themes/github-light.js";
 import githubDarkDef from "./themes/github-dark.js";
 import githubDarkDimmedDef from "./themes/github-dark-dimmed.js";
@@ -154,7 +155,7 @@ export interface Theme {
 }
 
 const NON_ENDORSEMENT =
-  "This is an original yolojsx adaptation. It is not affiliated with or endorsed by the referenced project.";
+  "This is an original Rtifact adaptation. It is not affiliated with or endorsed by the referenced project.";
 
 const LIGHT_STATUS = Object.freeze({
   success: { foreground: "#14532d", background: "#dcfce7", seed: "#52c41a" },
@@ -585,6 +586,7 @@ export function createTheme(definition: ThemeDefinition): Theme {
 
 const DEFINITIONS = [
   defaultDef,
+  rtifactDef,
   githubLightDef,
   githubDarkDef,
   githubDarkDimmedDef,
@@ -911,8 +913,8 @@ for (const theme of THEMES) {
 export function resolveTheme(themeId = DEFAULT_THEME_ID) {
   const theme = findTheme(themeId);
   if (!theme) {
-    throw new YoloJsxError(
-      `Unknown theme: ${themeId}. Run \`yolojsx themes\` to list available themes.`,
+    throw new RtifactError(
+      `Unknown theme: ${themeId}. Run \`rtifact themes\` to list available themes.`,
       { code: "UNKNOWN_THEME" },
     );
   }
@@ -931,7 +933,7 @@ export function renderThemeCss(theme: Theme) {
   const { colors, typography, rhythm, radius, shadow, controlHeight } =
     theme.semantic;
   const status = colors.status;
-  return `/* Original yolojsx theme: ${theme.id}. No upstream CSS is included. */
+  return `/* Original Rtifact theme: ${theme.id}. No upstream CSS is included. */
 :root {
   color-scheme: ${theme.appearance};
   --background: ${colors.canvas};

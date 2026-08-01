@@ -19,7 +19,7 @@ const repository = path.resolve(
   "..",
 );
 const temporary = await mkdtemp(
-  path.join(os.tmpdir(), "yolojsx-package-verify-"),
+  path.join(os.tmpdir(), "rtifact-package-verify-"),
 );
 const packDirectory = path.join(temporary, "pack");
 const extractDirectory = path.join(temporary, "extract");
@@ -117,7 +117,9 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
   );
 
   runCli(packageDirectory, ["--version"]);
-  runCli(packageDirectory, ["themes"]);
+  const themeCatalog = runCli(packageDirectory, ["themes"])
+    .stdout.trim()
+    .split(/\r?\n/);
   runCli(packageDirectory, ["--themes"]);
   runCli(packageDirectory, ["Home.tsx"]);
   runCli(packageDirectory, ["Home.tsx", "--output", "index.html"]);
@@ -152,7 +154,11 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
   const themeFiles = (
     await readdir(path.join(packageDirectory, "lib/themes"))
   ).filter((name) => name.endsWith(".js") || name.endsWith(".css"));
-  if (themeFiles.length !== 22 || !themeFiles.includes("foundation.css")) {
+  if (
+    themeFiles.length !== themeCatalog.length + 1 ||
+    !themeFiles.includes("foundation.css") ||
+    themeCatalog.some((id) => !themeFiles.includes(`${id}.js`))
+  ) {
     throw new Error(
       `Packed theme catalog is incomplete: ${themeFiles.length} files.`,
     );
@@ -168,7 +174,7 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
         `Packed theme asset contains an Obsidian selector: ${name}`,
       );
     }
-    if (/--yolo-|\.yolo-/.test(stylesheet)) {
+    if (/--rtifact-|\.rtifact-/.test(stylesheet)) {
       throw new Error(
         `Packed theme asset contains a removed branded styling API: ${name}`,
       );
@@ -190,7 +196,7 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
     );
     if (
       /import\s+[^;]*["'][^"']+\.css["']/.test(source) ||
-      /\byolo-(?:surface|muted|reading|canvas|text|primary|border)\b/.test(
+      /\brtifact-(?:surface|muted|reading|canvas|text|primary|border)\b/.test(
         source,
       )
     ) {
@@ -200,7 +206,7 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
     }
   }
 
-  const globalExecutable = path.join(globalBinDirectory, "yolojsx");
+  const globalExecutable = path.join(globalBinDirectory, "rtifact");
   await symlink(
     path.join(packageDirectory, "lib/bin.js"),
     globalExecutable,
@@ -216,7 +222,7 @@ export default () => <main className="p-8"><Button>{label}</Button></main>;
 
   const npmBinDirectory = path.join(workDirectory, "node_modules", ".bin");
   await mkdir(npmBinDirectory, { recursive: true });
-  const npmExecutable = path.join(npmBinDirectory, "yolojsx");
+  const npmExecutable = path.join(npmBinDirectory, "rtifact");
   await symlink(
     path.join(packageDirectory, "lib/bin.js"),
     npmExecutable,

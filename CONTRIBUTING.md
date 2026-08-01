@@ -1,6 +1,6 @@
-# Contributing to yolojsx
+# Contributing to Rtifact
 
-Thanks for helping improve yolojsx. Contributions should keep the CLI small,
+Thanks for helping improve Rtifact. Contributions should keep the CLI small,
 predictable, and safe around user files.
 
 By participating, you agree to follow [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
@@ -25,7 +25,7 @@ have an OpenSpec proposal before implementation.
 Supported Node.js versions are `^20.19.0` or `>=22.12.0`.
 
 ```sh
-cd yolojsx
+cd rtifact
 npm ci
 npm run verify
 ```

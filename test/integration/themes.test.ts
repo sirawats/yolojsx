@@ -61,7 +61,11 @@ export default function Catalog() {
     assert.match(javascript, /defaultHoverBg/, theme.id);
     assert.match(javascript, /defaultActiveBg/, theme.id);
     assert.match(javascript, /defaultBgDisabled/, theme.id);
-    assert.doesNotMatch(css, /\.bg-yolo-|\.text-yolo-|\.yolo-/i, theme.id);
+    assert.doesNotMatch(
+      css,
+      /\.bg-rtifact-|\.text-rtifact-|\.rtifact-/i,
+      theme.id,
+    );
     assert.doesNotMatch(css, /\.ant-[\w-]+\s*\{/i, theme.id);
     assert.doesNotMatch(css, /antd\/dist\/reset|reset\.css/, theme.id);
     assert.doesNotMatch(css, /prefers-color-scheme/, theme.id);
@@ -222,7 +226,7 @@ export default { ...base, colors: { ...base.colors, primary: "invalid" } };`,
   });
   assert.equal(unknown.exitCode, 1);
   assert.match(unknown.stderr, /Unknown theme: missing/);
-  assert.match(unknown.stderr, /yolojsx themes/);
+  assert.match(unknown.stderr, /rtifact themes/);
 
   const unsupported = await invoke(["Home.jsx", "--theme", "unsupported.tsx"], {
     cwd: fixture,

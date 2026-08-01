@@ -1,4 +1,4 @@
-interface YoloJsxErrorOptions extends ErrorOptions {
+interface RtifactErrorOptions extends ErrorOptions {
   code?: string;
 }
 
@@ -8,13 +8,13 @@ interface DetailedError extends Error {
   frame?: string;
 }
 
-export class YoloJsxError extends Error {
+export class RtifactError extends Error {
   code: string;
 
-  constructor(message: string, options: YoloJsxErrorOptions = {}) {
+  constructor(message: string, options: RtifactErrorOptions = {}) {
     super(message, options);
-    this.name = "YoloJsxError";
-    this.code = options.code ?? "YOLOJSX_ERROR";
+    this.name = "RtifactError";
+    this.code = options.code ?? "RTIFACT_ERROR";
   }
 }
 

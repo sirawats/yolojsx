@@ -152,9 +152,9 @@ test("rejects invalid modes, duplicate values, and action-specific options", () 
   );
   assert.match(USAGE, /CDN-backed compressed HTML file by default/);
   assert.match(USAGE, /--self-contained/);
-  assert.match(USAGE, /yolojsx themes/);
+  assert.match(USAGE, /rtifact themes/);
   assert.match(USAGE, /--themes/);
-  assert.match(USAGE, /yolojsx prism-themes/);
+  assert.match(USAGE, /rtifact prism-themes/);
   assert.match(USAGE, /--prism-themes/);
   assert.match(USAGE, /--out-dir/);
   assert.match(USAGE, /\.ts\/\.jsx module/);

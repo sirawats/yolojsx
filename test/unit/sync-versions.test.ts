@@ -6,7 +6,7 @@ import { syncVersions } from "../../scripts/sync-versions.js";
 import { makeFixture, writeFixture } from "../helpers.js";
 
 test("synchronizes every package and plugin version", async (t) => {
-  const root = await makeFixture("yolojsx-versions-");
+  const root = await makeFixture("rtifact-versions-");
   t.after(() => rm(root, { recursive: true, force: true }));
   await writeFixture(root, {
     "package.json": '{"version":"1.2.3"}',

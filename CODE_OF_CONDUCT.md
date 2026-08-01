@@ -30,7 +30,7 @@ release channels, and other spaces where someone represents the project.
 ## Reporting and enforcement
 
 For a non-sensitive conduct concern about this project, open a
-[public issue](https://github.com/sirawats/yolojsx/issues/new) with a concise
+[public issue](https://github.com/sirawats/rtifact/issues/new) with a concise
 description. Do not include private information, threats, or details that could
 expose another person.
 

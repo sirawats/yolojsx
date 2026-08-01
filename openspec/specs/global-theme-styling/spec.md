@@ -25,6 +25,78 @@ The JSX build form SHALL accept `--theme <preset>` in both default HTML-file mod
 - **WHEN** a user supplies a theme id that is not a supported preset or alias
 - **THEN** the CLI exits unsuccessfully before building and identifies the unknown value and the theme-discovery command
 
+### Requirement: Local TypeScript theme selection
+
+The JSX build form SHALL accept `--theme <file.ts|file.jsx>` in default HTML file, self-contained HTML file, and explicit directory modes, SHALL resolve the file from the invocation working directory, and SHALL require a readable regular TypeScript or JSX file before starting a build. Exact built-in preset ids and aliases SHALL continue to select their catalog themes.
+
+#### Scenario: Select TypeScript theme module
+
+- **WHEN** a user builds with `--theme themes/company.ts`
+- **THEN** the CLI loads the canonical local file and applies its default theme manifest
+
+#### Scenario: Select JSX theme module
+
+- **WHEN** a user builds with `--theme themes/company.jsx`
+- **THEN** the CLI loads the canonical local file and applies its default theme manifest
+
+#### Scenario: Theme path is resolved from invocation directory
+
+- **WHEN** a user invokes Rtifact from a directory containing `themes/company.jsx`
+- **THEN** the relative theme argument resolves from that invocation directory rather than from the entry file or package installation
+
+#### Scenario: Invalid local theme input
+
+- **WHEN** the selected theme path is missing, unreadable, not a regular file, or has an unsupported extension
+- **THEN** the CLI exits unsuccessfully before creating output and identifies the invalid theme source
+
+#### Scenario: Unknown non-path theme
+
+- **WHEN** a user supplies a value that is neither a supported preset or alias nor a `.ts` or `.jsx` path
+- **THEN** the CLI retains the unknown-theme diagnostic and identifies the theme-discovery command
+
+### Requirement: Custom theme module contract
+
+A local theme module SHALL use its default export as one declarative theme definition, SHALL allow named exports to remain ordinary application modules, and SHALL NOT auto-register or inject named exports into application scope.
+
+#### Scenario: Default theme definition
+
+- **WHEN** a selected module default-exports a valid theme definition
+- **THEN** the generated semantic CSS and Ant Design provider configuration are derived from that definition
+
+#### Scenario: Reusable named component
+
+- **WHEN** a JSX theme module named-exports a React component and the application imports it explicitly
+- **THEN** the normal application build includes and renders that component
+
+#### Scenario: Named export is not imported
+
+- **WHEN** a theme module has a named component export that the application does not import
+- **THEN** Rtifact does not expose that component as a global or render it implicitly
+
+### Requirement: Custom theme validation
+
+The CLI SHALL normalize and validate a custom theme definition with the same identifier, provenance, appearance, semantic color, contrast, typography, rhythm, serialization, Ant Design token, and supported component-override constraints applied to built-in themes. Theme modules SHALL be treated and documented as trusted local code executed during the build.
+
+#### Scenario: Valid custom manifest
+
+- **WHEN** a local theme default export satisfies the complete theme contract
+- **THEN** the CLI applies its resolved semantic and Ant Design configuration in every output mode
+
+#### Scenario: Missing default export
+
+- **WHEN** a selected local theme module has no object default export
+- **THEN** the CLI exits unsuccessfully before creating output and identifies the theme source and missing manifest
+
+#### Scenario: Invalid custom manifest
+
+- **WHEN** a custom definition violates a theme validation constraint
+- **THEN** the CLI exits unsuccessfully before creating output and identifies both the theme source and the invalid field or relationship
+
+#### Scenario: Theme module evaluation fails
+
+- **WHEN** compiling or evaluating the selected local theme module fails
+- **THEN** the CLI exits unsuccessfully before creating output and reports an actionable diagnostic associated with that module
+
 ### Requirement: Initial recognizable theme catalog
 
 The package SHALL provide fixed presets named `default`, `github-light`, `github-dark`, `github-dark-dimmed`, `material-light`, `material-dark`, `one-dark`, `solarized-light`, `solarized-dark`, `gruvbox-light`, `gruvbox-dark`, `everforest-light`, `everforest-dark`, `catppuccin-latte`, `catppuccin-frappe`, `catppuccin-macchiato`, `catppuccin-mocha`, `obsidian-minimal-light`, `obsidian-minimal-dark`, `obsidian-baseline-light`, and `obsidian-baseline-dark`.
@@ -99,7 +171,7 @@ Each preset SHALL define one semantic theme manifest that maps page, surface, fo
 
 ### Requirement: Theme-transparent JSX authoring
 
-The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use a yolojsx-specific class-name vocabulary.
+The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use an Rtifact-specific class-name vocabulary.
 
 #### Scenario: Native document inherits its theme
 
@@ -114,34 +186,34 @@ The CLI-managed stylesheet graph SHALL make the selected preset available throug
 #### Scenario: Conventional semantic Tailwind utility
 
 - **WHEN** an entry needs an explicit muted foreground or themed surface
-- **THEN** it can use conventional semantic utilities such as `text-muted-foreground`, `bg-card`, `border-border`, or `font-heading` without a `yolo-` prefix
+- **THEN** it can use conventional semantic utilities such as `text-muted-foreground`, `bg-card`, `border-border`, or `font-heading` without a package-specific prefix
 
 #### Scenario: No branded compatibility vocabulary
 
 - **WHEN** package verification inspects the generated Tailwind theme contract, documentation, and examples
-- **THEN** the removed `yolo-*` utilities and package-specific styling helpers are not retained as aliases or presented as supported authoring APIs
+- **THEN** removed branded utilities and package-specific styling helpers are not retained as aliases or presented as supported authoring APIs
 
-### Requirement: Original yolojsx theme authorship
+### Requirement: Original Rtifact theme authorship
 
-Built-in theme CSS and mappings SHALL be authored specifically for yolojsx's generated document and semantic contract; the project SHALL NOT copy, vendor, concatenate, mechanically transform, or redistribute CSS from an upstream palette, design system, editor theme, or Obsidian theme.
+Built-in theme CSS and mappings SHALL be authored specifically for Rtifact's generated document and semantic contract; the project SHALL NOT copy, vendor, concatenate, mechanically transform, or redistribute CSS from an upstream palette, design system, editor theme, or Obsidian theme.
 
 #### Scenario: Palette used as inspiration
 
 - **WHEN** a maintainer creates a preset informed by an upstream theme
-- **THEN** the committed implementation contains an original semantic mapping and yolojsx-specific CSS rather than upstream selectors or stylesheet content
+- **THEN** the committed implementation contains an original semantic mapping and Rtifact-specific CSS rather than upstream selectors or stylesheet content
 
 #### Scenario: Packaged theme sources inspected
 
 - **WHEN** the npm artifact is inspected
-- **THEN** it contains yolojsx theme manifests, a package-owned stylesheet for every selectable theme, and the shared yolojsx foundation, but no vendored upstream or Obsidian theme stylesheet
+- **THEN** it contains Rtifact theme manifests, a package-owned stylesheet for every selectable theme, and the shared Rtifact foundation, but no vendored upstream or Obsidian theme stylesheet
 
 ### Requirement: Theme provenance and notices
 
-Every non-default preset SHALL record its display name, canonical id, supported mode, inspiration source, pinned source revision or release, source license, attribution text, and an explicit statement that yolojsx is not endorsed by the named project; required notices SHALL ship in the npm artifact.
+Every non-default preset SHALL record its display name, canonical id, supported mode, inspiration source, pinned source revision or release, source license, attribution text, and an explicit statement that Rtifact is not endorsed by the named project; required notices SHALL ship in the npm artifact.
 
 #### Scenario: Theme discovery lists canonical names
 
-- **WHEN** a user runs `yolojsx themes` or `yolojsx --themes`
+- **WHEN** a user runs `rtifact themes` or `rtifact --themes`
 - **THEN** the CLI prints only canonical preset ids in catalog order, one per line, without a heading, descriptions, aliases, mode labels, or provenance
 
 #### Scenario: Package notices are verified
@@ -149,33 +221,9 @@ Every non-default preset SHALL record its display name, canonical id, supported 
 - **WHEN** package verification inspects the published artifact
 - **THEN** all required theme source and license notices are present and no unaudited preset is included
 
-### Requirement: Custom global CSS overrides
-
-The JSX build form SHALL accept at most one `--css <file.css>` value, resolve it from the invocation working directory, require a readable regular `.css` file, process it in the controlled Vite and Tailwind build graph after the selected preset, and preserve file-relative local asset resolution.
-
-#### Scenario: Custom CSS without explicit theme
-
-- **WHEN** a user builds with `--css styles/custom.css` and no `--theme`
-- **THEN** the custom stylesheet is applied after the `default` preset
-
-#### Scenario: Preset with custom override
-
-- **WHEN** a user combines `--theme github-dark` with `--css custom.css`
-- **THEN** the preset supplies the semantic baseline and the custom stylesheet can override it according to the documented cascade layers
-
-#### Scenario: Custom CSS local asset
-
-- **WHEN** the custom stylesheet references a local font or image relative to itself
-- **THEN** Vite resolves the asset from the stylesheet directory and the selected output mode emits or embeds it correctly
-
-#### Scenario: Invalid custom CSS input
-
-- **WHEN** the custom CSS path is missing, unreadable, not a regular file, or does not end in `.css`
-- **THEN** the CLI exits unsuccessfully before creating output and identifies the invalid stylesheet
-
 ### Requirement: Stable theme cascade
 
-The controlled stylesheet graph SHALL declare and preserve the cascade order `theme`, `base`, `antd`, `components`, and `utilities`, SHALL import the selected checked-in theme stylesheet, SHALL let Tailwind Preflight own the global reset, SHALL avoid importing Ant Design reset CSS in the normal runtime-styling path, and SHALL keep built-in Ant Design customization in the generated provider token configuration rather than CSS selector overrides.
+The controlled stylesheet graph SHALL declare and preserve the cascade order `theme`, `base`, `antd`, `components`, and `utilities`, SHALL import the generated semantic stylesheet for the selected built-in or custom theme, SHALL let Tailwind Preflight own the global reset, SHALL avoid importing Ant Design reset CSS in the normal runtime-styling path, and SHALL keep Ant Design customization in the generated provider token configuration rather than CSS selector overrides.
 
 #### Scenario: Utility overrides Ant Design styling
 
@@ -187,10 +235,15 @@ The controlled stylesheet graph SHALL declare and preserve the cascade order `th
 - **WHEN** a generated application renders an unstyled HTML element
 - **THEN** its reset behavior comes from Tailwind Preflight without a second Ant Design global reset competing with it
 
-#### Scenario: Built-in stylesheet does not patch Ant Design selectors
+#### Scenario: Theme does not patch Ant Design selectors
 
-- **WHEN** a checked-in preset needs distinct component shapes, density, elevation, or interaction states
-- **THEN** those differences are supplied through the preset's Ant Design global or component tokens and the stylesheet contains no `.ant-*` component patch
+- **WHEN** a built-in or custom theme needs distinct component shapes, density, elevation, or interaction states
+- **THEN** those differences are supplied through Ant Design global or component tokens and the generated theme stylesheet contains no `.ant-*` component patch
+
+#### Scenario: Application imports local CSS
+
+- **WHEN** application JSX imports a local stylesheet through its normal module graph
+- **THEN** Vite processes that stylesheet and its file-relative assets without treating it as a second theme manifest or privileged cascade slot
 
 ### Requirement: JSX-only packaged examples
 
@@ -204,7 +257,7 @@ Every packaged example SHALL express its application through JSX, semantic HTML,
 #### Scenario: Example source has no theme plumbing
 
 - **WHEN** package verification inspects every documented example
-- **THEN** no example configures an Ant Design theme boundary, uses a `yolo-*` class name, or hard-codes a light or dark replacement for a built-in semantic color
+- **THEN** no example configures an Ant Design theme boundary, uses a package-branded class name, or hard-codes a light or dark replacement for a built-in semantic color
 
 #### Scenario: Every example builds in both modes
 

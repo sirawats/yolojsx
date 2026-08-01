@@ -1,10 +1,10 @@
 {
-  "name": "yolojsx",
-  "version": "0.1.7",
-  "description": "Build a JSX component into portable compressed HTML or deployable React assets with Vite, Tailwind CSS, and Ant Design.",
+  "name": "rtifact",
+  "version": "1.0.0",
+  "description": "Turn agent-authored JSX into portable, interactive HTML artifacts.",
   "type": "module",
   "bin": {
-    "yolojsx": "lib/bin.js"
+    "rtifact": "lib/bin.js"
   },
   "files": [
     "lib",
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "cli": "tsx src/bin.ts",
-    "dev": "tsx scripts/dev.ts website/index.tsx",
+    "dev": "tsx scripts/dev.ts website/index.tsx rtifact",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "lint": "eslint .",
@@ -40,6 +40,8 @@
   },
   "keywords": [
     "jsx",
+    "artifact",
+    "html-artifact",
     "react",
     "vite",
     "tailwindcss",
@@ -50,11 +52,11 @@
   "author": "sirawats",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sirawats/yolojsx.git"
+    "url": "git+https://github.com/sirawats/rtifact.git"
   },
-  "homepage": "https://github.com/sirawats/yolojsx#readme",
+  "homepage": "https://github.com/sirawats/rtifact#readme",
   "bugs": {
-    "url": "https://github.com/sirawats/yolojsx/issues"
+    "url": "https://github.com/sirawats/rtifact/issues"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"

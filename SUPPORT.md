@@ -2,11 +2,11 @@
 
 ## Usage questions
 
-Read [README.md](README.md), run `yolojsx --help`, and search existing issues
+Read [README.md](README.md), run `rtifact --help`, and search existing issues
 before asking a question. If repository Discussions are enabled, use them for
 setup and usage questions. Otherwise, use the question issue form.
 
-Include the yolojsx version, Node.js version, operating system, command, relevant
+Include the Rtifact version, Node.js version, operating system, command, relevant
 input shape, complete error text, and the smallest safe reproduction.
 
 ## Bugs and feature requests

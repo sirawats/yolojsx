@@ -41,6 +41,20 @@ test("rebuilds managed output and protects unowned output", async (t) => {
     "keep",
   );
 
+  await writeFixture(fixture, {
+    "previous-output/.previous-tool-output.json": `{"tool":"previous"}`,
+    "previous-output/important.txt": "keep",
+  });
+  const previousMarker = await invoke(["Home.jsx", "-o", "previous-output"], {
+    cwd: fixture,
+  });
+  assert.equal(previousMarker.exitCode, 1);
+  assert.match(previousMarker.stderr, /non-interactive.*--force/s);
+  assert.equal(
+    await readFile(path.join(fixture, "previous-output/important.txt"), "utf8"),
+    "keep",
+  );
+
   const confirmed = await invoke(["Home.jsx", "-o", "unowned"], {
     cwd: fixture,
     confirmReplacement: async () => true,
@@ -118,7 +132,7 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
   assert.equal(await readAsset(path.join(fixture, "dist"), ".js"), previousJs);
   assert.ok(
     !(await readdir(fixture)).some((name) =>
-      name.startsWith(".yolojsx-stage-"),
+      name.startsWith(".rtifact-stage-"),
     ),
   );
 });

@@ -2,12 +2,22 @@
 
 ## Unreleased
 
+## 1.0.0 - 2026-08-01
+
+- **Breaking:** rebrand the package, executable, plugins, skills, generated
+  identifiers, and repository references as Rtifact with the `rtifact` command.
+- **Breaking:** rename JSX document metadata to `RTIFACT` and directory ownership
+  metadata to `.rtifact-output.json` without retaining public aliases.
+- Lead documentation and agent guidance with Rtifact's core outcome: portable,
+  interactive HTML artifacts produced from compact agent-authored JSX.
+- Replace the previous visual identity with a simple Rtifact wordmark.
+
 ## 0.1.7 - 2026-07-31
 
 - Add local `.ts` and `.jsx` modules to `--theme`, using their validated default
   manifests for semantic CSS and Ant Design while allowing explicitly imported
   named component exports.
-- Preserve yolojsx-supplied React, Ant Design, React Icons, and Tailwind support
+- Preserve Rtifact-supplied React, Ant Design, React Icons, and Tailwind support
   for zero-install JSX theme modules in every output mode.
 - Author every bundled preset manifest as checked JSX while preserving its
   existing catalog behavior and published JavaScript path.
@@ -52,8 +62,8 @@
 
 ## 0.1.4 - 2026-07-26
 
-- Supply `prism-themes`, resolve a named `YOLOJSX.prismTheme`, and add
-  `yolojsx prism-themes` discovery, with PrismJS's `prism` theme as the
+- Supply `prism-themes`, resolve a named `RTIFACT.prismTheme`, and add
+  `rtifact prism-themes` discovery, with PrismJS's `prism` theme as the
   warning-backed fallback.
 - Revise every bundled example around the product vision with clearer
   information hierarchy, honest sample framing, useful interaction, responsive
@@ -67,9 +77,9 @@
 
 ## 0.1.3 - 2026-07-26
 
-- Read optional `YOLOJSX` title and icon metadata from JSX entries for
+- Read optional `RTIFACT` title and icon metadata from JSX entries for
   browser-tab identity.
-- Add a canonical yolojsx AI-agent skill and Git-installable adapters for Codex,
+- Add a canonical Rtifact AI-agent skill and Git-installable adapters for Codex,
   Claude Code, Antigravity/Gemini CLI, and OpenCode without adding plugin files
   to the npm package.
 - Synchronize npm and plugin manifest versions through `npm version`, and reject
@@ -79,7 +89,7 @@
 
 - Add a beginner-focused npm publishing guide with safe dry-run, account
   security, release, verification, upgrade, dist-tag, and recovery procedures.
-- Rename the npm package and executable from `yolo-jsx` to `yolojsx`.
+- Consolidate the npm package and executable under the `rtifact` identifier.
 - Add open-source contribution, conduct, security, support, dependency-review,
   issue, and pull-request guidance.
 - Add Linux and Windows CI across supported Node.js lines plus Dependabot update
@@ -88,16 +98,16 @@
   that verifies repository identity, release metadata, and tracked-file hygiene.
 - Make one compressed `<EntryName>.html` the default JSX build output; use
   `--out-dir dist` for the former directory default.
-- Add 21 fixed global themes as original, checked-in yolojsx stylesheets with
+- Add 21 fixed global themes as original, checked-in Rtifact stylesheets with
   coordinated Ant Design tokens. Unsuffixed family aliases select light themes;
   dark themes require an explicit dark preset id.
-- Add `yolojsx themes`, `--theme`, and post-preset `--css` support.
+- Add `rtifact themes`, `--theme`, and post-preset `--css` support.
 - Keep `--single-file` temporarily as a deprecated compatibility alias.
 - Ship pinned inspiration/license notices in `THIRD_PARTY_NOTICES.md`.
 - Add technical-specification, API-reference, calculator, SaaS, analytics, and
   editorial examples, with build coverage for their suggested themes.
-- **Breaking:** remove the public `yolo-*` Tailwind utilities, `--yolo-*` custom
-  properties, and `yolo-surface`, `yolo-muted`, and `yolo-reading` helpers.
+- **Breaking:** remove the public branded Tailwind utilities, custom properties,
+  and surface, muted, and reading helpers.
   Pages now inherit native document styling, Ant Design components use official
   global and component tokens, and custom layouts can use conventional semantic
   utilities such as `bg-background`, `bg-card`, `text-muted-foreground`, and
@@ -105,5 +115,5 @@
 - Keep output modes, command-line theme IDs, and light/dark alias behavior
   unchanged by the authoring migration. `--css` remains the explicit extension
   point for application-wide CSS.
-- Print only canonical theme names from `yolojsx themes` and add
-  `yolojsx --themes` as an equivalent discovery command.
+- Print only canonical theme names from `rtifact themes` and add
+  `rtifact --themes` as an equivalent discovery command.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Rtifact"
+  short_description: "Create portable HTML artifacts from JSX"
+  default_prompt: "Use $rtifact to create a portable, interactive HTML artifact from my content."

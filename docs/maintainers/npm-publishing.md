@@ -1,6 +1,6 @@
-# Publishing yolojsx to npm
+# Publishing Rtifact to npm
 
-`yolojsx` publishes through GitHub Actions and npm trusted publishing.
+`rtifact` publishes through GitHub Actions and npm trusted publishing.
 
 > [!IMPORTANT]
 > Merging a pull request does not publish to npm. Publishing a non-prerelease
@@ -16,13 +16,13 @@ first public release only, also complete the
 
 #### npmjs.com
 
-Configure the `yolojsx` package's trusted publisher:
+Configure the `rtifact` package's trusted publisher:
 
 | Field                | Value          |
 | -------------------- | -------------- |
 | Provider             | GitHub Actions |
 | Organization or user | `sirawats`     |
-| Repository           | `yolojsx`      |
+| Repository           | `rtifact`      |
 | Workflow             | `publish.yml`  |
 | Environment          | `npm`          |
 | Permission           | `npm publish`  |
@@ -70,7 +70,7 @@ echo "$VERSION"
 Every npm version is immutable. Confirm this version does not already exist:
 
 ```sh
-npm view yolojsx versions --json
+npm view rtifact versions --json
 ```
 
 ### 2. Verify the release candidate
@@ -125,7 +125,7 @@ Do not retry an ambiguous failure until checking whether the version reached
 npm:
 
 ```sh
-npm view "yolojsx@$VERSION"
+npm view "rtifact@$VERSION"
 ```
 
 ### 6. Verify npm
@@ -133,16 +133,16 @@ npm view "yolojsx@$VERSION"
 After the workflow succeeds:
 
 ```sh
-npm view "yolojsx@$VERSION"
-npm view yolojsx dist-tags
+npm view "rtifact@$VERSION"
+npm view rtifact dist-tags
 ```
 
 Then test a clean registry installation outside this repository:
 
 ```sh
-npm install "yolojsx@$VERSION"
-npx yolojsx --version
-npx yolojsx themes
+npm install "rtifact@$VERSION"
+npx rtifact --version
+npx rtifact themes
 ```
 
 The package page should show the new version, repository, license, README, and
@@ -178,7 +178,7 @@ timer configured.
 
 Confirm the trusted publisher values exactly match:
 
-- `sirawats/yolojsx`;
+- `sirawats/rtifact`;
 - `publish.yml`;
 - environment `npm`;
 - permission `npm publish`.
@@ -197,7 +197,7 @@ Publish a corrected patch version. Deprecate the broken version when users need
 a warning:
 
 ```sh
-npm deprecate "yolojsx@<broken-version>" \
+npm deprecate "rtifact@<broken-version>" \
   "Use <fixed-version>; this version has a known issue."
 ```
 

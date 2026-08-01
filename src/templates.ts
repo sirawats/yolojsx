@@ -4,7 +4,7 @@ import { DEFAULT_PRISM_THEME } from "./prism-themes.js";
 import { createThemeRuntime } from "./theme-css.js";
 import type { Theme } from "./themes.js";
 
-export const VIRTUAL_ENTRY_ID = "virtual:yolojsx-entry";
+export const VIRTUAL_ENTRY_ID = "virtual:rtifact-entry";
 export const RESOLVED_VIRTUAL_ENTRY_ID = `\0${VIRTUAL_ENTRY_ID}`;
 
 interface AstNode {
@@ -39,7 +39,7 @@ function findPrismThemeValue(program: {
     for (const item of declaration.declarations ?? []) {
       if (
         item.id?.type !== "Identifier" ||
-        item.id.name !== "YOLOJSX" ||
+        item.id.name !== "RTIFACT" ||
         item.init?.type !== "ObjectExpression"
       ) {
         continue;
@@ -61,7 +61,7 @@ function injectPrismTheme(
   end: number,
   filename: string,
 ) {
-  const identifier = "__yolojsxPrismThemeCss";
+  const identifier = "__rtifactPrismThemeCss";
   return `import ${identifier} from ${JSON.stringify(`${filename}?inline`)};
 ${code.slice(0, start)}${identifier}${code.slice(end)}`;
 }
@@ -75,7 +75,7 @@ export function createHtml(importMap?: unknown) {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>yolojsx</title>${importMapScript}
+    <title>Rtifact</title>${importMapScript}
   </head>
   <body>
     <div id="root"></div>
@@ -124,7 +124,7 @@ export function createEntryPlugin(
   const runtime = createThemeRuntime(selectedTheme);
   const entryId = entry.replaceAll(path.sep, "/");
   return {
-    name: "yolojsx-entry",
+    name: "rtifact-entry",
     resolveId(source) {
       if (source === VIRTUAL_ENTRY_ID) {
         return RESOLVED_VIRTUAL_ENTRY_ID;
@@ -144,7 +144,7 @@ import EntryComponent, * as EntryModule from ${JSON.stringify(entry)};
 
 const themeRuntime = ${JSON.stringify(runtime)};
 
-function YoloJsxThemeBoundary() {
+function RtifactThemeBoundary() {
   const selected = themeRuntime.config;
   const algorithm = selected.algorithm === "dark"
     ? antdTheme.darkAlgorithm
@@ -169,7 +169,7 @@ function YoloJsxThemeBoundary() {
 
 const rootElement = document.getElementById("root");
 if (!rootElement) {
-  throw new Error("yolojsx could not find the generated #root element.");
+  throw new Error("Rtifact could not find the generated #root element.");
 }
 
 const componentType = typeof EntryComponent;
@@ -177,7 +177,7 @@ if (componentType !== "function" && componentType !== "object") {
   throw new TypeError("The JSX entry must default-export a React component.");
 }
 
-const metadata = EntryModule.YOLOJSX;
+const metadata = EntryModule.RTIFACT;
 if (metadata?.title) {
   document.title = metadata.title;
 }
@@ -190,7 +190,7 @@ if (metadata?.icon) {
 if (typeof metadata?.prismTheme === "string" && metadata.prismTheme) {
   const prismTheme = document.createElement("style");
   const prismImport = metadata.prismTheme.match(/^@import[^;]+;\\s*/)?.[0] ?? "";
-  prismTheme.dataset.yolojsxPrismTheme = "";
+  prismTheme.dataset.rtifactPrismTheme = "";
   prismTheme.textContent = \`\${prismImport}@layer components {
 \${metadata.prismTheme.slice(prismImport.length)}
 .token.operator {
@@ -200,7 +200,7 @@ if (typeof metadata?.prismTheme === "string" && metadata.prismTheme) {
   document.head.append(prismTheme);
 }
 
-createRoot(rootElement).render(React.createElement(YoloJsxThemeBoundary));
+createRoot(rootElement).render(React.createElement(RtifactThemeBoundary));
 `;
     },
     transform(code, id) {
@@ -217,12 +217,12 @@ createRoot(rootElement).render(React.createElement(YoloJsxThemeBoundary));
         typeof value.start !== "number" ||
         typeof value.end !== "number"
       ) {
-        this.error("YOLOJSX.prismTheme must be a string literal.", value.start);
+        this.error("RTIFACT.prismTheme must be a string literal.", value.start);
       }
       let filename = prismThemes.get(value.value);
       if (!filename) {
         onWarning(
-          `Unknown Prism theme "${value.value}"; using "${DEFAULT_PRISM_THEME}". Run \`yolojsx prism-themes\` to list available themes.`,
+          `Unknown Prism theme "${value.value}"; using "${DEFAULT_PRISM_THEME}". Run \`rtifact prism-themes\` to list available themes.`,
         );
         filename = prismThemes.get(DEFAULT_PRISM_THEME);
       }
@@ -246,11 +246,11 @@ export function createSingleFileHtml(
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Loading yolojsx application…</title>
+    <title>Loading Rtifact artifact…</title>
   </head>
   <body>
-    <main id="yolojsx-status" style="font:16px/1.5 system-ui,sans-serif;padding:2rem">Loading application…</main>
-    <script id="yolojsx-payload" type="application/octet-stream">${encodedPayload}</script>
+    <main id="rtifact-status" style="font:16px/1.5 system-ui,sans-serif;padding:2rem">Loading application…</main>
+    <script id="rtifact-payload" type="application/octet-stream">${encodedPayload}</script>
     <script>
       (() => {
         const showError = (error) => {
@@ -258,7 +258,7 @@ export function createSingleFileHtml(
           document.body.replaceChildren();
           const output = document.createElement("pre");
           output.style.cssText = "white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif;padding:2rem;color:#991b1b";
-          output.textContent = "Unable to load this yolojsx application.\\n" + message;
+          output.textContent = "Unable to load this Rtifact artifact.\\n" + message;
           document.body.append(output);
         };
 
@@ -267,7 +267,7 @@ export function createSingleFileHtml(
             throw new Error("This browser does not support native gzip decompression (DecompressionStream).");
           }
 
-          const encoded = document.getElementById("yolojsx-payload").textContent.trim();
+          const encoded = document.getElementById("rtifact-payload").textContent.trim();
           const chunks = [];
           const chunkSize = 32768;
           for (let offset = 0; offset < encoded.length; offset += chunkSize) {
@@ -286,7 +286,7 @@ export function createSingleFileHtml(
             throw new Error("Unsupported packaged application version: " + payload.version);
           }
 
-          document.title = payload.title || "yolojsx";
+          document.title = payload.title || "Rtifact";
           if (payload.head) {
             document.head.insertAdjacentHTML("beforeend", payload.head);
           }

@@ -1,11 +1,11 @@
 import { DEFAULT_BASE, PACKAGE_VERSION } from "./constants.js";
-import { YoloJsxError } from "./errors.js";
+import { RtifactError } from "./errors.js";
 import { DEFAULT_THEME_ID } from "./themes.js";
 
-export const USAGE = `Usage: yolojsx <entry.jsx|entry.tsx> [options]
-       yolojsx themes | yolojsx --themes
-       yolojsx prism-themes | yolojsx --prism-themes
-       yolojsx pack <directory> --output <file.html> [options]
+export const USAGE = `Usage: rtifact <entry.jsx|entry.tsx> [options]
+       rtifact themes | rtifact --themes
+       rtifact prism-themes | rtifact --prism-themes
+       rtifact pack <directory> --output <file.html> [options]
 
 Build a JSX component into one CDN-backed compressed HTML file by default.
 
@@ -22,7 +22,7 @@ Options:
   -h, --help            Show this help
   -v, --version         Show the installed version
 
-Run \`yolojsx themes\` or \`yolojsx prism-themes\` to list available themes.`;
+Run \`rtifact themes\` or \`rtifact prism-themes\` to list available themes.`;
 
 interface BuildArguments {
   action: "build";
@@ -53,7 +53,7 @@ export type ParsedArguments =
   | { action: "prism-themes" };
 
 function invalid(message: string) {
-  return new YoloJsxError(message, { code: "INVALID_ARGUMENTS" });
+  return new RtifactError(message, { code: "INVALID_ARGUMENTS" });
 }
 
 function readOptionValue(argv: string[], index: number, option: string) {

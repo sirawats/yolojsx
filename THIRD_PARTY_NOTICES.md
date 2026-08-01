@@ -1,11 +1,11 @@
 # Theme Inspiration and Third-Party Notices
 
-yolojsx ships original semantic theme mappings and package-owned CSS. It does
+Rtifact ships original semantic theme mappings and package-owned CSS. It does
 not contain, transform, or redistribute CSS, selectors, component code, fonts,
 images, or other assets from the projects below.
 
 The preset names identify visual inspiration and help users choose a familiar
-direction. yolojsx is not affiliated with or endorsed by GitHub, Google,
+direction. Rtifact is not affiliated with or endorsed by GitHub, Google,
 Material Design, Atom, Solarized, Gruvbox, Everforest, Catppuccin, Obsidian,
 Minimal, Baseline, or their maintainers.
 
@@ -26,4 +26,4 @@ visual principles. Revisions are pinned so future catalog work can be audited:
 
 The respective license texts and copyright notices remain available from the
 linked upstream repositories. Because no upstream implementation content is
-included in yolojsx, those licenses do not replace yolojsx's own MIT license.
+included in Rtifact, those licenses do not replace Rtifact's own MIT license.

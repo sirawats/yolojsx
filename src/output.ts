@@ -16,7 +16,7 @@ import {
   PACKAGE_NAME,
   PACKAGE_VERSION,
 } from "./constants.js";
-import { formatError, hasErrorCode, YoloJsxError } from "./errors.js";
+import { formatError, hasErrorCode, RtifactError } from "./errors.js";
 
 async function pathExists(value: string) {
   try {
@@ -61,8 +61,8 @@ export async function inspectOutput(output: string, force: boolean) {
   const managed = !empty && (await hasValidMarker(output));
 
   if (!empty && !managed && !force) {
-    throw new YoloJsxError(
-      `Output directory is not empty and is not managed by yolojsx: ${output}\nUse --force to replace it.`,
+    throw new RtifactError(
+      `Output directory is not empty and is not managed by Rtifact: ${output}\nUse --force to replace it.`,
       { code: "UNOWNED_OUTPUT" },
     );
   }
@@ -79,7 +79,7 @@ export async function inspectOutput(output: string, force: boolean) {
 export async function createOutputStage(output: string) {
   const parent = path.dirname(output);
   await mkdir(parent, { recursive: true });
-  return mkdtemp(path.join(parent, ".yolojsx-stage-"));
+  return mkdtemp(path.join(parent, ".rtifact-stage-"));
 }
 
 export async function writeOutputMarker(stage: string) {
@@ -102,7 +102,7 @@ export async function commitOutput(stage: string, output: string) {
     return;
   }
 
-  const backup = `${output}.yolojsx-backup-${randomUUID()}`;
+  const backup = `${output}.rtifact-backup-${randomUUID()}`;
   await rename(output, backup);
 
   try {
@@ -134,17 +134,17 @@ export async function inspectFileOutput(output: string, force: boolean) {
   try {
     const outputStat = await lstat(output);
     if (outputStat.isDirectory()) {
-      throw new YoloJsxError(`HTML output exists as a directory: ${output}`, {
+      throw new RtifactError(`HTML output exists as a directory: ${output}`, {
         code: "INVALID_FILE_OUTPUT",
       });
     }
     if (!outputStat.isFile()) {
-      throw new YoloJsxError(`HTML output is not a regular file: ${output}`, {
+      throw new RtifactError(`HTML output is not a regular file: ${output}`, {
         code: "INVALID_FILE_OUTPUT",
       });
     }
     if (!force) {
-      throw new YoloJsxError(
+      throw new RtifactError(
         `HTML output already exists: ${output}\nUse --force to replace it.`,
         { code: "FILE_OUTPUT_EXISTS" },
       );
@@ -163,8 +163,8 @@ export async function commitFileOutput(contents: string, output: string) {
   const name = path.basename(output);
   await mkdir(parent, { recursive: true });
 
-  const stage = path.join(parent, `.${name}.yolojsx-stage-${randomUUID()}`);
-  const backup = path.join(parent, `.${name}.yolojsx-backup-${randomUUID()}`);
+  const stage = path.join(parent, `.${name}.rtifact-stage-${randomUUID()}`);
+  const backup = path.join(parent, `.${name}.rtifact-backup-${randomUUID()}`);
   let hasBackup = false;
 
   try {

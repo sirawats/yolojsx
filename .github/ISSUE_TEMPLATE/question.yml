@@ -1,11 +1,11 @@
 name: Usage question
-description: Ask for help using yolojsx
+description: Ask for help using rtifact
 title: "[Question] "
 body:
   - type: input
     id: version
     attributes:
-      label: yolojsx version
+      label: rtifact version
     validations:
       required: true
   - type: input

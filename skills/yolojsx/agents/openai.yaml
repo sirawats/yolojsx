@@ -1,4 +1,0 @@
-interface:
-  display_name: "yolojsx"
-  short_description: "Build portable apps from agent-authored JSX"
-  default_prompt: "Use $yolojsx to create a portable interactive application from my content."

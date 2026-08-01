@@ -65,7 +65,7 @@ export function createCoreAliases() {
 }
 
 export const jsxSourcePlugin = {
-  name: "yolojsx-jsx-source",
+  name: "rtifact-jsx-source",
   enforce: "pre",
   resolveId(source, importer) {
     if (

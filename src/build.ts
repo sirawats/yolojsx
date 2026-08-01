@@ -11,7 +11,7 @@ import {
   jsxSourcePlugin,
   resolvePackageImport,
 } from "./dependencies.js";
-import { formatError, YoloJsxError } from "./errors.js";
+import { formatError, RtifactError } from "./errors.js";
 import {
   cleanupDirectory,
   commitOutput,
@@ -55,7 +55,7 @@ async function createWorkspace(
   cdn: boolean,
 ) {
   const temporaryWorkspace = await mkdtemp(
-    path.join(os.tmpdir(), "yolojsx-work-"),
+    path.join(os.tmpdir(), "rtifact-work-"),
   );
   const workspace = await realpath(temporaryWorkspace);
   const themeCssPath = path.join(workspace, "theme.css");
@@ -84,10 +84,10 @@ async function createWorkspace(
 }
 
 function asBuildError(error: unknown) {
-  if (error instanceof YoloJsxError) {
+  if (error instanceof RtifactError) {
     return error;
   }
-  return new YoloJsxError(`Build failed: ${formatError(error)}`, {
+  return new RtifactError(`Build failed: ${formatError(error)}`, {
     code: "BUILD_FAILED",
     cause: error,
   });

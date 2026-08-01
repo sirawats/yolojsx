@@ -1,0 +1,86 @@
+/** @satisfies {import("../themes.js").ThemeDefinition} */
+export default {
+  id: "rtifact",
+  name: "Rtifact",
+  appearance: "light",
+  description:
+    "A warm archaeological palette with parchment surfaces and vivid artifact accents.",
+  source: {
+    name: "rtifact",
+    url: "https://github.com/sirawats/rtifact",
+    revision: "0.1.7",
+    license: "MIT",
+  },
+  colors: {
+    canvas: "#fff6dc",
+    surface: "#fffdf5",
+    surfaceRaised: "#ffffff",
+    text: "#172b43",
+    textMuted: "#5d4d42",
+    border: "#a66a2c",
+    primary: "#a52f0c",
+    primaryAccent: "#d44712",
+    primaryAccentHover: "#a52f0c",
+    primaryText: "#ffffff",
+    link: "#174a78",
+    focus: "#704090",
+    selection: "#f8d56a",
+    selectionText: "#2e2016",
+    codeBackground: "#f3e4c2",
+  },
+  status: {
+    success: {
+      seed: "#4f7f35",
+      foreground: "#24512e",
+      background: "#e0efd5",
+    },
+    warning: {
+      seed: "#b06a00",
+      foreground: "#644200",
+      background: "#ffefb3",
+    },
+    danger: {
+      seed: "#bc3636",
+      foreground: "#781f1f",
+      background: "#f9dddd",
+    },
+    info: {
+      seed: "#6c4aa1",
+      foreground: "#31346f",
+      background: "#e6e2f4",
+    },
+  },
+  typography: {
+    sans: 'ui-rounded, "Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif',
+    heading:
+      'ui-rounded, "Avenir Next", Avenir, ui-sans-serif, system-ui, sans-serif',
+    mono: '"SFMono-Regular", Consolas, "Liberation Mono", monospace',
+  },
+  rhythm: {
+    lineHeight: 1.58,
+    headingWeight: 700,
+    letterSpacing: "-0.015em",
+    contentMeasure: "72rem",
+  },
+  components: {
+    buttonPadding: 18,
+    buttonShadow: "0 2px 5px rgb(82 43 20 / 0.18)",
+    cardPadding: 24,
+    cardHeaderHeight: 56,
+    menuItemHeight: 40,
+    menuItemMargin: 4,
+    segmentedPadding: 3,
+    tabGutter: 28,
+    titleMarginTop: "1.2em",
+    titleMarginBottom: "0.5em",
+    inputPaddingInline: 12,
+    inputPaddingBlock: 5,
+  },
+  radius: {
+    small: "0.5rem",
+    medium: "0.75rem",
+    large: "1.125rem",
+  },
+  shadow: "0 12px 30px rgb(82 43 20 / 0.14)",
+  controlHeight: 36,
+};

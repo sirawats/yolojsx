@@ -11,7 +11,7 @@ test("builds a standalone React, Tailwind, and Ant Design app", async (t) => {
   await writeFixture(fixture, {
     "Home.jsx": `import { Button } from "antd";
 import icon from "./icon.svg";
-export const YOLOJSX = { title: "Fixture application", icon };
+export const RTIFACT = { title: "Fixture application", icon };
 export default function Home() {
   return <main className="min-h-screen p-8"><Button type="primary">Standalone</Button></main>;
 }`,
@@ -37,12 +37,12 @@ export default function Home() {
   assert.match(javascript, /anticon/);
   assert.ok(javascript.length < 500_000);
   assert.doesNotMatch(javascript, /ant-table|ant-picker|ant-upload/);
-  const markerName = ".yolojsx-output.json";
+  const markerName = ".rtifact-output.json";
   assert.ok((await readdir(output)).includes(markerName));
   const marker = JSON.parse(
     await readFile(path.join(output, markerName), "utf8"),
   ) as { tool: string; formatVersion: number; packageVersion: string };
-  assert.equal(marker.tool, "yolojsx");
+  assert.equal(marker.tool, "rtifact");
   assert.equal(marker.formatVersion, 1);
   assert.match(marker.packageVersion, /^\d+\.\d+\.\d+/);
 });
@@ -93,7 +93,7 @@ import "prismjs/components/prism-json";
 import "prismjs/plugins/line-numbers/prism-line-numbers";
 import "prismjs/plugins/line-numbers/prism-line-numbers.css";
 
-export const YOLOJSX = { prismTheme: "prism" };
+export const RTIFACT = { prismTheme: "prism" };
 
 const highlightCode = (element) => {
   if (element) Prism.highlightElement(element);
@@ -122,7 +122,7 @@ export default function App() {
   assert.match(javascript, /supplied-dep-test/);
   assert.match(javascript, /tax/);
   assert.match(javascript, /line-numbers-rows/);
-  assert.match(javascript, /yolojsxPrismTheme/);
+  assert.match(javascript, /rtifactPrismTheme/);
   assert.match(javascript, /@layer components/);
   assert.match(javascript, /background:\s*transparent/);
   assert.match(javascript, /token\.keyword/);
@@ -141,7 +141,7 @@ export default function App() {
   assert.match(payload.script, /supplied-dep-test/);
   assert.match(payload.script, /tax/);
   assert.match(payload.script, /line-numbers-rows/);
-  assert.match(payload.script, /yolojsxPrismTheme/);
+  assert.match(payload.script, /rtifactPrismTheme/);
   assert.match(payload.script, /token\.keyword/);
   assert.match(payload.script, /#f5f2f0/);
   assert.match(
@@ -154,10 +154,10 @@ test("warns and uses the default Prism theme for an unknown name", async (t) => 
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));
   await writeFixture(fixture, {
-    "Unknown.jsx": `export const YOLOJSX = { prismTheme: "missing" };
+    "Unknown.jsx": `export const RTIFACT = { prismTheme: "missing" };
 export default () => <pre>Unknown</pre>;`,
     "Dynamic.jsx": `const prismTheme = "prism";
-export const YOLOJSX = { prismTheme };
+export const RTIFACT = { prismTheme };
 export default () => <pre>Dynamic</pre>;`,
   });
 
@@ -165,7 +165,7 @@ export default () => <pre>Dynamic</pre>;`,
   assert.equal(unknown.exitCode, 0, unknown.stderr);
   assert.match(unknown.stderr, /Unknown Prism theme "missing"/);
   assert.match(unknown.stderr, /using "prism"/);
-  assert.match(unknown.stderr, /yolojsx prism-themes/);
+  assert.match(unknown.stderr, /rtifact prism-themes/);
   const payload = readEmbeddedPayload(
     await readFile(path.join(fixture, "Unknown.html"), "utf8"),
   );
@@ -183,5 +183,5 @@ export default () => <pre>Dynamic</pre>;`,
 
   const dynamic = await invoke(["Dynamic.jsx"], { cwd: fixture });
   assert.equal(dynamic.exitCode, 1);
-  assert.match(dynamic.stderr, /YOLOJSX\.prismTheme must be a string literal/);
+  assert.match(dynamic.stderr, /RTIFACT\.prismTheme must be a string literal/);
 });

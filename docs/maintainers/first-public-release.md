@@ -5,7 +5,7 @@ release. [RELEASING.md](../../RELEASING.md) remains the recurring release
 checklist, and [npm-publishing.md](npm-publishing.md) explains the npm workflow
 for first-time maintainers.
 
-Current candidate: `yolojsx@0.1.2`.
+Current candidate: `rtifact@0.1.2`.
 
 ## Repository and legal review
 
@@ -33,7 +33,7 @@ Current candidate: `yolojsx@0.1.2`.
 ## npm account and recovery
 
 - [ ] Confirm the publishing account has a verified email and controls the
-      `yolojsx` name.
+      `rtifact` name.
 - [ ] Enable strong account 2FA.
 - [ ] Prefer trusted publishing from a protected CI environment; otherwise use
       a granular, expiring token stored only in the CI secret store.
