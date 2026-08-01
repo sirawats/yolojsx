@@ -3,7 +3,7 @@ import { lstat, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { SINGLE_FILE_PAYLOAD_VERSION } from "./constants.js";
 import { createCdnImportMap } from "./dependencies.js";
-import { YoloJsxError } from "./errors.js";
+import { RtifactError } from "./errors.js";
 import { createSingleFileHtml } from "./templates.js";
 
 const MIME_TYPES = new Map([
@@ -43,7 +43,7 @@ export interface EmbeddedPayload {
 }
 
 function packageError(message: string, cause?: unknown) {
-  return new YoloJsxError(message, { code: "PACK_FAILED", cause });
+  return new RtifactError(message, { code: "PACK_FAILED", cause });
 }
 
 function getAttribute(tag: string, name: string) {
@@ -431,7 +431,7 @@ export async function normalizeBuildDirectory(
 
   return {
     version: SINGLE_FILE_PAYLOAD_VERSION,
-    title: titleMatch?.[1].trim() || "yolojsx",
+    title: titleMatch?.[1].trim() || "Rtifact",
     head,
     body,
     styles,
@@ -458,10 +458,10 @@ export async function createSingleFileArtifact(inputDirectory: string) {
 
 export function readEmbeddedPayload(html: string): EmbeddedPayload {
   const match = html.match(
-    /<script id="yolojsx-payload" type="application\/octet-stream">([A-Za-z\d+/=]+)<\/script>/,
+    /<script id="rtifact-payload" type="application\/octet-stream">([A-Za-z\d+/=]+)<\/script>/,
   );
   if (!match) {
-    throw packageError("HTML does not contain a yolojsx payload.");
+    throw packageError("HTML does not contain a Rtifact payload.");
   }
   return JSON.parse(
     gunzipSync(Buffer.from(match[1], "base64")).toString("utf8"),

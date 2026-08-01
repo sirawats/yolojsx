@@ -125,7 +125,7 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
     "previous artifact",
   );
   assert.ok(
-    !(await readdir(fixture)).some((name) => name.includes("yolojsx-stage")),
+    !(await readdir(fixture)).some((name) => name.includes("rtifact-stage")),
   );
 
   await writeFixture(fixture, {
@@ -156,7 +156,7 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
     /Forced replacement/,
   );
   assert.ok(
-    !(await readdir(fixture)).some((name) => name.includes("yolojsx-backup")),
+    !(await readdir(fixture)).some((name) => name.includes("rtifact-backup")),
   );
 });
 

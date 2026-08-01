@@ -1,7 +1,7 @@
 import { constants as fsConstants } from "node:fs";
 import { access, lstat, realpath, stat } from "node:fs/promises";
 import path from "node:path";
-import { hasErrorCode, YoloJsxError } from "./errors.js";
+import { hasErrorCode, RtifactError } from "./errors.js";
 
 export function isWithin(parent: string, candidate: string) {
   const relative = path.relative(parent, candidate);
@@ -20,7 +20,7 @@ export async function resolveAndValidateEntry(
   const entry = path.resolve(cwd, entryArgument);
 
   if (![".jsx", ".tsx"].includes(path.extname(entry).toLowerCase())) {
-    throw new YoloJsxError(`Entry must be a .jsx or .tsx file: ${entry}`, {
+    throw new RtifactError(`Entry must be a .jsx or .tsx file: ${entry}`, {
       code: "INVALID_ENTRY",
     });
   }
@@ -28,16 +28,16 @@ export async function resolveAndValidateEntry(
   try {
     const entryStat = await stat(entry);
     if (!entryStat.isFile()) {
-      throw new YoloJsxError(`Entry is not a file: ${entry}`, {
+      throw new RtifactError(`Entry is not a file: ${entry}`, {
         code: "INVALID_ENTRY",
       });
     }
     await access(entry, fsConstants.R_OK);
   } catch (error) {
-    if (error instanceof YoloJsxError) {
+    if (error instanceof RtifactError) {
       throw error;
     }
-    throw new YoloJsxError(`Entry is not a readable file: ${entry}`, {
+    throw new RtifactError(`Entry is not a readable file: ${entry}`, {
       code: "INVALID_ENTRY",
       cause: error,
     });
@@ -52,7 +52,7 @@ export async function resolveAndValidateThemeModule(
 ) {
   const themeModule = path.resolve(cwd, themeArgument);
   if (![".ts", ".jsx"].includes(path.extname(themeModule).toLowerCase())) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Theme module must be a .ts or .jsx file: ${themeModule}`,
       {
         code: "INVALID_THEME",
@@ -62,16 +62,16 @@ export async function resolveAndValidateThemeModule(
   try {
     const themeStat = await stat(themeModule);
     if (!themeStat.isFile()) {
-      throw new YoloJsxError(`Theme module is not a file: ${themeModule}`, {
+      throw new RtifactError(`Theme module is not a file: ${themeModule}`, {
         code: "INVALID_THEME",
       });
     }
     await access(themeModule, fsConstants.R_OK);
   } catch (error) {
-    if (error instanceof YoloJsxError) {
+    if (error instanceof RtifactError) {
       throw error;
     }
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Theme module is not a readable file: ${themeModule}`,
       {
         code: "INVALID_THEME",
@@ -92,7 +92,7 @@ export async function resolveAndValidateOutput(
   const root = path.parse(output).root;
 
   if (output === root) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Refusing to use a filesystem root as output: ${output}`,
       {
         code: "DANGEROUS_OUTPUT",
@@ -100,13 +100,13 @@ export async function resolveAndValidateOutput(
     );
   }
   if (output === path.resolve(cwd)) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Refusing to use the current working directory as output: ${output}`,
       { code: "DANGEROUS_OUTPUT" },
     );
   }
   if (isWithin(output, entry)) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Refusing to use an output directory that contains the source entry: ${output}`,
       { code: "DANGEROUS_OUTPUT" },
     );
@@ -115,7 +115,7 @@ export async function resolveAndValidateOutput(
     isWithin(output, input),
   );
   if (containedInput) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Refusing to use an output directory that contains the theme module: ${output}`,
       { code: "DANGEROUS_OUTPUT" },
     );
@@ -124,7 +124,7 @@ export async function resolveAndValidateOutput(
   try {
     const outputStat = await lstat(output);
     if (outputStat.isSymbolicLink()) {
-      throw new YoloJsxError(
+      throw new RtifactError(
         `Refusing to replace a symbolic-link output: ${output}`,
         {
           code: "DANGEROUS_OUTPUT",
@@ -132,7 +132,7 @@ export async function resolveAndValidateOutput(
       );
     }
     if (!outputStat.isDirectory()) {
-      throw new YoloJsxError(
+      throw new RtifactError(
         `Output exists and is not a directory: ${output}`,
         {
           code: "INVALID_OUTPUT",
@@ -179,16 +179,16 @@ export async function resolveAndValidateInputDirectory(
   try {
     const inputStat = await stat(input);
     if (!inputStat.isDirectory()) {
-      throw new YoloJsxError(`Pack input is not a directory: ${input}`, {
+      throw new RtifactError(`Pack input is not a directory: ${input}`, {
         code: "INVALID_PACK_INPUT",
       });
     }
     await access(input, fsConstants.R_OK);
   } catch (error) {
-    if (error instanceof YoloJsxError) {
+    if (error instanceof RtifactError) {
       throw error;
     }
-    throw new YoloJsxError(`Pack input is not a readable directory: ${input}`, {
+    throw new RtifactError(`Pack input is not a readable directory: ${input}`, {
       code: "INVALID_PACK_INPUT",
       cause: error,
     });
@@ -208,14 +208,14 @@ export async function resolveAndValidateHtmlOutput(
   const output = path.resolve(cwd, outputArgument ?? defaultName ?? "");
 
   if (path.extname(output).toLowerCase() !== ".html") {
-    throw new YoloJsxError(`Single-file output must end in .html: ${output}`, {
+    throw new RtifactError(`Single-file output must end in .html: ${output}`, {
       code: "INVALID_FILE_OUTPUT",
     });
   }
 
   const canonicalOutput = await canonicalizePotentialPath(output);
   if (inputDirectory && isWithin(inputDirectory, canonicalOutput)) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Refusing to write the packaged HTML inside its input directory: ${output}`,
       { code: "DANGEROUS_FILE_OUTPUT" },
     );
@@ -224,7 +224,7 @@ export async function resolveAndValidateHtmlOutput(
   try {
     const outputStat = await lstat(output);
     if (outputStat.isSymbolicLink()) {
-      throw new YoloJsxError(
+      throw new RtifactError(
         `Refusing to replace a symbolic-link output: ${output}`,
         {
           code: "DANGEROUS_FILE_OUTPUT",
@@ -232,12 +232,12 @@ export async function resolveAndValidateHtmlOutput(
       );
     }
     if (outputStat.isDirectory()) {
-      throw new YoloJsxError(`HTML output exists as a directory: ${output}`, {
+      throw new RtifactError(`HTML output exists as a directory: ${output}`, {
         code: "INVALID_FILE_OUTPUT",
       });
     }
     if (!outputStat.isFile()) {
-      throw new YoloJsxError(`HTML output is not a regular file: ${output}`, {
+      throw new RtifactError(`HTML output is not a regular file: ${output}`, {
         code: "INVALID_FILE_OUTPUT",
       });
     }

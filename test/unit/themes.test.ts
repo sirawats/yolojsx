@@ -59,7 +59,7 @@ test("validates the complete immutable theme catalog", async () => {
   assert.equal(resolveTheme("onedark").id, "one-dark");
   for (const theme of THEMES) {
     const stylesheet = renderThemeCss(theme);
-    assert.match(stylesheet, new RegExp(`Original yolojsx theme: ${theme.id}`));
+    assert.match(stylesheet, new RegExp(`Original Rtifact theme: ${theme.id}`));
     for (const key of Object.keys(
       THEME_CSS_PROPERTIES.colors,
     ) as (keyof typeof THEME_CSS_PROPERTIES.colors)[]) {
@@ -111,7 +111,7 @@ test("validates the complete immutable theme catalog", async () => {
         `${THEME_CSS_PROPERTIES.rhythm.contentMeasure}:\\s*${theme.semantic.rhythm.contentMeasure}`,
       ),
     );
-    assert.doesNotMatch(stylesheet, /--yolo-|\.yolo-|\.ant-/);
+    assert.doesNotMatch(stylesheet, /--rtifact-|\.rtifact-|\.ant-/);
     assert.deepEqual(Object.keys(theme.antDesign.components), [
       ...OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES,
     ]);
@@ -205,7 +205,7 @@ test("stored presets include typography, density, and original semantic values",
     foundation,
     /pre > code[\s\S]*background: transparent[\s\S]*color: inherit/,
   );
-  assert.doesNotMatch(foundation, /--color-yolo-|\.yolo-/);
+  assert.doesNotMatch(foundation, /--color-rtifact-|\.rtifact-/);
   assert.doesNotMatch(
     material,
     /\.workspace|\.markdown-source-view|\.view-content/,
@@ -404,7 +404,7 @@ test("the shipped notice covers every reviewed source and revision", async () =>
     "utf8",
   );
   for (const theme of THEMES) {
-    if (theme.provenance.name === "yolojsx") {
+    if (theme.provenance.name === "rtifact") {
       continue;
     }
     assert.match(

@@ -9,9 +9,9 @@ const repository = path.resolve(
   "../..",
 );
 const examplesDirectory = path.join(repository, "examples");
-const skillExamplesDirectory = path.join(repository, "skills/yolojsx/examples");
+const skillExamplesDirectory = path.join(repository, "skills/rtifact/examples");
 
-test("yolojsx skill mirrors every example", async () => {
+test("rtifact skill mirrors every example", async () => {
   const filenames = (await readdir(examplesDirectory)).sort();
   assert.deepEqual((await readdir(skillExamplesDirectory)).sort(), filenames);
 
@@ -35,7 +35,7 @@ test("packaged examples rely on CLI-managed theme styling", async () => {
       path.join(examplesDirectory, filename),
       "utf8",
     );
-    assert.match(source, /export const YOLOJSX = \{/, filename);
+    assert.match(source, /export const RTIFACT = \{/, filename);
     assert.match(source, /import icon from "\.\/favicon\.svg";/, filename);
     assert.doesNotMatch(source, /import\s+[^;]*["'][^"']+\.css["']/, filename);
     assert.doesNotMatch(
@@ -45,10 +45,14 @@ test("packaged examples rely on CLI-managed theme styling", async () => {
     );
     assert.doesNotMatch(
       source,
-      /className\s*=\s*(?:["'`][^"'`]*\byolo-|{[^}]*["'`][^"'`]*\byolo-)/,
+      /className\s*=\s*(?:["'`][^"'`]*\brtifact-|{[^}]*["'`][^"'`]*\brtifact-)/,
       filename,
     );
-    assert.doesNotMatch(source, /\byolo-(?:surface|muted|reading)\b/, filename);
+    assert.doesNotMatch(
+      source,
+      /\brtifact-(?:surface|muted|reading)\b/,
+      filename,
+    );
     assert.doesNotMatch(
       source,
       /(?:bg|text|border|ring)-\[#(?:[0-9a-f]{3}){1,2}\]/i,

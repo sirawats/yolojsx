@@ -19,7 +19,7 @@ interface InvokeOptions {
   >["confirmReplacement"];
 }
 
-export async function makeFixture(prefix = "yolojsx-test-") {
+export async function makeFixture(prefix = "rtifact-test-") {
   const created = await mkdtemp(path.join(os.tmpdir(), prefix));
   return realpath(created);
 }

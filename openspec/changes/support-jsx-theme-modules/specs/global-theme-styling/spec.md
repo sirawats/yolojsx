@@ -20,7 +20,7 @@ aliases SHALL continue to select their catalog themes.
 
 #### Scenario: Theme path is resolved from invocation directory
 
-- **WHEN** a user invokes yolojsx from a directory containing `themes/company.jsx`
+- **WHEN** a user invokes Rtifact from a directory containing `themes/company.jsx`
 - **THEN** the relative theme argument resolves from that invocation directory rather than from the entry file or package installation
 
 #### Scenario: Invalid local theme input
@@ -52,7 +52,7 @@ and SHALL NOT auto-register or inject named exports into application scope.
 #### Scenario: Named export is not imported
 
 - **WHEN** a theme module has a named component export that the application does not import
-- **THEN** yolojsx does not expose that component as a global or render it implicitly
+- **THEN** Rtifact does not expose that component as a global or render it implicitly
 
 ### Requirement: Custom theme validation
 

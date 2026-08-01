@@ -1,14 +1,14 @@
 {
-  "name": "yolojsx",
+  "name": "rtifact",
   "interface": {
-    "displayName": "yolojsx"
+    "displayName": "Rtifact"
   },
   "plugins": [
     {
-      "name": "yolojsx",
+      "name": "rtifact",
       "source": {
         "source": "url",
-        "url": "https://github.com/sirawats/yolojsx.git",
+        "url": "https://github.com/sirawats/rtifact.git",
         "ref": "master"
       },
       "policy": {

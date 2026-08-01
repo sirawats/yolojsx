@@ -6,8 +6,8 @@ export default {
   appearance: "light",
   description: "A clear neutral canvas with confident blue interactions.",
   source: {
-    name: "yolojsx",
-    url: "https://github.com/sirawats/yolojsx",
+    name: "rtifact",
+    url: "https://github.com/sirawats/rtifact",
     revision: "0.1.0",
     license: "MIT",
   },

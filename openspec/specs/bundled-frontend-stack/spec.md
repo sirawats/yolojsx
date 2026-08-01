@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the zero-configuration React, Tailwind CSS, and Ant Design environment supplied by `yolojsx`, including dependency-resolution and runtime compatibility guarantees.
+Define the zero-configuration React, Tailwind CSS, and Ant Design environment supplied by Rtifact, including dependency-resolution and runtime compatibility guarantees.
 
 ## Requirements
 
@@ -13,7 +13,7 @@ The CLI SHALL supply compatible React and React DOM runtime instances without re
 #### Scenario: React is not installed in the input directory
 
 - **WHEN** a valid entry uses React JSX and the input directory has no local React installation
-- **THEN** the build succeeds using the React runtime supplied by `yolojsx`
+- **THEN** the build succeeds using the React runtime supplied by Rtifact
 
 #### Scenario: One React instance
 
@@ -50,7 +50,7 @@ The CLI SHALL define one exact-version CDN mapping for the supported external ru
 #### Scenario: Default file versions match the supplied stack
 
 - **WHEN** a default JSX file build is generated
-- **THEN** every remote runtime mapping uses the exact corresponding version controlled and tested by the installed yolojsx package
+- **THEN** every remote runtime mapping uses the exact corresponding version controlled and tested by the installed Rtifact package
 
 #### Scenario: Application-specific packages remain embedded
 
@@ -64,16 +64,16 @@ The CLI SHALL make the package's supported `react-icons` collection imports, `pr
 #### Scenario: Entry imports a React Icons collection
 
 - **WHEN** an entry imports a named icon from a supported collection such as `react-icons/lu` and the input project has no local React Icons installation
-- **THEN** the build succeeds using the React Icons package supplied by yolojsx and the rendered application includes the icon
+- **THEN** the build succeeds using the React Icons package supplied by Rtifact and the rendered application includes the icon
 
 #### Scenario: Entry imports PrismJS language definitions and plugins
 
 - **WHEN** an entry imports PrismJS, the language definitions required by its code samples, and the line-numbers plugin with its stylesheet while the input project has no local PrismJS installation
-- **THEN** the build succeeds using the PrismJS package supplied by yolojsx and the rendered application includes highlighted code with theme-aligned line numbers
+- **THEN** the build succeeds using the PrismJS package supplied by Rtifact and the rendered application includes highlighted code with theme-aligned line numbers
 
 #### Scenario: Entry selects a Prism theme
 
-- **WHEN** an entry names a theme discovered from the supplied `prism-themes` package in `YOLOJSX.prismTheme`
+- **WHEN** an entry names a theme discovered from the supplied `prism-themes` package in `RTIFACT.prismTheme`
 - **THEN** the build includes only the selected theme stylesheet
 
 #### Scenario: Entry selects an unknown Prism theme
@@ -98,7 +98,7 @@ The CLI SHALL supply one compatible Ant Design runtime graph and SHALL apply eac
 #### Scenario: Standard component variants need no theme classes
 
 - **WHEN** an entry renders supported Ant Design default, primary, text, link, ghost, or danger component variants using ordinary Ant Design props
-- **THEN** the preset's official component tokens determine their normal, hover, active, focus, and disabled appearance without a yolojsx class name
+- **THEN** the preset's official component tokens determine their normal, hover, active, focus, and disabled appearance without an Rtifact-specific class name
 
 #### Scenario: Built-in themes avoid generated selector overrides
 
@@ -154,7 +154,7 @@ The supplied frontend stack SHALL integrate Tailwind and Ant Design using a decl
 
 ### Requirement: Non-core dependency resolution
 
-The CLI SHALL preserve normal input-project resolution for bare imports that are not part of the stack guaranteed by `yolojsx`.
+The CLI SHALL preserve normal input-project resolution for bare imports that are not part of the stack guaranteed by Rtifact.
 
 #### Scenario: Locally installed user dependency
 

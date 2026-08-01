@@ -1,17 +1,17 @@
-# yolojsx Product Vision
+# Rtifact Product Vision
 
 ## Mission
 
-`yolojsx` turns primarily AI-authored JSX into portable, readable, interactive
-React applications without asking the author to set up a frontend project.
+Rtifact turns primarily AI-authored JSX into portable, readable, interactive
+HTML artifacts without asking the author to set up a frontend project.
 
-The human-facing deliverable is the rendered application. JSX is a compact,
+The human-facing deliverable is the rendered artifact. JSX is a compact,
 reusable source format that gives AI agents a consistent component model while
 spending fewer tokens than repeatedly generating complete HTML, CSS, and
 JavaScript documents.
 
 Success means a person can ask an agent to turn content, data, or a small
-workflow into an application, then open, upload, or send the result to a friend
+workflow into an artifact, then open, upload, or send the result to a friend
 or colleague. The result should be easier to understand and act on than a raw
 Markdown file, a paginated PDF, or an ad hoc generated website.
 
@@ -36,8 +36,8 @@ awkward when its results need to be delivered to other people:
 
 The core pain is the lack of a low-friction format for agent-authored technical
 content that is portable, human-readable, interactive, efficient to generate,
-and visually consistent. yolojsx fills that gap with an agent-facing JSX
-authoring contract and a human-facing application that can normally be shared
+and visually consistent. Rtifact fills that gap with an agent-facing JSX
+authoring contract and a human-facing artifact that can normally be shared
 as one HTML file.
 
 The initial use case was an API test report written by the same coding agent
@@ -59,7 +59,7 @@ maintaining a web project:
   decoder, that are convenient to keep or share.
 
 These are representative uses, not a whitelist. The common shape is a bounded,
-content-rich application whose value comes from portability, clarity, and useful
+content-rich artifact whose value comes from portability, clarity, and useful
 interaction.
 
 ## Product Model
@@ -83,7 +83,7 @@ source prettiness must not outrank the quality of the rendered result.
 
 ### Output
 
-yolojsx has two first-class output modes:
+Rtifact has two first-class output modes:
 
 1. **Portable HTML:** the default build emits one `.html` file. Its application
    payload is gzip-compressed, embedded in the file, and restored by the
@@ -118,7 +118,7 @@ Apply these priorities in order when requirements conflict:
    well-structured, and easy to act on.
 4. **Useful interaction, responsive UX, and accessibility.** Interaction should
    help complete a task, not merely demonstrate React.
-5. **Consistent visual quality.** Let yolojsx themes and the supplied stack carry
+5. **Consistent visual quality.** Let Rtifact themes and the supplied stack carry
    the design system.
 6. **Compact, reusable, token-efficient JSX.** Spend tokens on the user's content
    and decisions rather than scaffolding and repeated styling.
@@ -132,7 +132,7 @@ outrank correctness, usability, or clarity.
 Agent-first means a user should not need to translate a product request into
 frontend setup instructions. An agent should be able to discover:
 
-- which packages yolojsx supplies;
+- which packages Rtifact supplies;
 - the expected JSX entry contract;
 - how themes and semantic styling work;
 - when to use portable HTML or directory output;
@@ -161,7 +161,7 @@ stylesheets:
   other interactive components.
 - **Tailwind CSS:** responsive layout, spacing, sizing, and focused utility
   styling.
-- **yolojsx themes:** global typography, semantic colors, surfaces, focus,
+- **Rtifact themes:** global typography, semantic colors, surfaces, focus,
   native elements, and Ant Design tokens.
 - **React Icons:** recognizable supporting symbols. Import named icons from a
   specific collection and never use an icon as the only accessible label.
@@ -264,7 +264,7 @@ compete with it.
 
 - Put real findings, instructions, tradeoffs, and next actions before decorative
   chrome.
-- Use yolojsx semantic tokens and theme behavior instead of hard-coded page-wide
+- Use Rtifact semantic tokens and theme behavior instead of hard-coded page-wide
   palettes.
 - Use whitespace to separate concepts and reduce overload.
 - Use concise callouts for genuinely important context, risks, or decisions.

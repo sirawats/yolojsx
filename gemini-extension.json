@@ -1,5 +1,5 @@
 {
-  "name": "yolojsx",
+  "name": "rtifact",
   "version": "0.1.7",
-  "description": "Build portable interactive HTML applications from compact JSX with yolojsx."
+  "description": "Turn agent-authored JSX into portable, interactive HTML artifacts with Rtifact."
 }

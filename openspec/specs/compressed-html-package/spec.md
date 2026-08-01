@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define how `yolojsx` converts a compatible application into one gzip-backed HTML artifact that validates, restores, and starts itself in a supported browser.
+Define how Rtifact converts a compatible application into one gzip-backed HTML artifact that validates, restores, and starts itself in a supported browser.
 
 ## Requirements
 

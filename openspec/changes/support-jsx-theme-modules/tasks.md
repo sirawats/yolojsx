@@ -23,7 +23,7 @@
 ## 4. Public Contract and Final Gate
 
 - [x] 4.1 Update README CLI help and authoring guidance with the module contract, explicit component import example, trusted-code boundary, and `--css` migration
-- [x] 4.2 Update the official yolojsx skill references and any mirrored CLI guidance to describe preset-or-module themes and normal CSS imports
+- [x] 4.2 Update the official Rtifact skill references and any mirrored CLI guidance to describe preset-or-module themes and normal CSS imports
 - [x] 4.3 Add an Unreleased changelog entry covering TS/JSX theme modules and the breaking `--css` removal
 - [x] 4.4 Run `npm run verify` and confirm package verification includes the updated documentation and all CLI output modes
 

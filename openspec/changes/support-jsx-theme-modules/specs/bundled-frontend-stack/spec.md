@@ -10,7 +10,7 @@ the theme file.
 #### Scenario: Zero-install JSX theme component
 
 - **WHEN** a selected `.jsx` theme module imports React and Ant Design, named-exports a component, and the input directory has no local frontend packages
-- **THEN** theme loading and the application build both succeed using the compatible packages supplied by yolojsx
+- **THEN** theme loading and the application build both succeed using the compatible packages supplied by Rtifact
 
 #### Scenario: Theme component imports React Icons
 

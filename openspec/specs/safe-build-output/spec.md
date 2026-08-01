@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define output path selection, ownership tracking, staged replacement, and safeguards that prevent `yolojsx` from destroying unrelated files.
+Define output path selection, ownership tracking, staged replacement, and safeguards that prevent Rtifact from destroying unrelated files.
 
 ## Requirements
 
@@ -12,12 +12,12 @@ The CLI SHALL derive the default HTML destination from the JSX entry basename an
 
 #### Scenario: Default output selection
 
-- **WHEN** a user runs `yolojsx Home.jsx` from `/workspace/site` without an output option
+- **WHEN** a user runs `rtifact Home.jsx` from `/workspace/site` without an output option
 - **THEN** the resolved HTML destination is `/workspace/site/Home.html`
 
 #### Scenario: Nested entry output selection
 
-- **WHEN** a user runs `yolojsx pages/Dashboard.jsx` from `/workspace/site` without an output option
+- **WHEN** a user runs `rtifact pages/Dashboard.jsx` from `/workspace/site` without an output option
 - **THEN** the resolved HTML destination is `/workspace/site/Dashboard.html`
 
 ### Requirement: Configurable output directory
@@ -26,7 +26,7 @@ The CLI SHALL accept `-o <path>` and `--out-dir <path>` and resolve relative val
 
 #### Scenario: Relative custom output
 
-- **WHEN** a user runs `yolojsx Home.jsx --out-dir public/app` from `/workspace/site`
+- **WHEN** a user runs `rtifact Home.jsx --out-dir public/app` from `/workspace/site`
 - **THEN** the resolved output directory is `/workspace/site/public/app`
 
 #### Scenario: Absolute custom output
@@ -36,11 +36,11 @@ The CLI SHALL accept `-o <path>` and `--out-dir <path>` and resolve relative val
 
 ### Requirement: Managed output replacement
 
-The CLI SHALL identify output directories it generated and SHALL obtain explicit overwrite confirmation before replacing an existing managed directory unless `--force` is supplied.
+The CLI SHALL identify output directories it generated through a valid `.rtifact-output.json` ownership marker and SHALL obtain explicit overwrite confirmation before replacing an existing managed directory unless `--force` is supplied.
 
 #### Scenario: Rebuild managed output interactively
 
-- **WHEN** the selected output contains a valid `yolojsx` ownership marker and `--force` is absent
+- **WHEN** the selected output contains a valid `.rtifact-output.json` ownership marker and `--force` is absent
 - **THEN** the CLI prompts the user to type `yes` or `no` before replacing the directory
 
 #### Scenario: Confirm managed replacement
@@ -61,11 +61,11 @@ The CLI SHALL identify output directories it generated and SHALL obtain explicit
 #### Scenario: First successful build
 
 - **WHEN** the selected output is absent and the build succeeds
-- **THEN** the CLI writes the application and a valid ownership marker without prompting
+- **THEN** the CLI writes the application and a valid `.rtifact-output.json` ownership marker without prompting
 
 ### Requirement: Protection of unowned files
 
-The CLI SHALL obtain explicit interactive confirmation before destructively cleaning a non-empty output directory it does not recognize as managed, or SHALL require `--force` when interactive confirmation is unavailable.
+The CLI SHALL obtain explicit interactive confirmation before destructively cleaning a non-empty output directory it does not recognize as Rtifact-managed, or SHALL require `--force` when interactive confirmation is unavailable.
 
 #### Scenario: Confirm unowned replacement
 
@@ -86,6 +86,11 @@ The CLI SHALL obtain explicit interactive confirmation before destructively clea
 
 - **WHEN** the selected output is a valid non-dangerous directory and the user supplies `--force`
 - **THEN** the CLI may replace the directory without prompting after displaying that forced replacement is occurring
+
+#### Scenario: Output from the previous product identity
+
+- **WHEN** a non-empty output directory contains only an ownership marker written under the previous product identity
+- **THEN** Rtifact treats the directory as unowned and applies the same confirmation or `--force` safeguards before replacement
 
 ### Requirement: Single-file destination validation
 
@@ -155,7 +160,7 @@ The `pack` command SHALL treat its source directory as read-only and SHALL rejec
 
 #### Scenario: Successful packaging
 
-- **WHEN** `yolojsx pack dist --output index.html` succeeds
+- **WHEN** `rtifact pack dist --output index.html` succeeds
 - **THEN** every file and directory beneath `dist` remains unchanged
 
 #### Scenario: Output inside source directory

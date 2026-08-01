@@ -8,7 +8,7 @@ const repository = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   "..",
 );
-const temporary = await mkdtemp(path.join(os.tmpdir(), "yolojsx-pack-check-"));
+const temporary = await mkdtemp(path.join(os.tmpdir(), "rtifact-pack-check-"));
 
 try {
   const result = run(npmCommand, ["pack", "--dry-run"], {

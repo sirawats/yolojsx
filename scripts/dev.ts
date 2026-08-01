@@ -39,7 +39,7 @@ async function startDevServer() {
   const prismThemes = await loadPrismThemeCatalog();
 
   const temporaryWorkspace = await mkdtemp(
-    path.join(os.tmpdir(), "yolojsx-dev-"),
+    path.join(os.tmpdir(), "rtifact-dev-"),
   );
   const workspace = await realpath(temporaryWorkspace);
   const themeCssPath = path.join(workspace, "theme.css");
@@ -107,7 +107,7 @@ async function startDevServer() {
   await server.listen();
   server.printUrls();
   process.stdout.write(
-    `\n  yolojsx dev server running for ${path.relative(repository, entry)}\n\n`,
+    `\n  Rtifact dev server running for ${path.relative(repository, entry)}\n\n`,
   );
 }
 

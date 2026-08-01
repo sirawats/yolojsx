@@ -7,7 +7,7 @@ override styles but cannot define the semantic and runtime token contract.
 
 A `.jsx` theme has two consumers. The CLI needs its default manifest before the
 application build, while application JSX may import its named React component
-exports through the browser module graph. The loader must preserve yolojsx's
+exports through the browser module graph. The loader must preserve Rtifact's
 zero-setup aliases even when the input directory has no React or Ant Design
 installation.
 
@@ -39,7 +39,7 @@ validation, and package paths.
 - Auto-importing named exports into the application.
 - Adding a public `defineTheme` helper, runtime theme switching, or a new
   compiler dependency.
-- Registering custom themes in the built-in `yolojsx themes` catalog.
+- Registering custom themes in the built-in `rtifact themes` catalog.
 - Removing custom `.ts` theme support or changing bundled preset values, ids,
   aliases, or visual behavior.
 
@@ -91,7 +91,7 @@ This approach reuses the installed build stack, handles JSX and CommonJS/ESM
 dependencies, and gives theme modules the same supplied-package resolution as
 application JSX. Direct Node import cannot parse JSX; Vite's experimental
 module runner does not reliably evaluate the supplied CommonJS React and Ant
-Design graph; `loadConfigFromFile` cannot apply yolojsx aliases for zero-install
+Design graph; `loadConfigFromFile` cannot apply Rtifact aliases for zero-install
 input directories. A new loader dependency is therefore unnecessary.
 
 The virtual default-only entry allows Vite to remove unused named component
@@ -133,7 +133,7 @@ Each JSX manifest will use JSDoc `@satisfies` against the exported
 `ThemeDefinition` contract. Repository TypeScript settings will include and
 check only the repository-owned preset JSX sources, and the build configuration
 will emit them as JavaScript beside the compiled registry. ESLint will cover
-those source files as repository code. These settings compile yolojsx itself;
+those source files as repository code. These settings compile Rtifact itself;
 they are not generated for or required by users selecting local theme modules.
 
 Keeping the files as unchecked copies was rejected because it would remove the

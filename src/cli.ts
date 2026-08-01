@@ -5,7 +5,7 @@ import { parseArgs, USAGE } from "./args.js";
 import { buildApplication, withTemporaryApplicationBuild } from "./build.js";
 import { confirmReplacement as promptForReplacement } from "./confirmation.js";
 import { NODE_ENGINE, PACKAGE_VERSION } from "./constants.js";
-import { formatError, hasErrorCode, YoloJsxError } from "./errors.js";
+import { formatError, hasErrorCode, RtifactError } from "./errors.js";
 import {
   resolveAndValidateEntry,
   resolveAndValidateHtmlOutput,
@@ -43,8 +43,8 @@ interface CliOptions {
 
 function assertSupportedNode(nodeVersion: string) {
   if (!semver.satisfies(nodeVersion, NODE_ENGINE)) {
-    throw new YoloJsxError(
-      `Node.js ${nodeVersion} is not supported. yolojsx requires ${NODE_ENGINE}.`,
+    throw new RtifactError(
+      `Node.js ${nodeVersion} is not supported. Rtifact requires ${NODE_ENGINE}.`,
       { code: "UNSUPPORTED_NODE" },
     );
   }
@@ -163,7 +163,7 @@ export async function runCli(
         );
       } catch (error) {
         if (hasErrorCode(error, "PACK_FAILED")) {
-          throw new YoloJsxError(
+          throw new RtifactError(
             `${formatError(error)}\nTry \`--out-dir dist\` for a directory build that supports this application graph.`,
             { code: "PACK_FAILED" },
           );
@@ -178,7 +178,7 @@ export async function runCli(
     }
 
     if (!options.outDir) {
-      throw new YoloJsxError("Directory output requires --out-dir.", {
+      throw new RtifactError("Directory output requires --out-dir.", {
         code: "INVALID_ARGUMENTS",
       });
     }
@@ -217,7 +217,7 @@ export async function runCli(
     stdout.write(`Built ${entry}\nOutput: ${output}\n`);
     return 0;
   } catch (error) {
-    stderr.write(`yolojsx: ${formatError(error)}\n`);
+    stderr.write(`rtifact: ${formatError(error)}\n`);
     return 1;
   }
 }

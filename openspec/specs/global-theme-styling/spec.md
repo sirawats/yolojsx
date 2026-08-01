@@ -99,7 +99,7 @@ Each preset SHALL define one semantic theme manifest that maps page, surface, fo
 
 ### Requirement: Theme-transparent JSX authoring
 
-The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use a yolojsx-specific class-name vocabulary.
+The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use an Rtifact-specific class-name vocabulary.
 
 #### Scenario: Native document inherits its theme
 
@@ -114,34 +114,34 @@ The CLI-managed stylesheet graph SHALL make the selected preset available throug
 #### Scenario: Conventional semantic Tailwind utility
 
 - **WHEN** an entry needs an explicit muted foreground or themed surface
-- **THEN** it can use conventional semantic utilities such as `text-muted-foreground`, `bg-card`, `border-border`, or `font-heading` without a `yolo-` prefix
+- **THEN** it can use conventional semantic utilities such as `text-muted-foreground`, `bg-card`, `border-border`, or `font-heading` without a package-specific prefix
 
 #### Scenario: No branded compatibility vocabulary
 
 - **WHEN** package verification inspects the generated Tailwind theme contract, documentation, and examples
-- **THEN** the removed `yolo-*` utilities and package-specific styling helpers are not retained as aliases or presented as supported authoring APIs
+- **THEN** removed branded utilities and package-specific styling helpers are not retained as aliases or presented as supported authoring APIs
 
-### Requirement: Original yolojsx theme authorship
+### Requirement: Original Rtifact theme authorship
 
-Built-in theme CSS and mappings SHALL be authored specifically for yolojsx's generated document and semantic contract; the project SHALL NOT copy, vendor, concatenate, mechanically transform, or redistribute CSS from an upstream palette, design system, editor theme, or Obsidian theme.
+Built-in theme CSS and mappings SHALL be authored specifically for Rtifact's generated document and semantic contract; the project SHALL NOT copy, vendor, concatenate, mechanically transform, or redistribute CSS from an upstream palette, design system, editor theme, or Obsidian theme.
 
 #### Scenario: Palette used as inspiration
 
 - **WHEN** a maintainer creates a preset informed by an upstream theme
-- **THEN** the committed implementation contains an original semantic mapping and yolojsx-specific CSS rather than upstream selectors or stylesheet content
+- **THEN** the committed implementation contains an original semantic mapping and Rtifact-specific CSS rather than upstream selectors or stylesheet content
 
 #### Scenario: Packaged theme sources inspected
 
 - **WHEN** the npm artifact is inspected
-- **THEN** it contains yolojsx theme manifests, a package-owned stylesheet for every selectable theme, and the shared yolojsx foundation, but no vendored upstream or Obsidian theme stylesheet
+- **THEN** it contains Rtifact theme manifests, a package-owned stylesheet for every selectable theme, and the shared Rtifact foundation, but no vendored upstream or Obsidian theme stylesheet
 
 ### Requirement: Theme provenance and notices
 
-Every non-default preset SHALL record its display name, canonical id, supported mode, inspiration source, pinned source revision or release, source license, attribution text, and an explicit statement that yolojsx is not endorsed by the named project; required notices SHALL ship in the npm artifact.
+Every non-default preset SHALL record its display name, canonical id, supported mode, inspiration source, pinned source revision or release, source license, attribution text, and an explicit statement that Rtifact is not endorsed by the named project; required notices SHALL ship in the npm artifact.
 
 #### Scenario: Theme discovery lists canonical names
 
-- **WHEN** a user runs `yolojsx themes` or `yolojsx --themes`
+- **WHEN** a user runs `rtifact themes` or `rtifact --themes`
 - **THEN** the CLI prints only canonical preset ids in catalog order, one per line, without a heading, descriptions, aliases, mode labels, or provenance
 
 #### Scenario: Package notices are verified
@@ -204,7 +204,7 @@ Every packaged example SHALL express its application through JSX, semantic HTML,
 #### Scenario: Example source has no theme plumbing
 
 - **WHEN** package verification inspects every documented example
-- **THEN** no example configures an Ant Design theme boundary, uses a `yolo-*` class name, or hard-codes a light or dark replacement for a built-in semantic color
+- **THEN** no example configures an Ant Design theme boundary, uses a package-branded class name, or hard-codes a light or dark replacement for a built-in semantic color
 
 #### Scenario: Every example builds in both modes
 

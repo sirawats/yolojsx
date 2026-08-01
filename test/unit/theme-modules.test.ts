@@ -74,6 +74,6 @@ export default { ...base, colors: { ...base.colors, primary: "red" } };`,
   );
   await assert.rejects(
     resolveThemeSelection("missing", fixture),
-    /Unknown theme: missing.*yolojsx themes/,
+    /Unknown theme: missing.*rtifact themes/,
   );
 });

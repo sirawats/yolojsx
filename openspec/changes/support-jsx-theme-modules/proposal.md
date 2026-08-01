@@ -17,7 +17,7 @@ catalog aligned with the preferred agent-authored theme format.
 - Validate custom manifests with the same semantic, contrast, serialization,
   and Ant Design constraints as built-in themes before creating output.
 - Make Tailwind discover utilities used by components in the selected theme
-  module and make yolojsx's supplied frontend packages available to that module.
+  module and make Rtifact's supplied frontend packages available to that module.
 - Migrate every bundled preset manifest under `src/themes/` from `.ts` to
   `.jsx` while preserving preset ids, aliases, validation, and emitted
   `lib/themes/*.js` package paths.
@@ -46,7 +46,7 @@ The CLI argument parser and help, theme and path resolution, Vite build
 orchestration, Tailwind source generation, tests, README, official agent skill,
 public specifications, bundled preset sources, repository build/type tooling,
 and changelog will change. No new dependency is needed; the loader reuses Vite
-and yolojsx's existing package aliases. Repository tooling changes for bundled
+and Rtifact's existing package aliases. Repository tooling changes for bundled
 JSX presets do not create a consumer `tsconfig.json` or ESLint requirement.
 Existing scripts using `--css` must replace it with an application CSS import
 or a theme module.

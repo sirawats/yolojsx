@@ -1,6 +1,6 @@
 import process from "node:process";
 import { createInterface } from "node:readline";
-import { YoloJsxError } from "./errors.js";
+import { RtifactError } from "./errors.js";
 
 export async function confirmReplacement(
   target: string,
@@ -13,7 +13,7 @@ export async function confirmReplacement(
   } = {},
 ) {
   if (!input?.isTTY) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Output already exists and confirmation is unavailable in a non-interactive session: ${target}\nUse --force to replace it.`,
       { code: "CONFIRMATION_REQUIRED" },
     );
@@ -37,7 +37,7 @@ export async function confirmReplacement(
     lines.close();
   }
 
-  throw new YoloJsxError(
+  throw new RtifactError(
     `Confirmation ended before yes or no was entered; output was not changed: ${target}`,
     { code: "CONFIRMATION_REQUIRED" },
   );

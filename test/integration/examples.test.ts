@@ -20,7 +20,7 @@ const examples: [string, string, string, boolean?][] = [
 ];
 
 test("builds every documented example in file and directory modes", async (t) => {
-  const fixture = await makeFixture("yolojsx-examples-");
+  const fixture = await makeFixture("rtifact-examples-");
   t.after(() => rm(fixture, { recursive: true, force: true }));
 
   for (const [
@@ -44,7 +44,11 @@ test("builds every documented example in file and directory modes", async (t) =>
     assert.match(payload.script, new RegExp(expectedText), filename);
     assert.match(payload.script, /components/, filename);
     assert.match(payload.styles.join("\n"), /--background:/, filename);
-    assert.doesNotMatch(payload.styles.join("\n"), /--yolo-|\.yolo-/, filename);
+    assert.doesNotMatch(
+      payload.styles.join("\n"),
+      /--rtifact-|\.rtifact-/,
+      filename,
+    );
     if (hasCodePanel) {
       const css = payload.styles.join("\n");
       assert.match(
@@ -76,7 +80,7 @@ test("builds every documented example in file and directory modes", async (t) =>
     assert.match(directoryScript, /components/, filename);
     const directoryThemeCss = await readAsset(directoryOutput, ".css");
     assert.match(directoryThemeCss, /--background:/, filename);
-    assert.doesNotMatch(directoryThemeCss, /--yolo-|\.yolo-/, filename);
+    assert.doesNotMatch(directoryThemeCss, /--rtifact-|\.rtifact-/, filename);
     if (hasCodePanel) {
       assert.match(
         directoryThemeCss,

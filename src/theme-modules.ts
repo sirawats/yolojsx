@@ -2,7 +2,7 @@ import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { build, normalizePath, type Plugin } from "vite";
 import { createCoreAliases, jsxSourcePlugin } from "./dependencies.js";
-import { formatError, YoloJsxError } from "./errors.js";
+import { formatError, RtifactError } from "./errors.js";
 import { resolveAndValidateThemeModule } from "./paths.js";
 import {
   createTheme,
@@ -13,7 +13,7 @@ import {
   type ThemeDefinition,
 } from "./themes.js";
 
-const VIRTUAL_THEME_ID = "virtual:yolojsx-theme-default";
+const VIRTUAL_THEME_ID = "virtual:rtifact-theme-default";
 const RESOLVED_VIRTUAL_THEME_ID = `\0${VIRTUAL_THEME_ID}`;
 let loadSequence = 0;
 
@@ -24,7 +24,7 @@ export interface ThemeSelection {
 
 function createThemeModulePlugin(themeSource: string): Plugin {
   return {
-    name: "yolojsx-theme-module",
+    name: "rtifact-theme-module",
     resolveId(id) {
       return id === VIRTUAL_THEME_ID ? RESOLVED_VIRTUAL_THEME_ID : null;
     },
@@ -90,7 +90,7 @@ export async function loadThemeModule(
     )) as { default?: unknown };
     definition = loaded.default;
   } catch (error) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Could not load theme module ${themeSource}: ${formatError(error)}`,
       { code: "INVALID_THEME", cause: error },
     );
@@ -101,7 +101,7 @@ export async function loadThemeModule(
     typeof definition !== "object" ||
     Array.isArray(definition)
   ) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Theme module must default-export a theme definition object: ${themeSource}`,
       { code: "INVALID_THEME" },
     );
@@ -112,7 +112,7 @@ export async function loadThemeModule(
     validateTheme(theme);
     return theme;
   } catch (error) {
-    throw new YoloJsxError(
+    throw new RtifactError(
       `Invalid theme module ${themeSource}: ${formatError(error)}`,
       { code: "INVALID_THEME", cause: error },
     );

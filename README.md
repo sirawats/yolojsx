@@ -1,8 +1,8 @@
-<p align="center">
-  <img src="assets/yolo_chihuahua_sticker.png" alt="yolojsx" width="260" />
-</p>
+# Rtifact
 
-# yolojsx
+<p align="center">
+  <img src="assets/chihuahua_archaeologist_artifact.png" width="280" alt="Rtifact Chihuahua archaeologist uncovering an artifact">
+</p>
 
 [![CI status][ci-image]][ci-url]
 [![npm version][npm-image]][npm-url]
@@ -10,35 +10,33 @@
 [![Node.js version][node-image]][node-url]
 [![License][license-image]][license-url]
 
-**yolojsx** is a CLI tool for creating a portable, interactive **HTML Artifact** from
-a `.jsx` or `.tsx` file. It lets AI agents write artifacts in JSX and take advantage of
-reusable React components, Ant Design, Tailwind CSS, React Icons, and
-PrismJS. Users and AI agents do not need to worry about the build—**yolojsx**
-handles it for them.
+**Rtifact turns agent-authored JSX into portable, interactive HTML artifacts.**
+Write a `.jsx` or `.tsx` file with React, Ant Design, Tailwind CSS, React Icons,
+and PrismJS; Rtifact handles the build and produces the finished artifact.
 
 By default, it produces one shareable `.html` file starting at about **15 KB**.
 
 **One CLI command**
 
 ```
-npx yolojsx Artifact.jsx --output artifact.html
+npx rtifact Artifact.jsx --output artifact.html
 ```
 
 **Or use it with a skill**
 
 ```
-/yolojsx Create an easy-to-read documentation guide I can send to my colleague.
+/rtifact Create an easy-to-read documentation guide I can send to my colleague.
 ```
 
-➡️ Get a portable, interactive HTML artifact in one `.html` file.
+➡️ Get a finished, portable HTML artifact in one `.html` file.
 
-[See examples at website](https://sirawats.github.io/yolojsx/)
+[See examples at website](https://sirawats.github.io/rtifact/)
 
 _Powered by React, Tailwind CSS, Ant Design, React Icons, and PrismJS._
 
 ## AI agent skill
 
-Install the official yolojsx authoring skill through the universal Skills CLI
+Install the official Rtifact authoring skill through the universal Skills CLI
 or your agent's marketplace/plugin system.
 
 ### Via Skills
@@ -47,7 +45,7 @@ The [Skills CLI](https://github.com/vercel-labs/skills) supports Codex, Claude
 Code, Gemini CLI, Antigravity, OpenCode, Cursor, and other coding agents:
 
 ```sh
-npx skills add sirawats/yolojsx --skill yolojsx yolojsx-create-theme
+npx skills add sirawats/rtifact --skill rtifact rtifact-create-theme
 ```
 
 Add `--global` to make the skill available across projects.
@@ -61,8 +59,8 @@ the npm package.
 <summary>Codex</summary>
 
 ```sh
-codex plugin marketplace add sirawats/yolojsx
-codex plugin add yolojsx@yolojsx
+codex plugin marketplace add sirawats/rtifact
+codex plugin add rtifact@rtifact
 ```
 
 </details>
@@ -71,8 +69,8 @@ codex plugin add yolojsx@yolojsx
 <summary>Claude Code</summary>
 
 ```text
-/plugin marketplace add sirawats/yolojsx
-/plugin install yolojsx@yolojsx
+/plugin marketplace add sirawats/rtifact
+/plugin install rtifact@rtifact
 ```
 
 </details>
@@ -81,10 +79,10 @@ codex plugin add yolojsx@yolojsx
 <summary>Antigravity or Gemini CLI</summary>
 
 ```sh
-agy plugin install https://github.com/sirawats/yolojsx
+agy plugin install https://github.com/sirawats/rtifact
 
 # Gemini CLI
-gemini extensions install https://github.com/sirawats/yolojsx
+gemini extensions install https://github.com/sirawats/rtifact
 ```
 
 </details>
@@ -96,29 +94,29 @@ Clone the repository, then add its adapter to your project or global
 `opencode.json`:
 
 ```sh
-git clone https://github.com/sirawats/yolojsx.git /path/to/yolojsx
+git clone https://github.com/sirawats/rtifact.git /path/to/rtifact
 ```
 
 ```json
 {
-  "plugin": ["/absolute/path/to/yolojsx/.opencode/plugins/yolojsx.mjs"]
+  "plugin": ["/absolute/path/to/rtifact/.opencode/plugins/rtifact.mjs"]
 }
 ```
 
 </details>
 
-Both installation paths use the canonical `skills/yolojsx` skill.
+Both installation paths use the canonical `skills/rtifact` skill.
 
 ## Quick start
 
 After installing the skill, ask your preferred AI agent:
 
 ```text
-/yolojsx Create an API testing report that's ready to send to my frontend engineer colleague
+/rtifact Create an API testing report that's ready to send to my frontend engineer colleague
 ```
 
-Your agent creates the JSX, builds it with yolojsx, and gives you a portable
-HTML file you can open, upload, or send. No local server or adjacent asset
+Your agent creates the JSX, builds it with Rtifact, and gives you a finished
+HTML artifact you can open, upload, or send. No local server or adjacent asset
 directory is needed.
 
 Requires Node.js `^20.19.0` or `>=22.12.0`.
@@ -126,10 +124,10 @@ Requires Node.js `^20.19.0` or `>=22.12.0`.
 ## CLI
 
 ```text
-Usage: yolojsx <entry.jsx|entry.tsx> [options]
-       yolojsx themes | yolojsx --themes
-       yolojsx prism-themes | yolojsx --prism-themes
-       yolojsx pack <directory> --output <file.html> [options]
+Usage: rtifact <entry.jsx|entry.tsx> [options]
+       rtifact themes | rtifact --themes
+       rtifact prism-themes | rtifact --prism-themes
+       rtifact pack <directory> --output <file.html> [options]
 
 Build a JSX component into one CDN-backed compressed HTML file by default.
 
@@ -146,7 +144,7 @@ Options:
   -h, --help            Show this help
   -v, --version         Show the installed version
 
-Run `yolojsx themes` or `yolojsx prism-themes` to list available themes.
+Run `rtifact themes` or `rtifact prism-themes` to list available themes.
 ```
 
 `--output` and `--out-dir` conflict. `--base` requires `--out-dir`.
@@ -154,14 +152,14 @@ Run `yolojsx themes` or `yolojsx prism-themes` to list available themes.
 self-contained.
 
 Existing output requires confirmation. Non-interactive automation must pass
-`--force`. yolojsx rejects unsafe targets such as filesystem roots, symbolic
+`--force`. Rtifact rejects unsafe targets such as filesystem roots, symbolic
 links, the current directory, and outputs containing their source input.
 Builds are staged so a failed replacement preserves the last successful result.
 
 ## Pick a theme
 
 ```sh
-npx yolojsx themes
+npx rtifact themes
 
 # Output
 default
@@ -190,7 +188,7 @@ obsidian-baseline-dark
 Then build with any preset:
 
 ```sh
-npx yolojsx Report.jsx --theme catppuccin-mocha
+npx rtifact Report.jsx --theme catppuccin-mocha
 ```
 
 Themes style the document and Ant Design together: typography, colors,
@@ -200,17 +198,17 @@ spacing, surfaces, controls, focus states, and code.
 
 | Need                      | Command                                | Result                            |
 | :------------------------ | :------------------------------------- | :-------------------------------- |
-| A portable file           | `npx yolojsx App.jsx`                  | `App.html`                        |
-| A file that works offline | `npx yolojsx App.jsx --self-contained` | `App.html` with runtimes embedded |
-| A deployable static site  | `npx yolojsx App.jsx --out-dir dist`   | `dist/` with conventional assets  |
+| A portable file           | `npx rtifact App.jsx`                  | `App.html`                        |
+| A file that works offline | `npx rtifact App.jsx --self-contained` | `App.html` with runtimes embedded |
+| A deployable static site  | `npx rtifact App.jsx --out-dir dist`   | `dist/` with conventional assets  |
 
-The default portable file embeds your application, CSS, and local assets. Its
+The default portable artifact embeds your application, CSS, and local assets. Its
 pinned React and Ant Design runtimes load from a CDN. Use `--self-contained`
 when network access cannot be assumed.
 
-## Built for AI-authored apps
+## Built for AI-authored artifacts
 
-yolojsx is useful when the rendered result matters more than maintaining a
+Rtifact is useful when the rendered result matters more than maintaining a
 frontend project:
 
 - API test reports
@@ -220,8 +218,9 @@ frontend project:
 - Calculators and focused browser tools
 - Product demos
 
-Give your coding agent the official yolojsx skill so it knows the component
-contract, supplied packages, themes, and output modes.
+Give your coding agent the official Rtifact skill so it knows the artifact
+source contract, supplied packages, themes, output modes, and rendered-quality
+expectations.
 
 [Install the agent skill](#ai-agent-skill) ·
 [Browse examples](examples) ·
@@ -248,7 +247,7 @@ npm run build
 node lib/bin.js examples/APIDocs.jsx --theme github-dark
 ```
 
-## Component contract
+## Artifact source contract
 
 The entry must be a readable `.jsx` or `.tsx` module with a default-exported
 React component. Relative imports resolve from the entry file.
@@ -258,7 +257,7 @@ import { Button, Card } from "antd";
 import { FiDownload } from "react-icons/fi";
 import icon from "./icon.png";
 
-export const YOLOJSX = {
+export const RTIFACT = {
   title: "Release report",
   icon,
 };
@@ -277,7 +276,7 @@ export default function Report() {
 }
 ```
 
-The optional `YOLOJSX` export sets the browser-tab title and favicon. The icon
+The optional `RTIFACT` export sets the browser-tab title and favicon. The icon
 may be an imported local image or a remote or data URL.
 
 The CLI supplies:
@@ -295,10 +294,10 @@ Other bare package imports resolve from the input project's `node_modules`.
 Set syntax highlighting independently from the page theme:
 
 ```jsx
-export const YOLOJSX = { prismTheme: "prism" };
+export const RTIFACT = { prismTheme: "prism" };
 ```
 
-Run `npx yolojsx prism-themes` to discover installed Prism theme names. Unknown
+Run `npx rtifact prism-themes` to discover installed Prism theme names. Unknown
 names warn and fall back to `prism`.
 
 ## Output modes
@@ -308,10 +307,10 @@ names warn and fall back to `prism`.
 The default command writes one CDN-backed compressed HTML file:
 
 ```sh
-yolojsx pages/Home.jsx
+rtifact pages/Home.jsx
 # Output: ./Home.html
 
-yolojsx pages/Home.jsx --output public/index.html
+rtifact pages/Home.jsx --output public/index.html
 ```
 
 Application code, generated CSS, local assets, selected Prism modules, and
@@ -323,7 +322,7 @@ CSS-in-JS load from pinned esm.sh URLs.
 Embed the supplied runtimes when the file must work without network access:
 
 ```sh
-yolojsx pages/Home.jsx --self-contained
+rtifact pages/Home.jsx --self-contained
 ```
 
 ### Static asset directory
@@ -332,12 +331,12 @@ Use directory output for conventional hosting, strict Content Security Policy,
 or application graphs that cannot be packaged into one file:
 
 ```sh
-yolojsx pages/Home.jsx --out-dir dist
+rtifact pages/Home.jsx --out-dir dist
 ```
 
 ```text
 dist/
-├── .yolojsx-output.json
+├── .rtifact-output.json
 ├── index.html
 └── assets/
     ├── index-*.css
@@ -347,7 +346,7 @@ dist/
 Set a hosting base path when needed:
 
 ```sh
-yolojsx pages/Home.jsx --out-dir public/app --base /application/
+rtifact pages/Home.jsx --out-dir public/app --base /application/
 ```
 
 ### Package an existing build
@@ -356,7 +355,7 @@ Package a compatible directory build into self-contained HTML without changing
 the input:
 
 ```sh
-yolojsx pack dist --output index.html
+rtifact pack dist --output index.html
 ```
 
 > [!NOTE]
@@ -370,8 +369,8 @@ Unsuffixed theme families select their light preset. Dark styling is used only
 when explicitly requested:
 
 ```sh
-yolojsx Home.jsx --theme material       # material-light
-yolojsx Home.jsx --theme material-dark  # explicitly dark
+rtifact Home.jsx --theme material       # material-light
+rtifact Home.jsx --theme material-dark  # explicitly dark
 ```
 
 Other aliases include `github`, `solarized`, `gruvbox`, `everforest`,
@@ -381,7 +380,7 @@ Select a local TypeScript or JSX theme module for a product-specific visual
 system:
 
 ```sh
-yolojsx Home.jsx --theme ./company-theme.jsx
+rtifact Home.jsx --theme ./company-theme.jsx
 ```
 
 The module default export is a declarative theme manifest. Named exports remain
@@ -411,7 +410,7 @@ export default () => <CompanyAction>Continue</CompanyAction>;
 The default export must include the complete theme-definition fields used by
 built-in manifests. See
 [`amexgbt-theme.jsx`](amexgbt-theme.jsx) for a complete JSX example with named
-components. Custom theme modules do not appear in `yolojsx themes`.
+components. Custom theme modules do not appear in `rtifact themes`.
 
 > [!IMPORTANT]
 > Theme modules are trusted local build-time code. Selecting one compiles and
@@ -471,12 +470,12 @@ private vulnerability reporting.
 
 MIT
 
-[ci-image]: https://github.com/sirawats/yolojsx/actions/workflows/ci.yml/badge.svg
-[ci-url]: https://github.com/sirawats/yolojsx/actions/workflows/ci.yml
-[npm-image]: https://img.shields.io/npm/v/yolojsx.svg
-[npm-url]: https://www.npmjs.com/package/yolojsx
-[downloads-image]: https://img.shields.io/npm/dm/yolojsx.svg
-[node-image]: https://img.shields.io/node/v/yolojsx.svg
+[ci-image]: https://github.com/sirawats/rtifact/actions/workflows/ci.yml/badge.svg
+[ci-url]: https://github.com/sirawats/rtifact/actions/workflows/ci.yml
+[npm-image]: https://img.shields.io/npm/v/rtifact.svg
+[npm-url]: https://www.npmjs.com/package/rtifact
+[downloads-image]: https://img.shields.io/npm/dm/rtifact.svg
+[node-image]: https://img.shields.io/node/v/rtifact.svg
 [node-url]: https://nodejs.org/
-[license-image]: https://img.shields.io/npm/l/yolojsx.svg
-[license-url]: https://github.com/sirawats/yolojsx/blob/master/LICENSE
+[license-image]: https://img.shields.io/npm/l/rtifact.svg
+[license-url]: https://github.com/sirawats/rtifact/blob/master/LICENSE

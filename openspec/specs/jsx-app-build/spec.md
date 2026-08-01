@@ -2,27 +2,27 @@
 
 ## Purpose
 
-Define how the `yolojsx` CLI accepts one JSX or TSX component and produces an isolated, deployable static React application with actionable diagnostics.
+Define how the Rtifact CLI accepts one JSX or TSX component and produces a portable HTML artifact or deployable static React application with actionable diagnostics.
 
 ## Requirements
 
 ### Requirement: CLI invocation
 
-The package SHALL expose a `yolojsx` executable that supports a build form accepting exactly one JSX or TSX entry path and a `pack` form accepting exactly one build-directory path, and SHALL support invocation after global installation and through `npx yolojsx`.
+The package SHALL expose a `rtifact` executable that supports a build form accepting exactly one JSX or TSX entry path and a `pack` form accepting exactly one build-directory path, and SHALL support invocation after global installation and through `npx rtifact`.
 
 #### Scenario: Build through the global executable
 
-- **WHEN** a user runs `yolojsx Home.jsx` after installing the package globally
+- **WHEN** a user runs `rtifact Home.jsx` after installing the package globally
 - **THEN** the CLI builds `Home.jsx` as the application entry
 
 #### Scenario: Build through npx
 
-- **WHEN** a user runs `npx yolojsx Home.jsx`
+- **WHEN** a user runs `npx rtifact Home.jsx`
 - **THEN** the package executes the same build behavior as the global executable
 
 #### Scenario: Pack an existing build
 
-- **WHEN** a user runs `yolojsx pack dist --output index.html`
+- **WHEN** a user runs `rtifact pack dist --output index.html`
 - **THEN** the CLI packages the compatible application in `dist` into `index.html`
 
 #### Scenario: Missing entry argument
@@ -32,7 +32,7 @@ The package SHALL expose a `yolojsx` executable that supports a build form accep
 
 ### Requirement: JSX component entry
 
-The CLI SHALL accept an existing `.jsx` or `.tsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `YOLOJSX` metadata export containing `title`, `icon`, and `prismTheme` to the generated document.
+The CLI SHALL accept an existing `.jsx` or `.tsx` module whose default export is a React component, SHALL render that component into a generated application root, and SHALL apply an optional named `RTIFACT` metadata export containing `title`, `icon`, and `prismTheme` to the generated document.
 
 #### Scenario: Default-exported component
 
@@ -51,28 +51,28 @@ The CLI SHALL accept an existing `.jsx` or `.tsx` module whose default export is
 
 #### Scenario: Application title and icon
 
-- **WHEN** the entry exports `YOLOJSX` with a title and an imported local, remote, or data URL icon
+- **WHEN** the entry exports `RTIFACT` with a title and an imported local, remote, or data URL icon
 - **THEN** the generated application uses that title and icon in the browser tab
 
 #### Scenario: Theme-aware PrismJS tokens
 
-- **WHEN** the entry exports a discovered Prism theme name as the string literal `YOLOJSX.prismTheme`
+- **WHEN** the entry exports a discovered Prism theme name as the string literal `RTIFACT.prismTheme`
 - **THEN** the generated application resolves and applies only that `prism-themes` stylesheet
 
 #### Scenario: Prism theme discovery
 
-- **WHEN** the user runs `yolojsx prism-themes` or `yolojsx --prism-themes`
+- **WHEN** the user runs `rtifact prism-themes` or `rtifact --prism-themes`
 - **THEN** the CLI lists canonical theme names discovered from the installed PrismJS and `prism-themes` packages
 
 #### Scenario: Unknown Prism theme
 
-- **WHEN** `YOLOJSX.prismTheme` names a theme absent from the discovered catalog
+- **WHEN** `RTIFACT.prismTheme` names a theme absent from the discovered catalog
 - **THEN** the build succeeds with PrismJS's default `prism` theme and the CLI prints a warning
 
 #### Scenario: No application metadata
 
-- **WHEN** the entry does not export `YOLOJSX`
-- **THEN** the generated application keeps the `yolojsx` title and adds no favicon
+- **WHEN** the entry does not export `RTIFACT`
+- **THEN** the generated application keeps the `Rtifact` title and adds no favicon
 
 ### Requirement: Deployable static application
 
@@ -104,27 +104,27 @@ The JSX build form SHALL build and package the component as one CDN-backed HTML 
 
 #### Scenario: Default single-file name
 
-- **WHEN** a user runs `yolojsx Home.jsx` from a working directory
+- **WHEN** a user runs `rtifact Home.jsx` from a working directory
 - **THEN** the CLI creates CDN-backed `Home.html` in that working directory
 
 #### Scenario: Nested entry default name
 
-- **WHEN** a user runs `yolojsx pages/Dashboard.jsx`
+- **WHEN** a user runs `rtifact pages/Dashboard.jsx`
 - **THEN** the CLI creates CDN-backed `Dashboard.html` in the invocation working directory
 
 #### Scenario: Explicit single-file name
 
-- **WHEN** a user runs `yolojsx Home.jsx --output index.html`
+- **WHEN** a user runs `rtifact Home.jsx --output index.html`
 - **THEN** the CLI creates CDN-backed `index.html` at the path resolved from the invocation working directory
 
 #### Scenario: Explicit self-contained file
 
-- **WHEN** a user runs `yolojsx Home.jsx --self-contained`
+- **WHEN** a user runs `rtifact Home.jsx --self-contained`
 - **THEN** the CLI creates `Home.html` with the controlled runtime embedded
 
 #### Scenario: Deprecated explicit selection
 
-- **WHEN** a user runs `yolojsx Home.jsx --single-file`
+- **WHEN** a user runs `rtifact Home.jsx --single-file`
 - **THEN** the CLI creates CDN-backed `Home.html` and writes a deprecation warning identifying the now-default file mode
 
 #### Scenario: No retained intermediate directory
@@ -148,7 +148,7 @@ The CLI SHALL accept `--self-contained` only for direct JSX file builds and SHAL
 
 #### Scenario: Pack remains self-contained
 
-- **WHEN** a user invokes `yolojsx pack dist --output index.html`
+- **WHEN** a user invokes `rtifact pack dist --output index.html`
 - **THEN** the CLI embeds the compatible build runtime without requiring `--self-contained`
 
 #### Scenario: Self-contained selector is not a pack option
@@ -187,7 +187,7 @@ The CLI SHALL distinguish default HTML-file mode from explicit directory mode an
 
 #### Scenario: Pack output omitted
 
-- **WHEN** a user invokes `yolojsx pack dist` without `--output`
+- **WHEN** a user invokes `rtifact pack dist` without `--output`
 - **THEN** the CLI exits unsuccessfully and explains that the destination HTML file is required
 
 ### Requirement: Isolated build configuration

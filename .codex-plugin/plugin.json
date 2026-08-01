@@ -1,24 +1,24 @@
 {
-  "name": "yolojsx",
+  "name": "rtifact",
   "version": "0.1.7",
-  "description": "Build portable interactive HTML applications from compact JSX with yolojsx.",
+  "description": "Turn agent-authored JSX into portable, interactive HTML artifacts with Rtifact.",
   "author": { "name": "sirawats", "url": "https://github.com/sirawats" },
-  "homepage": "https://github.com/sirawats/yolojsx",
-  "repository": "https://github.com/sirawats/yolojsx",
+  "homepage": "https://github.com/sirawats/rtifact",
+  "repository": "https://github.com/sirawats/rtifact",
   "license": "MIT",
   "keywords": ["jsx", "react", "portable-html", "reports", "developer-tools"],
   "skills": "./skills/",
   "interface": {
-    "displayName": "yolojsx",
-    "shortDescription": "Build portable HTML applications from JSX.",
-    "longDescription": "Create readable, interactive reports, guides, demos, comparisons, and small tools with the yolojsx supplied frontend stack.",
+    "displayName": "Rtifact",
+    "shortDescription": "Create portable HTML artifacts from JSX.",
+    "longDescription": "Turn content and workflows into readable, interactive HTML artifacts with Rtifact's supplied frontend stack.",
     "developerName": "sirawats",
     "category": "Developer Tools",
     "capabilities": ["Instructions"],
-    "websiteURL": "https://github.com/sirawats/yolojsx",
+    "websiteURL": "https://github.com/sirawats/rtifact",
     "defaultPrompt": [
       "Create a portable interactive report from my content.",
-      "Build a small browser tool with yolojsx.",
+      "Build a small browser artifact with Rtifact.",
       "Turn these choices into an interactive comparison."
     ]
   }
