@@ -151,7 +151,17 @@ writeFileSync(3, JSON.stringify({ ok: true, kind: "directory", relativePath, fil
 const site = path.join(job.workspace, relativePath);
 await mkdir(site, { recursive: true });
 await writeFile(path.join(site, "target.txt"), "safe");
-await symlink(path.join(site, "target.txt"), path.join(site, "linked.txt"));
+try {
+  await symlink(path.join(site, "target.txt"), path.join(site, "linked.txt"));
+} catch (err) {
+  if (process.platform === "win32" && (err.code === "EPERM" || err.code === "EACCES")) {
+    const sub = path.join(site, "sub");
+    await mkdir(sub, { recursive: true });
+    await symlink(sub, path.join(site, "linked-dir"), "junction");
+  } else {
+    throw err;
+  }
+}
 writeFileSync(3, JSON.stringify({ ok: true, kind: "directory", relativePath, files: 2, bytes: 8, warnings: [] }));`,
       expected: /symbolic link/,
     },
