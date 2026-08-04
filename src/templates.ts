@@ -93,13 +93,13 @@ import "${VIRTUAL_ENTRY_ID}";
 
 export function createTailwindStyles(
   workspace: string,
-  sourceDirectory: string,
+  sourcePath: string,
   tailwindStylesheet: string,
   foundationStylesheet: string,
   themeStylesheet: string,
   themeSource?: string,
 ) {
-  const source = toCssPath(path.relative(workspace, sourceDirectory) || ".");
+  const source = toCssPath(path.relative(workspace, sourcePath) || ".");
   const stylesheet = toCssPath(tailwindStylesheet);
   const foundationImport = toCssPath(foundationStylesheet);
   const themeImport = toCssPath(themeStylesheet);

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import { readdir, rm } from "node:fs/promises";
 import test from "node:test";
 import { makeFixture, invoke, writeFixture } from "../helpers.js";
 
@@ -54,4 +54,25 @@ test("retains source paths for syntax, export, and dependency failures", async (
   assert.equal(dependency.exitCode, 1);
   assert.match(dependency.stderr, /not-installed-anywhere/);
   assert.match(dependency.stderr, /MissingDependency\.jsx/);
+});
+
+test("rejects oversized reachable Tailwind sources before scanning", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "App.jsx": `import "./Generated.jsx"; export default () => <div />;`,
+    "Generated.jsx": "x".repeat(4 * 1024 * 1024 + 1),
+  });
+
+  const result = await invoke(["App.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
+  assert.equal(result.exitCode, 1);
+  assert.match(result.stderr, /Tailwind source graph file exceeds 4 MiB/);
+  assert.ok(!(await readdir(fixture)).includes("dist"));
+  assert.ok(
+    !(await readdir(fixture)).some((name) =>
+      name.startsWith(".rtifact-stage-"),
+    ),
+  );
 });

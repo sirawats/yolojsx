@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Build Tailwind content from a bounded snapshot of the reachable JavaScript
+  and TypeScript module graph, rejecting more than 2,000 files, 4 MiB per file,
+  or 32 MiB total before Tailwind can exhaust memory.
+
 ## 1.0.1 - 2026-08-01
 
 - Update agent skills and reference documentation for custom theme creation, dual-export module patterns, Tailwind class generation, and offline CDN build troubleshooting.

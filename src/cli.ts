@@ -1,4 +1,3 @@
-import path from "node:path";
 import process from "node:process";
 import semver from "semver";
 import { parseArgs, USAGE } from "./args.js";
@@ -11,7 +10,6 @@ import {
   resolveAndValidateHtmlOutput,
   resolveAndValidateInputDirectory,
   resolveAndValidateOutput,
-  isWithin,
 } from "./paths.js";
 import {
   commitFileOutput,
@@ -113,8 +111,6 @@ export async function runCli(
     }
 
     const entry = await resolveAndValidateEntry(options.entry, cwd);
-    // ponytail: scan the invocation tree; follow Vite's module graph if large workspaces become slow.
-    const sourceDirectory = isWithin(cwd, entry) ? cwd : path.dirname(entry);
     const { theme, source: themeSource } = await resolveThemeSelection(
       options.theme,
       cwd,
@@ -151,7 +147,6 @@ export async function runCli(
         artifact = await withTemporaryApplicationBuild(
           {
             entry,
-            sourceDirectory,
             base: "./",
             singleFile: true,
             cdn: !options.selfContained,
@@ -207,7 +202,6 @@ export async function runCli(
 
     await buildApplication({
       entry,
-      sourceDirectory,
       output,
       base: options.base,
       theme,

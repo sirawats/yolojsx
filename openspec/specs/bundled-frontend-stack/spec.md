@@ -131,7 +131,7 @@ The CLI SHALL supply one compatible Ant Design runtime graph and SHALL apply eac
 
 ### Requirement: Tailwind utility generation
 
-The CLI SHALL process Tailwind CSS for the input component, its local source tree, and the selected local theme module without requiring user-authored Tailwind or Vite configuration.
+The CLI SHALL process Tailwind CSS for the input component, reachable JavaScript and TypeScript modules, and the selected local theme module without requiring user-authored Tailwind or Vite configuration. Before invoking Tailwind, it SHALL use an isolated write-free build to discover that module graph, snapshot its source, and reject graphs containing more than 2,000 source files, any source file larger than 4 MiB, or more than 32 MiB of source in total.
 
 #### Scenario: Entry uses a Tailwind utility
 
@@ -143,9 +143,19 @@ The CLI SHALL process Tailwind CSS for the input component, its local source tre
 - **WHEN** a local component imported by the entry contains a supported Tailwind utility class
 - **THEN** the generated CSS contains the styles required for that imported component
 
-#### Scenario: Theme component uses a utility outside the entry tree
+#### Scenario: Source tree contains unrelated code
 
-- **WHEN** a selected JSX theme module outside the entry's scanned source directory contains a supported Tailwind utility and the application imports that component
+- **WHEN** the directory containing the entry also contains JavaScript or TypeScript files that are not reachable from the entry
+- **THEN** the Tailwind content scanner does not read those unrelated files
+
+#### Scenario: Reachable source exceeds a safety limit
+
+- **WHEN** the reachable JavaScript and TypeScript graph exceeds its file-count, per-file, or total-byte safety limit
+- **THEN** the CLI rejects the build with an actionable diagnostic before invoking Tailwind
+
+#### Scenario: Theme component uses a utility outside the entry directory
+
+- **WHEN** a selected JSX theme module outside the entry's directory contains a supported Tailwind utility and the application imports that component
 - **THEN** the generated CSS contains the styles required for that theme component
 
 #### Scenario: Ant Design and Tailwind are used together

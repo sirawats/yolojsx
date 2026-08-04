@@ -58,6 +58,7 @@ export default function Home() {
   return <><img src={logo} /><Child />{message}</>;
 }`,
     "components/Child.jsx": `export default function Child() { return <div className="font-bold tracking-[0.17em]">Relative child</div>; }`,
+    "unrelated.js": `export const unrelatedClass = "tracking-[13.37em]";`,
     "logo.svg": `<svg xmlns="http://www.w3.org/2000/svg"><text>fixture-logo</text></svg>`,
     "node_modules/local-message/package.json": `{"name":"local-message","version":"1.0.0","type":"module","exports":"./index.js"}`,
     "node_modules/local-message/index.js": `export default "Local dependency";`,
@@ -77,6 +78,7 @@ export default function Home() {
   assert.match(html, /\/application\/assets\/index-/);
   assert.match(css, /\.font-bold\{/);
   assert.ok(css.includes(".tracking-\\[0\\.17em\\]"));
+  assert.ok(!css.includes(".tracking-\\[13\\.37em\\]"));
   assert.match(javascript, /Relative child/);
   assert.match(javascript, /Local dependency/);
   assert.match(javascript, /data:image\/svg\+xml;base64/);

@@ -57,7 +57,7 @@ async function startDevServer() {
       path.join(workspace, "styles.css"),
       createTailwindStyles(
         workspace,
-        sourceDirectory,
+        path.join(sourceDirectory, "**/*.{js,jsx,ts,tsx}"),
         resolvePackageImport("tailwindcss/index.css"),
         resolveFoundationStylesheet(),
         themeCssPath,
