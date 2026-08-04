@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import {
-  mkdir,
   readFile,
   readdir,
   rename,
@@ -10,7 +9,6 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
-import { hasErrorCode } from "../../src/errors.js";
 import {
   cleanupDirectory,
   commitFileOutput,
@@ -137,24 +135,7 @@ test("does not treat a symbolic-link ownership marker as managed", async (t) => 
     externalMarker,
     JSON.stringify({ tool: "rtifact", formatVersion: 1 }),
   );
-  try {
-    await symlink(externalMarker, path.join(output, ".rtifact-output.json"));
-  } catch (error: unknown) {
-    if (
-      process.platform === "win32" &&
-      (hasErrorCode(error, "EPERM") || hasErrorCode(error, "EACCES"))
-    ) {
-      const extDir = path.join(fixture, "external-dir");
-      await mkdir(extDir, { recursive: true });
-      await symlink(
-        extDir,
-        path.join(output, ".rtifact-output.json"),
-        "junction",
-      );
-    } else {
-      throw error;
-    }
-  }
+  await symlink(externalMarker, path.join(output, ".rtifact-output.json"));
 
   await assert.rejects(inspectOutput(output, false), /not managed by Rtifact/);
 });
@@ -167,20 +148,7 @@ test("validates worker-prepared file and directory output before publication", a
   const preparedFile = path.join(fixture, "prepared.html");
   await writeFile(fileOutput, "last good file");
   await writeFile(source, "new file");
-  try {
-    await symlink(source, preparedFile);
-  } catch (error: unknown) {
-    if (
-      process.platform === "win32" &&
-      (hasErrorCode(error, "EPERM") || hasErrorCode(error, "EACCES"))
-    ) {
-      const sourceDir = path.join(fixture, "source-dir");
-      await mkdir(sourceDir, { recursive: true });
-      await symlink(sourceDir, preparedFile, "junction");
-    } else {
-      throw error;
-    }
-  }
+  await symlink(source, preparedFile);
   const fileState = await inspectFileOutput(fileOutput, true);
   await assert.rejects(
     publishPreparedFile(preparedFile, fileOutput, fileState.authorization),
@@ -192,24 +160,7 @@ test("validates worker-prepared file and directory output before publication", a
   const preparedDirectory = path.join(fixture, "prepared-directory");
   await writeFixture(output, { "important.txt": "last good directory" });
   await writeFixture(preparedDirectory, { "index.html": "new directory" });
-  try {
-    await symlink(source, path.join(preparedDirectory, "linked.html"));
-  } catch (error: unknown) {
-    if (
-      process.platform === "win32" &&
-      (hasErrorCode(error, "EPERM") || hasErrorCode(error, "EACCES"))
-    ) {
-      const sourceDir2 = path.join(fixture, "source-dir-2");
-      await mkdir(sourceDir2, { recursive: true });
-      await symlink(
-        sourceDir2,
-        path.join(preparedDirectory, "linked-dir"),
-        "junction",
-      );
-    } else {
-      throw error;
-    }
-  }
+  await symlink(source, path.join(preparedDirectory, "linked.html"));
   const directoryState = await inspectOutput(output, true);
   await assert.rejects(
     publishPreparedDirectory(

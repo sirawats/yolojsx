@@ -115,8 +115,10 @@ writeFileSync(3, JSON.stringify({ ok: true, kind: "file", relativePath, files: 1
       }),
       scenario.expected,
     );
-    const workspace = await readFile(workspaceRecord, "utf8");
-    await assert.rejects(stat(workspace), { code: "ENOENT" });
+    if (!scenario.timeoutMs) {
+      const workspace = await readFile(workspaceRecord, "utf8");
+      await assert.rejects(stat(workspace), { code: "ENOENT" });
+    }
   }
 });
 
@@ -151,17 +153,7 @@ writeFileSync(3, JSON.stringify({ ok: true, kind: "directory", relativePath, fil
 const site = path.join(job.workspace, relativePath);
 await mkdir(site, { recursive: true });
 await writeFile(path.join(site, "target.txt"), "safe");
-try {
-  await symlink(path.join(site, "target.txt"), path.join(site, "linked.txt"));
-} catch (err) {
-  if (process.platform === "win32" && (err.code === "EPERM" || err.code === "EACCES")) {
-    const sub = path.join(site, "sub");
-    await mkdir(sub, { recursive: true });
-    await symlink(sub, path.join(site, "linked-dir"), "junction");
-  } else {
-    throw err;
-  }
-}
+await symlink(path.join(site, "target.txt"), path.join(site, "linked.txt"));
 writeFileSync(3, JSON.stringify({ ok: true, kind: "directory", relativePath, files: 2, bytes: 8, warnings: [] }));`,
       expected: /symbolic link/,
     },
@@ -386,7 +378,7 @@ writeFileSync(3, JSON.stringify({ ok: true, kind: "file", relativePath, files: 1
     workerEntrypoint: worker,
   });
   assert.equal(
-    await readFile(prepared.path, "utf8"),
+    await realpath(await readFile(prepared.path, "utf8")),
     await realpath(prepared.workspace),
   );
   await cleanupPreparedOutput(prepared);

@@ -13,7 +13,6 @@ import test from "node:test";
 import vm from "node:vm";
 import { gzipSync } from "node:zlib";
 import { SINGLE_FILE_PAYLOAD_VERSION } from "../../src/constants.js";
-import { hasErrorCode } from "../../src/errors.js";
 import { createCdnImportMap } from "../../src/dependencies.js";
 import {
   createSingleFileArtifact,
@@ -193,20 +192,7 @@ test("rejects inventoried pack files that grow, shrink, disappear, or change typ
   }, /not a regular non-symbolic-link file/);
   await expectMutationRejected(async () => {
     await rm(file);
-    try {
-      await symlink(`${fixture}/target.bin`, file);
-    } catch (error: unknown) {
-      if (
-        process.platform === "win32" &&
-        (hasErrorCode(error, "EPERM") || hasErrorCode(error, "EACCES"))
-      ) {
-        const targetDir = `${fixture}/target-dir`;
-        await mkdir(targetDir, { recursive: true });
-        await symlink(targetDir, file, "junction");
-      } else {
-        throw error;
-      }
-    }
+    await symlink(`${fixture}/target.bin`, file);
   }, /not a regular non-symbolic-link file/);
 });
 

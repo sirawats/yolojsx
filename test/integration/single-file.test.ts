@@ -1,9 +1,8 @@
 import assert from "node:assert/strict";
-import { mkdir, readFile, readdir, rm, stat, symlink } from "node:fs/promises";
+import { readFile, readdir, rm, stat, symlink } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { createCdnImportMap } from "../../src/dependencies.js";
-import { hasErrorCode } from "../../src/errors.js";
 import { readEmbeddedPayload } from "../../src/single-file.js";
 import { invoke, makeFixture, writeFixture } from "../helpers.js";
 
@@ -174,20 +173,7 @@ test("rejects an HTML output swapped for a symbolic link after authorization", a
     cwd: fixture,
     confirmReplacement: async () => {
       await rm(path.join(fixture, "Home.html"));
-      try {
-        await symlink("important.html", path.join(fixture, "Home.html"));
-      } catch (error: unknown) {
-        if (
-          process.platform === "win32" &&
-          (hasErrorCode(error, "EPERM") || hasErrorCode(error, "EACCES"))
-        ) {
-          const impDir = path.join(fixture, "important-dir");
-          await mkdir(impDir, { recursive: true });
-          await symlink(impDir, path.join(fixture, "Home.html"), "junction");
-        } else {
-          throw error;
-        }
-      }
+      await symlink("important.html", path.join(fixture, "Home.html"));
       return true;
     },
   });
