@@ -26,6 +26,8 @@ import {
   LuCopy,
   LuGithub,
   LuPalette,
+  LuPause,
+  LuPlay,
   LuShapes,
   LuTerminal,
   LuZap,
@@ -164,8 +166,8 @@ const FEATURES = (
           type="secondary"
           className="mb-0 text-base leading-6"
         >
-          JS, CSS, and local assets are gzip-compressed inside one portable
-          .html artifact.
+          Application, CSS, and local assets are gzip-compressed in one portable
+          HTML file starting at ~15.6 KB
         </Typography.Paragraph>
       </article>
     </Card>
@@ -343,6 +345,13 @@ function ThemePicker({
   onStepTheme: (offset: number) => void;
 }) {
   const activeFamilyRef = useRef<HTMLButtonElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = window.setInterval(() => onStepTheme(1), 1500);
+    return () => window.clearInterval(interval);
+  }, [isPlaying, onStepTheme]);
 
   useEffect(() => {
     activeFamilyRef.current?.scrollIntoView({
@@ -416,6 +425,21 @@ function ThemePicker({
       >
         →
       </Button>
+      <Button
+        className="shrink-0"
+        size="small"
+        type={isPlaying ? "primary" : "default"}
+        icon={
+          isPlaying ? (
+            <LuPause aria-hidden="true" />
+          ) : (
+            <LuPlay aria-hidden="true" />
+          )
+        }
+        onClick={() => setIsPlaying((playing) => !playing)}
+        aria-label={isPlaying ? "Pause theme autoplay" : "Play themes"}
+        aria-pressed={isPlaying}
+      />
     </div>
   );
 }
@@ -607,24 +631,23 @@ export default function Website() {
             className="mx-auto mb-6 w-64 sm:w-72"
           />
           <Typography.Title className="text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-            Create an .html Artifact from .jsx
+            Create an <span className="text-primary text-5xl">.html</span>{" "}
+            Artifact from
+            <span className="text-primary text-5xl"> .jsx</span>
           </Typography.Title>
           <Typography.Paragraph
             type="secondary"
             className="text-lg leading-loose max-w-4xl mx-auto mb-8"
           >
-            Why write an .html file when you can write responsive .jsx? <br />
-            Let your AI agent write artifacts in{" "}
+            Why let your AI agent write HTML that consumes 2-5x tokens when it
+            can write JSX? <br />
+            Let your agent write{" "}
             <code className="bg-code text-sm px-2 py-1 rounded text-primary">
               .jsx
             </code>{" "}
-            while{" "}
-            <code className="bg-code text-sm px-2 py-1 rounded text-primary">
-              rtifact
-            </code>{" "}
-            handles the rest. <br />
-            Produces compressed <strong>HTML</strong> artifacts starting at ~15
-            KB with full React capability.
+            with React, Ant Design, Tailwind, React Icons, and PrismJS. <br />
+            Produces one gzip-compressed <strong>HTML</strong> artifact starting
+            at ~15.6 KB.
           </Typography.Paragraph>
 
           <div className="mx-auto mb-8 flex max-w-3xl flex-wrap items-center justify-center gap-x-5 gap-y-3 text-sm text-muted-foreground">

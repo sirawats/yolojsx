@@ -1,30 +1,54 @@
-# Rtifact
+<a id="top"></a>
 
 <p align="center">
-  <img src="assets/chihuahua_archaeologist_artifact.png" width="280" alt="Rtifact Chihuahua archaeologist uncovering an artifact">
+  <img src="assets/chihuahua_archaeologist_artifact.png" width="280" alt="Rtifact Chihuahua archaeologist uncovering an artifact" />
 </p>
 
-[![CI status][ci-image]][ci-url]
-[![npm version][npm-image]][npm-url]
-[![npm downloads][downloads-image]][npm-url]
-[![Node.js version][node-image]][node-url]
-[![License][license-image]][license-url]
+<h1 align="center">Rtifact</h1>
+<h3 align="center">Portable, Compressed HTML Artifacts from JSX</h3>
 
-**Rtifact turns a .jsx into portable, interactive .html artifacts.**
+<p align="center"><em style="font-family: Georgia, serif; font-size: 1.2em; color: #777;">Turn .jsx into a portable, interactive .html artifact for humans.</em></p>
 
-Why write an `.html` file when you can write responsive `.jsx`? Let your AI agent create `.jsx` with React, AntD, Tailwind CSS, React Icons, and PrismJS. **Rtifact** handles the build and produces the finished artifact.
+<p align="center">
+  <a href="https://github.com/sirawats/rtifact/actions/workflows/ci.yml"><img src="https://github.com/sirawats/rtifact/actions/workflows/ci.yml/badge.svg" alt="CI status"></a>
+  <a href="https://www.npmjs.com/package/rtifact"><img src="https://img.shields.io/npm/v/rtifact.svg" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/rtifact"><img src="https://img.shields.io/npm/dm/rtifact.svg" alt="npm downloads"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/node/v/rtifact.svg" alt="Node.js version"></a>
+  <a href="https://github.com/sirawats/rtifact/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/rtifact.svg" alt="License"></a>
+</p>
 
-By default, it produces one shareable `.html` file starting at about **15 KB**.
+<br/>
+<p align="center">
+  <a href="#about">About</a> ·
+  <a href="#demo">Demo</a> ·
+  <a href="#ai-agent-skill">AI Agent Skill</a> ·
+  <a href="#quick-start">Getting Started</a> ·
+  <a href="#cli">CLI</a> ·
+  <a href="#themes">Themes</a> ·
+  <a href="#output-modes">Output Modes</a> ·
+  <a href="#examples">Examples</a> ·
+  <a href="#jsx-artifact-source">JSX Artifact Source</a> ·
+  <a href="#custom-theme">Custom Theme</a> ·
+  <a href="#contributing">Contributing</a>
+</p>
 
-**One CLI command**
+<br/>
 
-```
+<a id="about"></a>
+
+## About
+
+> **Rtifact turns a `.jsx` file into a portable `.html` artifact.**
+
+Why let your AI agent write HTML that consumes 2-5x tokens when it can write JSX? Let your agent write `.jsx` with React, Ant Design, Tailwind CSS, React Icons, and PrismJS. **Rtifact** handles the build and produces a finished artifact with gzip-compressed assets as one `.html` file starting at about **15.6 KB**.
+
+```sh
 npx rtifact Artifact.jsx --output artifact.html
 ```
 
 **Or use it with a skill**
 
-```
+```text
 /rtifact Create an easy-to-read documentation guide I can send to my colleague.
 ```
 
@@ -34,17 +58,31 @@ npx rtifact Artifact.jsx --output artifact.html
 
 _Powered by React, Tailwind CSS, Ant Design, React Icons, and PrismJS._
 
-### 🎬 Demo
+<br/>
+
+### Built With
+
+<p align="left">
+  <img src="https://skillicons.dev/icons?i=react,tailwind,nodejs,ts,vite&theme=light" /><br/>
+  <code>React</code> · <code>Ant Design</code> · <code>Tailwind CSS</code> · <code>React Icons</code> · <code>PrismJS</code>
+</p>
+
+<a id="demo"></a>
+
+## Demo
 
 <p align="center">
-  <img src="assets/rtifact_48x_5s-4m50s_github_hq.gif" alt="Rtifact Demo">
+  <img src="assets/hermes-agent_combined_1x.gif" alt="Rtifact Demo">
 </p>
 
 > **Prompt**:
-> Use the rtifact and rtifact-create-theme skills to quickly complete the following steps using npx:
 >
-> - Read House_of_the_Dragon_season_2.png and generate a custom light theme based on the image.
-> - Read HOUSE_OF_THE_DRAGON.md and build a shareable wiki site using that custom theme.
+> 1. /rtifact Create a quick, high-level new joiner onboarding guide for this repo ./hermes-agent
+> 2. /rtifact-create-theme Create a theme based on this image [Image #1] and then apply hermes-agent-onboarding.jsx with new theme output to hermes-agent-onboarding.html
+
+[Another GIF demo](assets/rtifact_48x_5s-4m50s_github_hq.gif)
+
+<a id="ai-agent-skill"></a>
 
 ## AI agent skill
 
@@ -119,6 +157,8 @@ git clone https://github.com/sirawats/rtifact.git /path/to/rtifact
 
 Both installation paths use the canonical `skills/rtifact` skill.
 
+<a id="quick-start"></a>
+
 ## Quick start
 
 After installing the skill, ask your preferred AI agent:
@@ -132,6 +172,8 @@ HTML artifact you can open, upload, or send. No local server or adjacent asset
 directory is needed.
 
 Requires Node.js `^20.19.0` or `>=22.12.0`.
+
+<a id="cli"></a>
 
 ## CLI
 
@@ -168,75 +210,41 @@ Existing output requires confirmation. Non-interactive automation must pass
 links, the current directory, and outputs containing their source input.
 Builds are staged so a failed replacement preserves the last successful result.
 
+<a id="themes"></a>
+
 ## Pick a theme
 
-```sh
-npx rtifact themes
+<p align="center">
+  <img src="assets/themes.gif" alt="Rtifact Themes Showcase">
+</p>
 
-# Output
-default
-github-light
-github-dark
-github-dark-dimmed
-material-light
-material-dark
-one-dark
-solarized-light
-solarized-dark
-gruvbox-light
-gruvbox-dark
-everforest-light
-everforest-dark
-catppuccin-latte
-catppuccin-frappe
-catppuccin-macchiato
-catppuccin-mocha
-obsidian-minimal-light
-obsidian-minimal-dark
-obsidian-baseline-light
-obsidian-baseline-dark
-```
-
-Then build with any preset:
+Build with any built-in theme preset:
 
 ```sh
 npx rtifact Report.jsx --theme catppuccin-mocha
 ```
 
 Themes style the document and Ant Design together: typography, colors,
-spacing, surfaces, controls, focus states, and code.
+spacing, surfaces, controls, focus states, and code. Run `npx rtifact themes`
+to view all built-in presets (`default`, `github-light`, `github-dark`,
+`catppuccin-mocha`, `obsidian-minimal`, `material`, `gruvbox`, etc.).
+
+<a id="output-modes"></a>
 
 ## Choose an output
 
-| Need                      | Command                                | Result                            |
-| :------------------------ | :------------------------------------- | :-------------------------------- |
-| A portable file           | `npx rtifact App.jsx`                  | `App.html`                        |
-| A file that works offline | `npx rtifact App.jsx --self-contained` | `App.html` with runtimes embedded |
-| A deployable static site  | `npx rtifact App.jsx --out-dir dist`   | `dist/` with conventional assets  |
+| Need                          | Command                                | Output     | Measured Size          | Runtime Dependencies                        |
+| :---------------------------- | :------------------------------------- | :--------- | :--------------------- | :------------------------------------------ |
+| **A portable file (Default)** | `npx rtifact App.jsx`                  | `App.html` | **~15.6 KB**           | Pinned React & AntD load from CDN URLs      |
+| **A file that works offline** | `npx rtifact App.jsx --self-contained` | `App.html` | **189.9–686.2 KB**     | Embedded runtimes for zero network requests |
+| **A deployable static site**  | `npx rtifact App.jsx --out-dir dist`   | `dist/`    | Standard static assets | Bundled into conventional asset directory   |
 
-The default portable artifact embeds your application, CSS, and local assets. Its
-pinned React and Ant Design runtimes load from a CDN. Use `--self-contained`
-when network access cannot be assumed.
+- **Portable HTML (Default)**: Writes a single compressed HTML file embedding app code, CSS, local assets, React Icons, and PrismJS modules while loading React & Ant Design from pinned CDN URLs (`https://esm.sh`).
+- **Offline HTML (`--self-contained`)**: Embeds all runtime dependencies directly for zero-network execution.
+- **Static Directory (`--out-dir dist`)**: Generates a standard asset directory (`dist/`) with `index.html` and static assets. Supports `--base <path>` for deployment subpaths.
+- **Package Existing Build (`pack`)**: Run `rtifact pack dist --output index.html` to package an existing directory build into self-contained HTML.
 
-## Built for AI-authored artifacts
-
-Rtifact is useful when the rendered result matters more than maintaining a
-frontend project:
-
-- API test reports
-- Internal setup guides
-- Interactive technical documents
-- Design and feature comparisons
-- Calculators and focused browser tools
-- Product demos
-
-Give your coding agent the official Rtifact skill so it knows the artifact
-source contract, supplied packages, themes, output modes, and rendered-quality
-expectations.
-
-[Install the agent skill](#ai-agent-skill) ·
-[Browse examples](examples) ·
-[See all CLI options](#cli)
+<a id="examples"></a>
 
 ## Examples
 
@@ -251,6 +259,7 @@ expectations.
 | [SaaS.jsx](examples/SaaS.jsx)                         | `catppuccin`         | Product preview and responsive pricing                 |
 | [Analytics.jsx](examples/Analytics.jsx)               | `one-dark`           | Operational metrics and service health                 |
 | [Editorial.jsx](examples/Editorial.jsx)               | `obsidian-minimal`   | Long-form reading and typographic rhythm               |
+| [AntD.jsx](examples/AntD.jsx)                         | `default`            | Comprehensive Ant Design component catalog showcase    |
 
 Try one from a repository clone:
 
@@ -259,7 +268,9 @@ npm run build
 node lib/bin.js examples/APIDocs.jsx --theme github-dark
 ```
 
-## Artifact source contract
+<a id="jsx-artifact-source"></a>
+
+## JSX Artifact Source
 
 The entry must be a readable `.jsx` or `.tsx` module with a default-exported
 React component. Relative imports resolve from the entry file.
@@ -312,148 +323,60 @@ export const RTIFACT = { prismTheme: "prism" };
 Run `npx rtifact prism-themes` to discover installed Prism theme names. Unknown
 names warn and fall back to `prism`.
 
-## Output modes
+<a id="custom-theme"></a>
 
-### Portable HTML
+## Custom Theme
 
-The default command writes one CDN-backed compressed HTML file:
+Creating a custom theme allows you to define a product-specific visual identity, palette, and typography for your artifacts.
 
-```sh
-rtifact pages/Home.jsx
-# Output: ./Home.html
+### Creating custom themes with AI agents
 
-rtifact pages/Home.jsx --output public/index.html
-```
-
-Application code, generated CSS, local assets, selected Prism modules, and
-React Icons remain embedded. React, React DOM, Ant Design, and Ant Design
-CSS-in-JS load from pinned esm.sh URLs.
-
-### Offline HTML
-
-Embed the supplied runtimes when the file must work without network access:
-
-```sh
-rtifact pages/Home.jsx --self-contained
-```
-
-### Static asset directory
-
-Use directory output for conventional hosting, strict Content Security Policy,
-or application graphs that cannot be packaged into one file:
-
-```sh
-rtifact pages/Home.jsx --out-dir dist
-```
+We recommend using the official agent skill `/rtifact-create-theme` to automatically generate custom theme modules. You can provide an **example image** (e.g. brand screenshot, color palette, design mockup) or a **website URL** for your AI agent to analyze:
 
 ```text
-dist/
-├── .rtifact-output.json
-├── index.html
-└── assets/
-    ├── index-*.css
-    └── index-*.js
+/rtifact-create-theme Read brand-design.png and create a custom light theme module for my company.
 ```
 
-Set a hosting base path when needed:
+Your agent will analyze the visual identity and generate a complete theme file (e.g., `./custom-theme.jsx`).
+
+### Applying custom theme modules
+
+Pass your local custom `.ts` or `.jsx` theme module path via `--theme`:
 
 ```sh
-rtifact pages/Home.jsx --out-dir public/app --base /application/
+rtifact Home.jsx --theme ./custom-theme.jsx
 ```
 
-### Package an existing build
-
-Package a compatible directory build into self-contained HTML without changing
-the input:
-
-```sh
-rtifact pack dist --output index.html
-```
-
-> [!NOTE]
-> The single-file packer rejects extra executable chunks, workers, service
-> workers, runtime-loaded WASM, unresolved local files, and runtime-relative
-> `fetch()` calls. Use `--out-dir dist` for those application shapes.
-
-## Styling
-
-Unsuffixed theme families select their light preset. Dark styling is used only
-when explicitly requested:
-
-```sh
-rtifact Home.jsx --theme material       # material-light
-rtifact Home.jsx --theme material-dark  # explicitly dark
-```
-
-Other aliases include `github`, `solarized`, `gruvbox`, `everforest`,
-`catppuccin`, `obsidian-minimal`, `obsidian-baseline`, and `onedark`.
-
-Select a local TypeScript or JSX theme module for a product-specific visual
-system:
-
-```sh
-rtifact Home.jsx --theme ./company-theme.jsx
-```
-
-The module default export is a declarative theme manifest. Named exports remain
-ordinary modules that an application can import explicitly:
+The default export of a theme module is a declarative theme manifest. Named exports remain ordinary components that your application can import directly:
 
 ```jsx
-// company-theme.jsx
+// custom-theme.jsx
 import { Button } from "antd";
 
 export default {
-  id: "company",
+  id: "custom",
   // colors, typography, rhythm, component values, and provenance
 };
 
-export function CompanyAction({ children }) {
+export function CustomAction({ children }) {
   return <Button type="primary">{children}</Button>;
 }
 ```
 
 ```jsx
 // Home.jsx
-import { CompanyAction } from "./company-theme.jsx";
+import { CustomAction } from "./custom-theme.jsx";
 
-export default () => <CompanyAction>Continue</CompanyAction>;
+export default () => <CustomAction>Continue</CustomAction>;
 ```
-
-The default export must include the complete theme-definition fields used by
-built-in manifests. See
-[`amexgbt-theme.jsx`](amexgbt-theme.jsx) for a complete JSX example with named
-components. Custom theme modules do not appear in `rtifact themes`.
 
 > [!IMPORTANT]
 > Theme modules are trusted local build-time code. Selecting one compiles and
 > executes its module graph before output is created.
 
-Application JSX needs no theme provider, theme CSS import, or page-level theme
-class. Let the document inherit global styling and use ordinary Ant Design
-props such as `type="primary"`, `danger`, and `disabled`.
+Application JSX needs no theme provider or page-level theme class—it inherits global styling automatically. Use semantic Tailwind utilities when custom layout styling is needed (`bg-background`, `text-foreground`, `border-border`, `font-sans`, `font-mono`, `rounded-md`, etc.).
 
-Semantic Tailwind utilities are available when a layout needs explicit styling:
-
-- Surfaces: `bg-background`, `bg-card`, `bg-popover`
-- Text: `text-foreground`, `text-muted-foreground`
-- Structure: `border-border`, `ring-ring`, `shadow-card`
-- Status: `text-success`, `text-warning`, `text-danger`, `text-info`
-- Typography and shape: `font-sans`, `font-mono`, `rounded-md`
-
-### Application CSS
-
-Import application-specific CSS through the normal JSX or TSX module graph:
-
-```tsx
-import "./styles/application.css";
-```
-
-URLs stay relative to the stylesheet. Vite emits them in directory mode and
-embeds compatible local assets in packaged HTML.
-
-The former `--css` option has been removed. Move coordinated semantic and Ant
-Design values into a theme module; use ordinary CSS imports for remaining
-application rules.
+<a id="browser-and-security-notes"></a>
 
 ## Browser and security notes
 
@@ -467,6 +390,8 @@ Current limitations include JSX-only input, one page per invocation, no
 dev-server/watch/SSR mode, no user Vite or HTML configuration, and no automatic
 `public/` directory copying.
 
+<a id="contributing"></a>
+
 ## Development and support
 
 ```sh
@@ -477,6 +402,8 @@ npm run verify
 See [CONTRIBUTING.md](CONTRIBUTING.md) for repository development,
 [SUPPORT.md](SUPPORT.md) for usage help, and [SECURITY.md](SECURITY.md) for
 private vulnerability reporting.
+
+<a id="license"></a>
 
 ## License
 
