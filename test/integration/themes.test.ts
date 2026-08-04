@@ -3,6 +3,7 @@ import { readFile, rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { npmCommand, run } from "../../scripts/process.js";
 import { readEmbeddedPayload } from "../../src/single-file.js";
 import { loadPrismThemeCatalog } from "../../src/prism-themes.js";
 import { THEMES } from "../../src/themes.js";
@@ -273,6 +274,39 @@ test("lists themes and resolves aliases through the CLI", async (t) => {
   });
   assert.equal(alias.exitCode, 0, alias.stderr);
   assert.ok(await readFile(path.join(fixture, "Alias.html"), "utf8"));
+});
+
+test("forwards source CLI options through npm's argument separator", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const entry = path.join(fixture, "Forwarded.jsx");
+  const output = path.join(fixture, "forwarded.html");
+  await writeFixture(fixture, {
+    "Forwarded.jsx": `export default () => <main>Forwarded</main>;`,
+    "forwarded.html": "previous output",
+  });
+
+  const listing = run(npmCommand, ["run", "cli", "--", "--themes"], {
+    cwd: repository,
+  });
+  assert.match(listing.stdout, /(?:^|\n)rtifact(?:\n|$)/);
+
+  run(
+    npmCommand,
+    [
+      "run",
+      "cli",
+      "--",
+      entry,
+      "--theme",
+      "rtifact",
+      "--output",
+      output,
+      "--force",
+    ],
+    { cwd: repository },
+  );
+  assert.notEqual(await readFile(output, "utf8"), "previous output");
 });
 
 test("lists themes discovered from PrismJS and Prism Themes", async () => {

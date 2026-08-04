@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, readdir, rm } from "node:fs/promises";
+import { readFile, readdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { makeFixture, invoke, readAsset, writeFixture } from "../helpers.js";
@@ -134,5 +134,31 @@ test("failed rebuild preserves successful output and cleans stages", async (t) =
     !(await readdir(fixture)).some((name) =>
       name.startsWith(".rtifact-stage-"),
     ),
+  );
+});
+
+test("rejects a directory swapped after replacement authorization", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "Home.jsx": `export default () => <div>New build</div>;`,
+    "dist/old.txt": "authorized output",
+    "swapped/important.txt": "must survive",
+  });
+
+  const result = await invoke(["Home.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+    confirmReplacement: async () => {
+      await rm(path.join(fixture, "dist"), { recursive: true });
+      await rename(path.join(fixture, "swapped"), path.join(fixture, "dist"));
+      return true;
+    },
+  });
+
+  assert.equal(result.exitCode, 1);
+  assert.match(result.stderr, /changed after it was authorized/i);
+  assert.equal(
+    await readFile(path.join(fixture, "dist/important.txt"), "utf8"),
+    "must survive",
   );
 });

@@ -1,6 +1,6 @@
 {
   "name": "rtifact",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Turn agent-authored JSX into portable, interactive HTML artifacts.",
   "type": "module",
   "bin": {
@@ -29,6 +29,7 @@
     "check:licenses": "tsx scripts/check-licenses.ts",
     "pack:check": "tsx scripts/pack-check.ts",
     "readiness": "tsx scripts/check-readiness.ts",
+    "stress:release": "node --expose-gc --import tsx scripts/stress-release.ts",
     "lint:branch": "tsx scripts/check-branch-name.ts",
     "version:check": "tsx scripts/sync-versions.ts --check",
     "verify:package": "tsx scripts/verify-package.ts",
@@ -74,6 +75,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-icons": "^5.7.0",
+    "rolldown": "1.1.5",
     "semver": "^7.8.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.1.5"

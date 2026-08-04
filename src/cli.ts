@@ -1,8 +1,11 @@
-import path from "node:path";
 import process from "node:process";
 import semver from "semver";
 import { parseArgs, USAGE } from "./args.js";
-import { buildApplication, withTemporaryApplicationBuild } from "./build.js";
+import {
+  cleanupPreparedOutput,
+  runBuildJob,
+  type BuildWorkerTestOverrides,
+} from "./build-worker.js";
 import { confirmReplacement as promptForReplacement } from "./confirmation.js";
 import { NODE_ENGINE, PACKAGE_VERSION } from "./constants.js";
 import { formatError, hasErrorCode, RtifactError } from "./errors.js";
@@ -11,16 +14,15 @@ import {
   resolveAndValidateHtmlOutput,
   resolveAndValidateInputDirectory,
   resolveAndValidateOutput,
-  isWithin,
 } from "./paths.js";
 import {
-  commitFileOutput,
   inspectFileOutput,
   inspectOutput,
+  publishPreparedDirectory,
+  publishPreparedFile,
 } from "./output.js";
 import { renderPrismThemeCatalog } from "./prism-themes.js";
-import { createSingleFileArtifact } from "./single-file.js";
-import { resolveThemeSelection } from "./theme-modules.js";
+import { resolveThemeInput } from "./theme-modules.js";
 import { renderThemeCatalog } from "./themes.js";
 
 type Writable = Pick<NodeJS.WritableStream, "write">;
@@ -39,6 +41,7 @@ interface CliOptions {
   stderr?: Writable;
   nodeVersion?: string;
   confirmReplacement?: ConfirmReplacement;
+  workerOverrides?: BuildWorkerTestOverrides;
 }
 
 function assertSupportedNode(nodeVersion: string) {
@@ -59,6 +62,7 @@ export async function runCli(
     stderr = process.stderr,
     nodeVersion = process.versions.node,
     confirmReplacement = promptForReplacement,
+    workerOverrides,
   }: CliOptions = {},
 ) {
   try {
@@ -104,23 +108,36 @@ export async function runCli(
       if (outputState.exists && options.force) {
         stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
       }
-      const artifact = await createSingleFileArtifact(inputDirectory);
-      await commitFileOutput(artifact.html, output);
-      stdout.write(
-        `Packed ${inputDirectory}\nOutput: ${output}\nSize: ${artifact.bytes} bytes\n`,
-      );
+      let prepared;
+      try {
+        prepared = await runBuildJob(
+          { kind: "pack", inputDirectory },
+          workerOverrides,
+        );
+        await publishPreparedFile(
+          prepared.path,
+          output,
+          outputState.authorization,
+        );
+        stdout.write(
+          `Packed ${inputDirectory}\nOutput: ${output}\nSize: ${prepared.bytes} bytes\n`,
+        );
+      } catch (error) {
+        const failure =
+          error instanceof Error ? error : new Error(formatError(error));
+        await cleanupPreparedOutput(prepared, failure);
+        prepared = undefined;
+        throw failure;
+      } finally {
+        await cleanupPreparedOutput(prepared);
+      }
       return 0;
     }
 
     const entry = await resolveAndValidateEntry(options.entry, cwd);
-    // ponytail: scan the invocation tree; follow Vite's module graph if large workspaces become slow.
-    const sourceDirectory = isWithin(cwd, entry) ? cwd : path.dirname(entry);
-    const { theme, source: themeSource } = await resolveThemeSelection(
-      options.theme,
-      cwd,
-    );
-    const onWarning = (message: string) =>
-      stderr.write(`Warning: ${message}\n`);
+    const themeInput = await resolveThemeInput(options.theme, cwd);
+    const themeSource =
+      themeInput.kind === "module" ? themeInput.source : undefined;
 
     if (options.deprecatedSingleFile) {
       stderr.write(
@@ -146,33 +163,44 @@ export async function runCli(
       if (outputState.exists && options.force) {
         stderr.write(`Warning: replacing existing HTML output: ${output}\n`);
       }
-      let artifact;
+      let prepared;
       try {
-        artifact = await withTemporaryApplicationBuild(
+        prepared = await runBuildJob(
           {
+            kind: "file",
+            cwd,
             entry,
-            sourceDirectory,
             base: "./",
-            singleFile: true,
             cdn: !options.selfContained,
-            theme,
-            themeSource,
-            onWarning,
+            theme: themeInput,
           },
-          createSingleFileArtifact,
+          workerOverrides,
+        );
+        for (const warning of prepared.warnings) {
+          stderr.write(`Warning: ${warning}\n`);
+        }
+        await publishPreparedFile(
+          prepared.path,
+          output,
+          outputState.authorization,
         );
       } catch (error) {
+        const failure =
+          error instanceof Error ? error : new Error(formatError(error));
+        await cleanupPreparedOutput(prepared, failure);
+        prepared = undefined;
         if (hasErrorCode(error, "PACK_FAILED")) {
           throw new RtifactError(
             `${formatError(error)}\nTry \`--out-dir dist\` for a directory build that supports this application graph.`,
             { code: "PACK_FAILED" },
           );
         }
-        throw error;
+        throw failure;
+      } finally {
+        await cleanupPreparedOutput(prepared);
       }
-      await commitFileOutput(artifact.html, output);
       stdout.write(
-        `Built ${entry}\nOutput: ${output}\nSize: ${artifact.bytes} bytes\n`,
+        `Built ${entry}\nOutput: ${output}\nSize: ${prepared?.bytes ?? 0} bytes\n`,
       );
       return 0;
     }
@@ -205,15 +233,35 @@ export async function runCli(
       stderr.write(`Warning: replacing unowned output directory: ${output}\n`);
     }
 
-    await buildApplication({
-      entry,
-      sourceDirectory,
-      output,
-      base: options.base,
-      theme,
-      themeSource,
-      onWarning,
-    });
+    let prepared;
+    try {
+      prepared = await runBuildJob(
+        {
+          kind: "directory",
+          cwd,
+          entry,
+          base: options.base,
+          theme: themeInput,
+        },
+        workerOverrides,
+      );
+      for (const warning of prepared.warnings) {
+        stderr.write(`Warning: ${warning}\n`);
+      }
+      await publishPreparedDirectory(
+        prepared.path,
+        output,
+        outputState.authorization,
+      );
+    } catch (error) {
+      const failure =
+        error instanceof Error ? error : new Error(formatError(error));
+      await cleanupPreparedOutput(prepared, failure);
+      prepared = undefined;
+      throw failure;
+    } finally {
+      await cleanupPreparedOutput(prepared);
+    }
     stdout.write(`Built ${entry}\nOutput: ${output}\n`);
     return 0;
   } catch (error) {

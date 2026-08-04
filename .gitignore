@@ -3,4 +3,5 @@ dist/
 lib/
 /*.html
 *.tgz
+/stress-results/
 .DS_Store

@@ -105,14 +105,15 @@ export async function resolveAndValidateOutput(
       { code: "DANGEROUS_OUTPUT" },
     );
   }
-  if (isWithin(output, entry)) {
+  const canonicalOutput = await canonicalizePotentialPath(output);
+  if (isWithin(canonicalOutput, entry)) {
     throw new RtifactError(
       `Refusing to use an output directory that contains the source entry: ${output}`,
       { code: "DANGEROUS_OUTPUT" },
     );
   }
   const containedInput = additionalInputs.find((input) =>
-    isWithin(output, input),
+    isWithin(canonicalOutput, input),
   );
   if (containedInput) {
     throw new RtifactError(

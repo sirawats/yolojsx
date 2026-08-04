@@ -1,6 +1,7 @@
 import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { build, normalizePath, type Plugin } from "vite";
+import { createBuildResourceBudgetPlugin } from "./build.js";
 import { createCoreAliases, jsxSourcePlugin } from "./dependencies.js";
 import { formatError, RtifactError } from "./errors.js";
 import { resolveAndValidateThemeModule } from "./paths.js";
@@ -21,6 +22,9 @@ export interface ThemeSelection {
   theme: Theme;
   source?: string;
 }
+
+export type ThemeInput =
+  { kind: "preset"; value: string } | { kind: "module"; source: string };
 
 function createThemeModulePlugin(themeSource: string): Plugin {
   return {
@@ -62,7 +66,12 @@ export async function loadThemeModule(
       publicDir: false,
       appType: "custom",
       logLevel: "silent",
-      plugins: [jsxSourcePlugin, createThemeModulePlugin(themeSource), react()],
+      plugins: [
+        jsxSourcePlugin,
+        createBuildResourceBudgetPlugin(new Map()),
+        createThemeModulePlugin(themeSource),
+        react(),
+      ],
       resolve: {
         alias: createCoreAliases(),
         dedupe: ["react", "react-dom"],
@@ -133,13 +142,31 @@ export async function resolveThemeSelection(
   value: string,
   cwd: string,
 ): Promise<ThemeSelection> {
-  const preset = findTheme(value);
-  if (preset) return { theme: preset };
-  if (!looksLikeThemePath(value)) return { theme: resolveTheme(value) };
+  return loadThemeInput(await resolveThemeInput(value, cwd), cwd);
+}
 
-  const source = await resolveAndValidateThemeModule(value, cwd);
+export async function resolveThemeInput(
+  value: string,
+  cwd: string,
+): Promise<ThemeInput> {
+  if (findTheme(value) || !looksLikeThemePath(value)) {
+    return { kind: "preset", value };
+  }
   return {
-    theme: await loadThemeModule(source, cwd),
-    source,
+    kind: "module",
+    source: await resolveAndValidateThemeModule(value, cwd),
+  };
+}
+
+export async function loadThemeInput(
+  input: ThemeInput,
+  cwd: string,
+): Promise<ThemeSelection> {
+  if (input.kind === "preset") {
+    return { theme: findTheme(input.value) ?? resolveTheme(input.value) };
+  }
+  return {
+    theme: await loadThemeModule(input.source, cwd),
+    source: input.source,
   };
 }
