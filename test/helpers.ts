@@ -17,6 +17,9 @@ interface InvokeOptions {
   confirmReplacement?: NonNullable<
     Parameters<typeof runCli>[1]
   >["confirmReplacement"];
+  workerOverrides?: NonNullable<
+    Parameters<typeof runCli>[1]
+  >["workerOverrides"];
 }
 
 export async function makeFixture(prefix = "rtifact-test-") {
@@ -60,6 +63,7 @@ export async function invoke(args: string[], options: InvokeOptions = {}) {
     nodeVersion: options.nodeVersion,
     stdout: stdout.stream,
     stderr: stderr.stream,
+    workerOverrides: options.workerOverrides,
   };
   if (options.stdin) {
     cliOptions.stdin = options.stdin;

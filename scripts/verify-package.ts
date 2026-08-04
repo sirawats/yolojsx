@@ -85,6 +85,12 @@ try {
       throw new Error(`Packed artifact omits required document: ${name}`);
     }
   }
+  for (const name of ["lib/build-worker.js", "lib/build-worker-main.js"]) {
+    const workerFile = await stat(path.join(packageDirectory, name));
+    if (!workerFile.isFile()) {
+      throw new Error(`Packed artifact omits worker runtime: ${name}`);
+    }
+  }
   for (const name of [
     "CODE_OF_CONDUCT.md",
     "CONTRIBUTING.md",

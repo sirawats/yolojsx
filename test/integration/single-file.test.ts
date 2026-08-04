@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, readdir, rm, stat } from "node:fs/promises";
+import { readFile, readdir, rm, stat, symlink } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { createCdnImportMap } from "../../src/dependencies.js";
@@ -157,6 +157,32 @@ test("protects existing HTML and preserves it when a forced rebuild fails", asyn
   );
   assert.ok(
     !(await readdir(fixture)).some((name) => name.includes("rtifact-backup")),
+  );
+});
+
+test("rejects an HTML output swapped for a symbolic link after authorization", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "Home.jsx": `export default () => <div>New build</div>;`,
+    "Home.html": "authorized output",
+    "important.html": "must survive",
+  });
+
+  const result = await invoke(["Home.jsx"], {
+    cwd: fixture,
+    confirmReplacement: async () => {
+      await rm(path.join(fixture, "Home.html"));
+      await symlink("important.html", path.join(fixture, "Home.html"));
+      return true;
+    },
+  });
+
+  assert.equal(result.exitCode, 1);
+  assert.match(result.stderr, /changed after it was authorized/i);
+  assert.equal(
+    await readFile(path.join(fixture, "important.html"), "utf8"),
+    "must survive",
   );
 });
 

@@ -1,264 +1,144 @@
 # Rtifact build quality checklist
 
-Use this checklist for changes to entry or theme loading, source discovery,
-Vite configuration, Tailwind generation, asset handling, portable packaging,
-output publication, cleanup, or build diagnostics.
+Use this checklist when a change can affect how the `rtifact` CLI turns an
+entry such as `Sample.jsx` and an optional theme into its build output.
 
-The goal is to prevent process crashes and hangs, uncontrolled memory growth,
-execution of unintended local configuration, path traversal, partial output,
-and destruction of user files. A checked item needs code or test evidence;
-successful happy-path output alone is not evidence.
+- **Build output** is the generated portable HTML file, self-contained HTML
+  file, or deployable output directory.
+- **Build process** is the complete path from CLI argument and input validation
+  through theme and dependency discovery, Vite and Tailwind processing,
+  normalization, compression, publication, bootstrap, diagnostics, and cleanup.
 
-See [rtifact-html-build.md](./rtifact-html-build.md) for the complete build
-flow.
+The checklist protects users from process crashes and hangs, unreasonable CPU
+or memory use, unintended code or configuration loading, path escape, input or
+unrelated-file mutation, lost previous output, and incomplete or corrupt
+artifacts.
 
-## Stop-ship rule
+See [rtifact-html-build.md](./rtifact-html-build.md) for the detailed build flow.
+Limits and public behavior belong in code and OpenSpec; do not duplicate their
+numeric values here.
 
-Do not release when any applicable item marked **critical** is unchecked, or
-when a failure can do any of the following:
+## How to use this document
 
-- terminate the process through avoidable out-of-memory growth;
-- scan or buffer an unbounded filesystem or resource graph;
-- overwrite, remove, or mutate an input or unrelated path;
-- leave a previous successful output missing after a failed rebuild;
-- follow a symbolic link across an input or output boundary;
-- load user Vite configuration, environment files, or public assets implicitly;
-- publish an incomplete, corrupt, or unvalidated artifact; or
-- execute application code after bootstrap or payload validation fails.
+1. Apply the short release-blocker list to every build change.
+2. Apply only the change-scoped section matching the phases touched.
+3. Run periodic stress audits separately; missing periodic evidence does not by
+   itself block an unrelated pull request.
 
-`--force` may bypass confirmation for an otherwise valid destination. It must
-never bypass path, type, symlink, input-preservation, staging, or rollback
-checks.
+An unchecked item blocks release only when it is an applicable release blocker,
+or when the change touched that behavior and lacks the focused evidence required
+below. A demonstrated fatal defect always blocks release. A theoretical concern
+must first be reproduced or measured before it is classified as a defect.
 
-## 1. Change framing
+## Release blockers
 
-- [ ] List every build phase touched by the change: validation, theme loading,
-      source discovery, workspace creation, Vite build, normalization,
-      compression, publication, bootstrap, or cleanup.
-- [ ] Trace every caller of the changed helper. Put the protection at the
-      shared trust or resource boundary instead of patching one CLI mode.
-- [ ] State which paths, source contents, generated assets, and external URLs
-      the phase is allowed to read or write.
-- [ ] State the maximum file count, per-item size, aggregate size, and peak
-      in-memory representation for every newly buffered collection.
-- [ ] Add one failure test that would fail if the protection is removed.
-- [ ] Confirm all three build modes remain covered: default HTML,
-      `--self-contained`, and `--out-dir`. Include `pack` when normalization or
-      publication changes.
+- [ ] Reads and recursive discovery are limited to the intended input and
+      reachable dependency graph, with explicit file-count, per-item, and
+      aggregate bounds where user input can cause growth.
+- [ ] Representation expansion is rejected before it can cause unreasonable
+      memory or CPU use; small bounded input cannot multiply into effectively
+      unbounded buffered output.
+- [ ] Entry, theme, pack input, and unrelated files remain unchanged after
+      success and failure.
+- [ ] Input and output paths reject invalid types, path escape, and symbolic-link
+      boundary crossing. `--force` bypasses confirmation only.
+- [ ] User Vite configuration, environment files, and public assets are not
+      loaded implicitly.
+- [ ] Vite writes only to a temporary workspace; publication begins only after
+      a complete output and required ownership metadata exist.
+- [ ] Replacing output is authorized again at the mutation boundary, and a
+      failed rebuild does not remove the previous successful output.
+- [ ] A failed publication preserves either the previous output at its
+      destination or a clearly identified recoverable backup.
+- [ ] Portable output contains every required local resource or rejects the
+      unsupported build before publication.
+- [ ] Payload and bootstrap validation fail visibly before restoring partial
+      document state or executing application code.
+- [ ] Fatal failures exit non-zero without a success path or byte count, and
+      diagnostics do not expose source contents, credentials, environment
+      values, or unrelated filesystem data.
+- [ ] Every changed blocker has one focused failure test that would fail if its
+      protection were removed.
 
-## 2. Memory and resource exhaustion
+## Change-scoped checks
 
-### Source discovery — critical
+Apply the rows for the phases changed. Do not require unrelated rows merely
+because they are in this document.
 
-- [ ] Tailwind automatic detection remains disabled with `source(none)`.
-- [ ] Tailwind receives an explicit bounded source, never an entry parent,
-      invocation directory, workspace root, broad recursive glob, or
-      `node_modules` tree.
-- [ ] Discovery follows only JavaScript and TypeScript modules reachable from
-      the entry. Unrelated sibling files cannot enter the scan.
-- [ ] Bare package imports and non-source assets are externalized during the
-      write-free discovery pass.
-- [ ] The explicitly selected custom theme source is included without widening
-      discovery to the theme's containing directory.
-- [ ] File-count, per-file byte, and aggregate-byte limits are enforced before
-      allocation or Tailwind processing. Current limits are 2,000 files,
-      4 MiB per file, and 32 MiB total.
-- [ ] Reads are bounded even if a file grows between metadata lookup and read.
-      A changing file fails safely instead of causing an unbounded allocation.
-- [ ] Duplicate and concurrent module loads share one pending read and count a
-      physical source only once.
-- [ ] The approved source snapshot is reused by the production build so
-      Tailwind and Vite do not observe different file contents.
-- [ ] Rejection occurs before Tailwind starts and leaves no output or staging
-      directory.
+| Changed area                           | Required evidence                                                                                                                                                                                                                                               |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Entry, theme, or source discovery      | Only reachable JavaScript and TypeScript sources enter discovery; unrelated siblings and `node_modules` do not widen Tailwind scanning; the selected theme is included explicitly; changing or oversized reads fail safely before Tailwind and leave no output. |
+| Vite configuration or production build | Programmatic builds remain isolated from neighboring config, environment, and public files; package dependencies enter the production resource budget; default HTML, `--self-contained`, and `--out-dir` retain their intended runtime behavior.                |
+| Asset handling or portable packaging   | Required local HTML, CSS, JavaScript, fonts, images, and other assets resolve inside the build; missing or unsupported resources fail before publication; repeated references cannot bypass the normalized-size budget; `pack` leaves its input unchanged.      |
+| JavaScript compatibility validation    | Use bundle structure or explicit syntax checks only for behavior the CLI can reliably identify. JSX and custom code remain trusted local code; do not claim that static inspection proves the absence of arbitrary aliased runtime APIs.                        |
+| Output validation or publication       | Managed, unowned, file, directory, missing-parent, symlink-swap, stage-failure, and rollback behavior remain covered for each changed output mode. Success cleans stages/backups; failure preserves recovery data.                                              |
+| Bootstrap or payload format            | Version and complete payload shape are validated before DOM restoration; corrupt data, unsupported import maps, script termination attempts, and module-load failures fail closed with a visible message.                                                       |
+| Diagnostics or cleanup                 | Relevant source path and cause remain available without code frames or secret content; cleanup failure does not hide the primary failure; safety errors never recommend `--force`.                                                                              |
+| Dependencies or release packaging      | Package contents, supported Node versions, licenses, audit results, and compiled CLI behavior are checked.                                                                                                                                                      |
 
-### Build and packaging — critical
+## Resource-budget guidance
 
-- [ ] Every recursive file walk has an explicit scope and rejects symbolic
-      links. It does not retain file contents unless the next step needs them.
-- [ ] Limits account for representation expansion, not only input bytes:
-      decoded text, transformed modules, generated CSS, JavaScript chunks,
-      normalized payload JSON, gzip buffers, and base64 expansion may coexist.
-- [ ] Generated CSS, executable bundles, inlined assets, and normalized
-      portable payloads have measured worst-case behavior and a documented
-      rejection ceiling before full buffering or compression.
-- [ ] A single large local asset cannot cause multiple full-size copies to grow
-      without a bound during Vite build, data-URL conversion, JSON encoding,
-      gzip, or base64 encoding.
-- [ ] Dependency graphs cannot silently bypass the applicable build budget.
-      Package dependencies excluded from Tailwind discovery still enter the
-      production bundle.
-- [ ] One-shot CLI builds do not start watchers, servers, polling loops, or
-      unbounded retries.
-- [ ] Temporary maps, buffers, plugin state, and workspaces become unreachable
-      after success and failure; no process-global cache grows per build.
-- [ ] Repeated builds in one process show a stable retained heap after garbage
-      collection. Compare retained memory, not only peak RSS.
+- Put each limit at the shared boundary used by every affected output mode.
+- Bound both input and the next larger representation. Account for decoded text,
+  transforms, data URLs, normalized JSON, gzip, base64, and final HTML when they
+  can coexist.
+- Check projected size while constructing an expanding representation when a
+  final size check would occur too late.
+- Count a physical input once and reuse an approved snapshot when two phases
+  must observe identical contents.
+- Generate large fixtures during tests and remove them with `t.after(...)`; do
+  not commit large binaries or generated output.
+- Prefer one focused boundary test over separate tests for every caller. Test
+  all output modes only when the shared boundary or mode-specific behavior
+  changed.
 
-The current reachable-source limits protect Tailwind discovery. They do not by
-themselves bound generated CSS, production dependency bundling, asset inlining,
-or the final normalized and compressed payload. Treat those as open checks
-until a measured ceiling or streaming design proves them safe.
+## Baseline regression matrix
 
-### Required exhaustion fixtures
+Keep these automated because they protect common, high-impact contracts:
 
-| Fixture                                        | Required result                                                         |
-| ---------------------------------------------- | ----------------------------------------------------------------------- |
-| Thousands of unrelated sibling source files    | Build succeeds without reading them; their utility classes are absent   |
-| One reachable source over 4 MiB                | Build fails before Tailwind; no output or stage remains                 |
-| More than 2,000 reachable sources              | Build fails with the file-count diagnostic                              |
-| Reachable sources over 32 MiB total            | Build fails with the aggregate-size diagnostic                          |
-| Source grows while being read                  | Build fails as a changing source; allocation stays bounded              |
-| Large imported CSS, image, font, or dependency | Peak memory is measured and stays within the documented build budget    |
-| Repeated successful and failed builds          | Retained heap and temporary-file count do not grow with iteration count |
+- [ ] Reachable Tailwind utilities are generated and unrelated sibling
+      utilities are absent.
+- [ ] Oversized or excessive reachable sources fail before Tailwind without
+      leaving output or stages.
+- [ ] Neighboring Vite config, environment, and public files cannot affect a
+      build.
+- [ ] Dangerous paths and symbolic-link destinations remain rejected even with
+      `--force`.
+- [ ] Failed directory and HTML rebuilds preserve the previous output.
+- [ ] Pack input remains unchanged; output-inside-input and unsupported local
+      resource graphs are rejected.
+- [ ] Payload termination attempts, corrupt payloads, and bootstrap failures do
+      not execute application code or leave a partial document.
+- [ ] Custom themes and application-imported CSS/assets build in every output
+      mode whose behavior they affect.
+- [ ] Package verification exercises the compiled and packed CLI.
 
-Generate large fixtures during the test and remove them with `t.after(...)`;
-do not commit large binary fixtures.
+## Periodic stress audits
 
-## 3. Filesystem and user-data safety
+Run these before a major release, after changing resource limits or compression
+strategy, or when production evidence suggests a problem. They are not routine
+per-change release blockers unless the change directly affects the measured
+behavior or the audit reveals a defect.
 
-### Input boundaries — critical
+- Measure peak memory and elapsed CPU time for realistically large imported CSS,
+  images, fonts, dependency graphs, normalized JSON, gzip, and base64 output.
+- Verify repeated successful and failed builds do not leak retained heap or
+  temporary files when Rtifact is intentionally used repeatedly in one process.
+- Exercise process termination between destination-to-backup and
+  stage-to-destination renames; confirm stranded backups are recognizable and
+  recoverable.
+- Recheck limits against current supported Node, Vite, Rolldown, Tailwind, and
+  browser behavior.
 
-- [ ] Entry, custom-theme, and pack-input paths are resolved from the documented
-      working directory and canonicalized where containment matters.
-- [ ] Required inputs are readable regular files or directories of the expected
-      type.
-- [ ] Source entry, custom theme, pack input, and unrelated siblings remain
-      byte-for-byte unchanged after success and failure.
-- [ ] Pack traversal rejects symbolic links, root escapes, unresolved required
-      references, and non-local executable entries.
-- [ ] User-controlled path text appears only in diagnostics or validated
-      filesystem operations; it is never interpolated into a shell command.
+Record measurements and follow-up issues outside this checklist. A missing
+periodic measurement is not equivalent to a failed measurement.
 
-### Output boundaries — critical
+## Release evidence
 
-- [ ] Directory output rejects the filesystem root, the invocation directory,
-      source ancestors, theme ancestors, symbolic links, and non-directories.
-- [ ] HTML output requires an `.html` regular-file destination and rejects
-      directories, symbolic links, and an output inside the pack input.
-- [ ] Missing output parents are canonicalized through their nearest existing
-      ancestor before containment checks.
-- [ ] Existing managed, unowned, and file outputs require the documented
-      confirmation or `--force` authorization before the expensive build.
-- [ ] Validation is still true at the mutation boundary. If validation and
-      rename/removal are separated, a path-swap or symlink-swap test covers the
-      time-of-check/time-of-use window.
-- [ ] Temporary workspaces use unique OS temporary directories. Publication
-      stages and backups use unique names beside the destination so rename
-      remains on one filesystem.
+For ordinary changes, run `npm run verify`; it includes formatting, linting,
+tests, type checking, syntax/package checks, and packaged-artifact verification.
 
-### Publication and rollback — critical
-
-- [ ] Vite never writes directly into the selected destination.
-- [ ] Directory output is complete and has a valid ownership marker before
-      publication begins.
-- [ ] HTML is fully normalized, compressed, encoded, and written to an exclusive
-      staging file before destination replacement.
-- [ ] The previous output is not removed before a complete replacement exists.
-- [ ] If stage publication fails, the previous output is restored and the
-      original failure remains the primary diagnostic.
-- [ ] A failed compile, transform, normalization, compression, copy, or marker
-      write leaves the last successful output unchanged.
-- [ ] Success leaves no stage or backup. Failure removes new temporary data and
-      preserves any recoverable backup.
-- [ ] The crash window between destination-to-backup and stage-to-destination is
-      documented and tested. A stranded backup must be recognizable and
-      recoverable; it must never be mistaken for disposable unrelated data.
-
-## 4. Build isolation and code-execution safety
-
-- [ ] Every programmatic Vite build sets `configFile: false`, `envDir: false`,
-      and `publicDir: false`; every Vite output sets `copyPublicDir: false`.
-- [ ] A neighboring `vite.config.*`, `.env*`, or `public/` fixture cannot affect
-      discovery, theme loading, application output, or diagnostics.
-- [ ] Package aliases resolve only Rtifact's supplied frontend stack, and React
-      plus React DOM remain deduplicated.
-- [ ] Default portable output externalizes only the controlled runtime imports.
-      Directory and self-contained modes bundle the intended runtime graph.
-- [ ] CDN import maps use exact-version HTTPS URLs and are compared with the
-      controlled mapping before packaging.
-- [ ] Unmapped executable imports fail before publication.
-- [ ] Build diagnostics do not print environment values, source contents,
-      credentials, or unrelated filesystem data.
-- [ ] No new build hook spawns a shell, starts a network listener, downloads
-      code, or writes outside the controlled workspace without an explicit
-      public contract and test.
-- [ ] Documentation continues to state that JSX, custom CSS, and custom theme
-      modules are trusted local code. Rtifact must not claim to sandbox
-      untrusted code.
-- [ ] Custom theme execution remains isolated from user Vite configuration and
-      is the only intentional build-time execution of user module code.
-
-## 5. Portable artifact and pack safety
-
-- [ ] Normalization accepts exactly one local executable entry and at most one
-      controlled import map; extra script shapes are rejected.
-- [ ] All required local HTML, CSS, and JavaScript references resolve inside the
-      build directory before they are inlined.
-- [ ] CSS URL escapes, missing assets, additional chunks, dynamic imports,
-      workers, service workers, runtime-loaded WASM, and relative runtime
-      `fetch()` calls fail before publication.
-- [ ] Remote, `data:`, `blob:`, and fragment references are preserved only where
-      the format contract permits them.
-- [ ] Application source cannot terminate the outer payload script. Payload data
-      remains inert until it is decoded and validated.
-- [ ] Payload version, base64 decoding, gzip decompression, JSON parsing, import
-      map support, and module loading each fail closed with a visible message.
-- [ ] Corrupt or unsupported payloads never restore a partial document or start
-      application code.
-- [ ] `pack` treats its input directory as read-only and creates no output inside
-      it, including through canonicalized symlink paths.
-
-## 6. Failure behavior and diagnostics
-
-- [ ] Every fatal build or packaging error exits non-zero and prints exactly one
-      concise top-level `rtifact:` diagnostic.
-- [ ] Source syntax, missing dependency, path, and source-limit failures retain
-      the relevant source path and cause.
-- [ ] Limit diagnostics state the exceeded limit and a practical remediation;
-      they do not suggest using `--force` for a safety violation.
-- [ ] Cleanup failure is reported without hiding the original build failure.
-- [ ] A failed build never prints a success path or byte count.
-- [ ] Default HTML packaging failures may recommend `--out-dir`, but never when
-      that mode would repeat a destructive or security failure.
-
-## 7. Minimum regression matrix
-
-- [ ] Reachable child utilities are generated; unrelated sibling utilities are
-      not generated (`test/integration/build.test.ts`).
-- [ ] Oversized reachable Tailwind source fails without output or stage
-      (`test/integration/failures.test.ts`).
-- [ ] Existing managed and unowned directories retain confirmation and ownership
-      behavior (`test/integration/output.test.ts`).
-- [ ] Filesystem root, working directory, source ancestor, theme ancestor, and
-      symlink destinations remain rejected even with `--force`.
-- [ ] A failed rebuild preserves the previous directory and HTML outputs and
-      cleans stages and backups.
-- [ ] Pack input is unchanged; output-inside-input and unsupported resource
-      graphs are rejected (`test/integration/single-file.test.ts`).
-- [ ] Payload script termination, path escapes, controlled import maps, corrupt
-      payloads, and bootstrap failures remain covered
-      (`test/unit/single-file.test.ts`).
-- [ ] Custom TS and JSX themes build in default, self-contained, and directory
-      modes without loading neighboring Vite or environment configuration.
-- [ ] Application-imported CSS and assets still build after discovery isolation
-      changes.
-- [ ] Package verification exercises the compiled and packed CLI rather than
-      only the TypeScript source tree.
-
-## 8. Release evidence
-
-Record the command, result, and relevant test name or measurement beside the
-change or pull request. Required final gates:
-
-- [ ] `npm run format:check`
-- [ ] `npm run lint`
-- [ ] `npm run check`
-- [ ] `npm test`
-- [ ] `npm run verify:package`
-- [ ] `npm run verify`
-
-For dependency or release changes, also run:
+For dependency or release work, also run:
 
 - [ ] `npm audit`
 - [ ] `npm run check:licenses`
@@ -267,11 +147,8 @@ For dependency or release changes, also run:
 Before sign-off:
 
 - [ ] No generated HTML, `dist/`, `lib/`, tarball, temporary fixture, stage, or
-      backup is included in the change.
-- [ ] Public behavior changes update the applicable OpenSpec requirement and the
+      backup is included.
+- [ ] Public behavior changes update the applicable OpenSpec requirement and
       `Unreleased` changelog.
-- [ ] A reviewer can identify the enforced limit, the failure point, the cleanup
-      behavior, and the regression test without reconstructing the entire build.
-- [ ] Every unchecked item has an owner and blocks release when its failure could
-      cause memory exhaustion, unintended code execution, path escape, user-data
-      loss, or publication of a corrupt artifact.
+- [ ] Review evidence names the changed boundary, failure behavior, and focused
+      regression test without requiring a reconstruction of the full build.

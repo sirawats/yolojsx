@@ -1,11 +1,5 @@
-import {
-  cp,
-  lstat,
-  mkdtemp,
-  open,
-  realpath,
-  writeFile,
-} from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { cp, lstat, mkdtemp, realpath, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
@@ -18,14 +12,17 @@ import {
   jsxSourcePlugin,
   resolvePackageImport,
 } from "./dependencies.js";
-import { formatError, RtifactError } from "./errors.js";
+import { formatError, hasErrorCode, RtifactError } from "./errors.js";
 import {
   cleanupDirectory,
   commitOutput,
   createOutputStage,
+  type OutputAuthorization,
   writeOutputMarker,
 } from "./output.js";
 import { loadPrismThemeCatalog } from "./prism-themes.js";
+import { BUILD_RESOURCE_LIMITS } from "./resource-limits.js";
+import { readStableFile, type StableFileIdentity } from "./stable-files.js";
 import {
   createEntryPlugin,
   createHtml,
@@ -42,6 +39,7 @@ interface TemporaryBuildOptions {
   cdn?: boolean;
   theme: Theme;
   themeSource?: string;
+  workspaceRoot?: string;
   onWarning: (message: string) => unknown;
 }
 
@@ -50,6 +48,7 @@ interface BuildApplicationOptions extends Omit<
   "singleFile" | "cdn"
 > {
   output: string;
+  outputAuthorization: OutputAuthorization;
 }
 
 const MEBIBYTE = 1024 * 1024;
@@ -65,6 +64,11 @@ const TAILWIND_SOURCE_EXTENSIONS = new Set([
   ".mts",
   ".ts",
   ".tsx",
+]);
+const STABLE_BUILD_TEXT_EXTENSIONS = new Set([
+  ...TAILWIND_SOURCE_EXTENSIONS,
+  ".css",
+  ".json",
 ]);
 
 interface TailwindSourceSnapshot {
@@ -124,54 +128,42 @@ async function createTailwindSourceSnapshot(
     if (loading) return loading;
 
     const promise = (async () => {
-      const fileStat = await lstat(file);
+      const fileStat = await lstat(file, { bigint: true });
       if (!fileStat.isFile() || fileStat.isSymbolicLink()) {
         throw sourceLimitError(`contains an unsupported source: ${file}`);
       }
-      if (fileStat.size > MAX_TAILWIND_SOURCE_FILE_BYTES) {
+      if (fileStat.size > BigInt(MAX_TAILWIND_SOURCE_FILE_BYTES)) {
         throw sourceLimitError(`file exceeds 4 MiB: ${file}`);
       }
+      const fileBytes = Number(fileStat.size);
       if (fileCount + 1 > MAX_TAILWIND_SOURCE_FILES) {
         throw sourceLimitError(
           `exceeds ${MAX_TAILWIND_SOURCE_FILES.toLocaleString("en-US")} files`,
         );
       }
-      if (totalBytes + fileStat.size > MAX_TAILWIND_SOURCE_BYTES) {
+      if (totalBytes + fileBytes > MAX_TAILWIND_SOURCE_BYTES) {
         throw sourceLimitError("exceeds 32 MiB in total");
       }
       fileCount += 1;
-      totalBytes += fileStat.size;
+      totalBytes += fileBytes;
 
-      const handle = await open(file, "r");
       let source: Buffer;
       try {
-        source = Buffer.alloc(fileStat.size + 1);
-        let offset = 0;
-        while (offset < source.length) {
-          const { bytesRead } = await handle.read(
-            source,
-            offset,
-            source.length - offset,
-            offset,
-          );
-          if (bytesRead === 0) break;
-          offset += bytesRead;
-        }
-        if (offset > fileStat.size) {
-          throw sourceLimitError(`file changed while reading: ${file}`);
-        }
-        source = source.subarray(0, offset);
-      } finally {
-        await handle.close();
+        source = await readStableFile(
+          file,
+          MAX_TAILWIND_SOURCE_FILE_BYTES,
+          fileStat,
+        );
+      } catch (error) {
+        throw sourceLimitError(
+          `file changed while reading: ${file} (${formatError(error)})`,
+        );
       }
       const actualBytes = source.length;
-      if (
-        totalBytes - fileStat.size + actualBytes >
-        MAX_TAILWIND_SOURCE_BYTES
-      ) {
+      if (totalBytes - fileBytes + actualBytes > MAX_TAILWIND_SOURCE_BYTES) {
         throw sourceLimitError("exceeds 32 MiB in total");
       }
-      totalBytes += actualBytes - fileStat.size;
+      totalBytes += actualBytes - fileBytes;
       const contents = source.toString("utf8");
       files.set(file, contents);
       return contents;
@@ -237,13 +229,162 @@ function createSourceSnapshotPlugin(files: Map<string, string>): Plugin {
   };
 }
 
+function disablePrismWorkerPlugin(): Plugin {
+  return {
+    name: "rtifact-disable-prism-worker",
+    enforce: "pre",
+    transform(source, id) {
+      if (!id.split("?", 1)[0].endsWith("/prismjs/prism.js")) return null;
+      const workerBranch = "if (async && _self.Worker) {";
+      if (!source.includes(workerBranch)) return null;
+      return source.replace(workerBranch, "if (false) {");
+    },
+  };
+}
+
+function buildResourceError(message: string) {
+  return new RtifactError(
+    `Build resource ${message}. Reduce imported dependencies or assets.`,
+    { code: "BUILD_RESOURCE_LIMIT" },
+  );
+}
+
+export function createBuildResourceBudgetPlugin(
+  sourceSnapshot: Map<string, string>,
+): Plugin {
+  const approvedFiles = new Map<string, StableFileIdentity>();
+  const deferredFiles = new Map<
+    string,
+    { identity: StableFileIdentity; digest: string }
+  >();
+  const physicalFiles = new Map<string, bigint>();
+  let fileCount = 0;
+  let inputBytes = 0;
+
+  async function readApproved(file: string, identity: StableFileIdentity) {
+    try {
+      return await readStableFile(
+        file,
+        BUILD_RESOURCE_LIMITS.fileBytes,
+        identity,
+      );
+    } catch (error) {
+      throw buildResourceError(
+        `changed while loading: ${file} (${formatError(error)})`,
+      );
+    }
+  }
+
+  async function revalidateDeferred(
+    file: string,
+    approved: { identity: StableFileIdentity; digest: string },
+  ) {
+    const contents = await readApproved(file, approved.identity);
+    const digest = createHash("sha256").update(contents).digest("hex");
+    if (digest !== approved.digest) {
+      throw buildResourceError(`changed while loading: ${file}`);
+    }
+  }
+
+  return {
+    name: "rtifact-build-resource-budget",
+    enforce: "pre",
+    async load(id) {
+      if (id.startsWith("\0")) return null;
+      const file = path.normalize(id.split("?", 1)[0]);
+      if (!path.isAbsolute(file)) return null;
+      let fileIdentity = approvedFiles.get(file);
+      if (!fileIdentity) {
+        let fileStat;
+        try {
+          fileStat = await lstat(file, { bigint: true });
+        } catch (error) {
+          if (hasErrorCode(error, "ENOENT")) return null;
+          throw error;
+        }
+        if (!fileStat.isFile() || fileStat.isSymbolicLink()) return null;
+        if (fileStat.size > BigInt(BUILD_RESOURCE_LIMITS.fileBytes)) {
+          throw buildResourceError(`exceeds 16 MiB: ${file}`);
+        }
+        fileIdentity = {
+          dev: fileStat.dev,
+          ino: fileStat.ino,
+          size: fileStat.size,
+        };
+        approvedFiles.set(file, fileIdentity);
+        const identity = `${fileStat.dev}:${fileStat.ino}`;
+        const approvedSize = physicalFiles.get(identity);
+        if (approvedSize === undefined) {
+          physicalFiles.set(identity, fileStat.size);
+          fileCount += 1;
+          inputBytes += Number(fileStat.size);
+        } else if (approvedSize !== fileStat.size) {
+          throw buildResourceError(`changed while accounting: ${file}`);
+        }
+        if (fileCount > BUILD_RESOURCE_LIMITS.files) {
+          throw buildResourceError(
+            `graph exceeds ${BUILD_RESOURCE_LIMITS.files.toLocaleString("en-US")} files`,
+          );
+        }
+        if (inputBytes > BUILD_RESOURCE_LIMITS.inputBytes) {
+          throw buildResourceError("graph exceeds 128 MiB in total");
+        }
+      }
+      const snapshotted = sourceSnapshot.get(file);
+      if (!id.includes("?") && snapshotted !== undefined) return snapshotted;
+      if (
+        id.includes("?") ||
+        !STABLE_BUILD_TEXT_EXTENSIONS.has(path.extname(file).toLowerCase())
+      ) {
+        const contents = await readApproved(file, fileIdentity);
+        const digest = createHash("sha256").update(contents).digest("hex");
+        const existing = deferredFiles.get(file);
+        if (existing && digest !== existing.digest) {
+          throw buildResourceError(`changed while loading: ${file}`);
+        }
+        deferredFiles.set(file, existing ?? { identity: fileIdentity, digest });
+        return null;
+      }
+      return (await readApproved(file, fileIdentity)).toString("utf8");
+    },
+    async transform(_source, id) {
+      const file = path.normalize(id.split("?", 1)[0]);
+      const approved = deferredFiles.get(file);
+      if (approved) await revalidateDeferred(file, approved);
+      return null;
+    },
+    async generateBundle(_options, bundle) {
+      await Promise.all(
+        [...deferredFiles].map(([file, approved]) =>
+          revalidateDeferred(file, approved),
+        ),
+      );
+      let outputBytes = 0;
+      for (const [name, item] of Object.entries(bundle)) {
+        const bytes =
+          item.type === "chunk"
+            ? Buffer.byteLength(item.code)
+            : Buffer.byteLength(item.source);
+        if (bytes > BUILD_RESOURCE_LIMITS.outputFileBytes) {
+          throw buildResourceError(`generated file exceeds 32 MiB: ${name}`);
+        }
+        outputBytes += bytes;
+        if (outputBytes > BUILD_RESOURCE_LIMITS.outputBytes) {
+          throw buildResourceError("generated output exceeds 128 MiB in total");
+        }
+      }
+    },
+  };
+}
+
 async function createWorkspace(
   tailwindSources: string,
   theme: Theme,
   cdn: boolean,
+  workspaceRoot?: string,
 ) {
   const temporaryWorkspace = await mkdtemp(
-    path.join(os.tmpdir(), "rtifact-work-"),
+    path.join(workspaceRoot ?? os.tmpdir(), "rtifact-work-"),
   );
   const workspace = await realpath(temporaryWorkspace);
   const themeCssPath = path.join(workspace, "theme.css");
@@ -290,6 +431,7 @@ export async function withTemporaryApplicationBuild<T>(
     cdn = false,
     theme,
     themeSource,
+    workspaceRoot,
     onWarning,
   }: TemporaryBuildOptions,
   consume: (workspaceOutput: string) => T | Promise<T>,
@@ -301,7 +443,12 @@ export async function withTemporaryApplicationBuild<T>(
       entry,
       themeSource,
     );
-    workspace = await createWorkspace(sourceSnapshot.contents, theme, cdn);
+    workspace = await createWorkspace(
+      sourceSnapshot.contents,
+      theme,
+      cdn,
+      workspaceRoot,
+    );
     const workspaceOutput = path.join(workspace, "dist");
     const prismThemes = await loadPrismThemeCatalog();
 
@@ -315,8 +462,10 @@ export async function withTemporaryApplicationBuild<T>(
       logLevel: "silent",
       plugins: [
         jsxSourcePlugin,
+        createBuildResourceBudgetPlugin(sourceSnapshot.files),
         createSourceSnapshotPlugin(sourceSnapshot.files),
         createEntryPlugin(entry, theme, prismThemes, onWarning),
+        ...(singleFile ? [disablePrismWorkerPlugin()] : []),
         react(),
         tailwindcss(),
       ],
@@ -358,6 +507,7 @@ export async function withTemporaryApplicationBuild<T>(
 export async function buildApplication({
   entry,
   output,
+  outputAuthorization,
   base,
   theme,
   themeSource,
@@ -366,7 +516,7 @@ export async function buildApplication({
   let stage: string | undefined;
 
   try {
-    stage = await createOutputStage(output);
+    stage = await createOutputStage(output, outputAuthorization);
     const outputStage = stage;
     await withTemporaryApplicationBuild(
       { entry, base, theme, themeSource, onWarning },
@@ -375,7 +525,7 @@ export async function buildApplication({
         await writeOutputMarker(outputStage);
       },
     );
-    await commitOutput(stage, output);
+    await commitOutput(stage, output, outputAuthorization);
     stage = undefined;
   } catch (error) {
     const failure = asBuildError(error);

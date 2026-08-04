@@ -153,6 +153,16 @@ The CLI SHALL process Tailwind CSS for the input component, reachable JavaScript
 - **WHEN** the reachable JavaScript and TypeScript graph exceeds its file-count, per-file, or total-byte safety limit
 - **THEN** the CLI rejects the build with an actionable diagnostic before invoking Tailwind
 
+#### Scenario: Production resource graph exceeds a safety limit
+
+- **WHEN** the production module and asset graph exceeds 10,000 files, 16 MiB per input file, or 128 MiB total, or generated output exceeds 32 MiB per file or 128 MiB total
+- **THEN** every output mode rejects the build before publication with an actionable diagnostic
+
+Queried and binary application resources and custom-theme dependencies SHALL
+enter the same production budget. Where Vite owns query or asset semantics, the
+CLI SHALL perform a bounded stable pre-read and revalidate physical identity and
+content before accepting generated output.
+
 #### Scenario: Theme component uses a utility outside the entry directory
 
 - **WHEN** a selected JSX theme module outside the entry's directory contains a supported Tailwind utility and the application imports that component

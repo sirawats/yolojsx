@@ -5,6 +5,27 @@
 - Build Tailwind content from a bounded snapshot of the reachable JavaScript
   and TypeScript module graph, rejecting more than 2,000 files, 4 MiB per file,
   or 32 MiB total before Tailwind can exhaust memory.
+- Revalidate output identity immediately before publication so path or symlink
+  swaps cannot replace an object that was not authorized.
+- Bound production inputs, generated bundles, pack directories, normalized
+  payloads, and final portable HTML; parse executable bundles when rejecting
+  unsupported imports, workers, service workers, and runtime fetches.
+- Validate complete browser payload structure before restoring document content
+  and omit source code frames from default build diagnostics.
+- Reject residual CSS imports and `srcset` during portable packaging, charge
+  repeated asset expansion before appending it, and document executable syntax
+  checks as compatibility validation rather than a sandbox boundary.
+- Tokenize escaped CSS `url()` functions so local assets cannot remain unresolved
+  in an accepted portable artifact.
+- Reject worker-prepared output that escapes through symbolic-link ancestors,
+  suppress arbitrary child stderr, preserve primary publication errors when
+  cleanup also fails, and share file/directory backup and recovery transitions.
+- Run custom-theme Vite loading from the worker workspace, replay approved
+  JavaScript dependency bytes from stable reads, and resolve the current
+  development-only dependency audit findings.
+- Keep inner Vite workspaces beneath the parent-cleaned worker workspace, run
+  the worker from that directory, apply stable resource checks to queried,
+  binary, and custom-theme dependencies, and bound/redact worker diagnostics.
 
 ## 1.0.1 - 2026-08-01
 

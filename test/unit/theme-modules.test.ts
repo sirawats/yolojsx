@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile, rm } from "node:fs/promises";
+import { readFile, rm, truncate } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -75,5 +75,23 @@ export default { ...base, colors: { ...base.colors, primary: "red" } };`,
   await assert.rejects(
     resolveThemeSelection("missing", fixture),
     /Unknown theme: missing.*rtifact themes/,
+  );
+});
+
+test("applies production resource limits to custom-theme dependencies", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "base.jsx": defaultDefinition,
+    "theme.jsx": `import base from "./base.jsx";
+import "./large.txt?raw";
+export default base;`,
+    "large.txt": "",
+  });
+  await truncate(path.join(fixture, "large.txt"), 16 * 1024 * 1024 + 1);
+
+  await assert.rejects(
+    loadThemeModule(path.join(fixture, "theme.jsx"), fixture),
+    /Build resource exceeds 16 MiB.*large\.txt/is,
   );
 });

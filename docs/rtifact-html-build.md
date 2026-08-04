@@ -197,13 +197,41 @@ Theme creation produces two related representations:
 - serializable Ant Design algorithm, token, and component configuration used by
   the generated React provider.
 
-Custom theme code is trusted local code and is executed while loading the theme.
+Custom theme code is trusted local code. It is evaluated only inside the build
+worker, so a defective theme can fail or terminate that worker without
+terminating the parent CLI.
 
 ## 4. Temporary application workspace
 
+### Outer build worker
+
+The parent launches one direct Node child with no shell for each build or pack
+job. Custom-theme evaluation, source discovery, Vite/Tailwind execution,
+normalization, and compression stay in that child. Artifact bytes remain on
+disk beneath an OS-temporary worker workspace; only bounded request, warning,
+result metadata, and memory measurements cross the dedicated control pipe.
+The child process uses that workspace as both its working directory and the
+root for custom-theme loading.
+
+The internal worker defaults are a 120-second timeout and a 768 MiB V8
+old-space ceiling. They are evidence-adjusted containment safeguards rather
+than public compatibility guarantees and are not exposed as CLI, environment,
+or configuration options. A timeout, signal, abnormal exit, malformed or
+oversized control result, or invalid prepared output fails the operation while
+the parent remains alive. Diagnostics report controlled exit or signal data,
+cap structured error text, strip control characters, redact inherited
+credential-like environment values, and never include arbitrary child stderr.
+
+Before publication, the parent resolves both the workspace and prepared output
+with `realpath()`, rejects symbolic-link ancestors and physical escapes, then
+validates and stably copies the prepared file or directory into a parent-owned
+sibling stage. The worker never receives the destination path.
+
+### Inner Vite workspace
+
 Every JSX build uses `withTemporaryApplicationBuild()`. It creates a canonical
-temporary directory named like `rtifact-work-*` beneath the operating system's
-temporary directory:
+temporary directory named like `rtifact-work-*` beneath the parent-owned worker
+workspace, so parent cleanup also removes it after abrupt worker termination:
 
 ```text
 rtifact-work-*/
@@ -282,7 +310,13 @@ explicitly. Source discovery fails before Tailwind when it encounters:
 The approved contents are sorted by canonical path and joined into the
 temporary `tailwind-sources.jsx` snapshot. The production Vite build also
 replays the captured contents for those modules, keeping application bundling
-and Tailwind detection on the same source snapshot.
+and Tailwind detection on the same source snapshot. Reachable JavaScript,
+TypeScript, CSS, and JSON dependency modules are likewise returned to Vite from
+bounded identity-checked reads instead of being pathname-accounted and then
+read again later. Queried and binary assets receive a bounded stable pre-read,
+then are revalidated by physical identity and content digest after Vite handles
+their native semantics and again before bundle output. The same production
+resource-budget plugin protects dependencies imported by a custom theme.
 
 Rtifact invokes Vite programmatically with the temporary workspace as `root`
 and with these isolation settings:
@@ -297,11 +331,13 @@ The plugin order is:
 
 1. `jsxSourcePlugin` — redirects relative `.js` imports to a sibling `.jsx`
    file only when the `.js` file is absent and the `.jsx` file exists;
-2. `rtifact-source-snapshot` — replays the bounded source snapshot;
-3. `createEntryPlugin()` — supplies the virtual mount module and handles Prism
+2. `rtifact-build-resource-budget` — accounts unique physical inputs, performs
+   bounded stable reads, and validates generated output;
+3. `rtifact-source-snapshot` — replays the bounded source snapshot;
+4. `createEntryPlugin()` — supplies the virtual mount module and handles Prism
    theme metadata;
-4. the React plugin; and
-5. the Tailwind Vite plugin.
+5. the React plugin; and
+6. the Tailwind Vite plugin.
 
 Package-owned aliases resolve the supplied React, React DOM, Ant Design,
 Tailwind, React Icons, PrismJS, and Prism Themes installations. React and React
@@ -363,16 +399,22 @@ step with its validated input directory.
    exact-version CDN mapping.
 5. Require exactly one `.js` or `.mjs` executable bundle in the directory.
 6. Remove module-preload links.
-7. Read local stylesheets in document order, inline their local `url(...)`
-   resources as data URLs, and remove their link tags.
+7. Read local stylesheets in document order, tokenize CSS identifiers and
+   functions (including escaped forms), reject remaining local or ambiguous
+   `@import` rules, inline local `url(...)` resources as data URLs, and remove
+   their link tags.
 8. Extract the title, remaining head markup, and body markup.
-9. Inline local `src`, `poster`, and resolvable `href` assets in that markup.
+9. Reject `srcset`, then inline local `src`, `poster`, and resolvable `href`
+   assets in that markup.
 10. Read the executable bundle and inline referenced non-JavaScript,
     non-stylesheet local assets.
 11. Validate executable imports against the controlled import map when one is
     present.
-12. Reject unsupported additional chunks, dynamic imports, workers, service
-    workers, runtime-loaded WASM, and relative runtime `fetch()` calls.
+12. Reject unsupported additional chunks and explicitly detectable syntax for
+    dynamic imports, workers, service workers, runtime-loaded WASM, and relative
+    runtime `fetch()` calls. These checks validate emitted bundle compatibility;
+    they do not sandbox trusted JavaScript or prove the absence of equivalent
+    aliased or computed browser API calls.
 
 Remote HTTP(S), protocol-relative, `data:`, `blob:`, and fragment references are
 left intact. Required local references must resolve inside the build directory;
@@ -397,6 +439,10 @@ The packager JSON-serializes the payload, compresses it with gzip level 9,
 base64-encodes the compressed bytes, and places them in an inert
 `application/octet-stream` script element inside the final HTML shell. The
 payload version is currently sourced from `SINGLE_FILE_PAYLOAD_VERSION`.
+Packaging rejects more than 4,096 files, any input file over 16 MiB, more than
+64 MiB of aggregate input, a normalized JSON payload over 96 MiB, or final
+portable HTML over 128 MiB. Repeated encoded asset insertions are charged each
+time before the next normalized representation is appended.
 
 ## 7. Browser startup for portable HTML
 
@@ -416,7 +462,7 @@ sequenceDiagram
     Bootstrap->>Bootstrap: Require native DecompressionStream
     Bootstrap->>Payload: Read and base64-decode chunks
     Bootstrap->>Payload: Decompress gzip and parse JSON
-    Bootstrap->>Bootstrap: Validate payload version
+    Bootstrap->>Bootstrap: Validate payload version and complete field structure
     Bootstrap->>Browser: Restore title and head markup
     Bootstrap->>Browser: Append styles in order
     opt CDN-backed payload
@@ -429,8 +475,9 @@ sequenceDiagram
 ```
 
 The bootstrap starts with a visible loading message. It uses the browser's
-native `DecompressionStream("gzip")`, validates the payload version, restores
-document data in dependency order, and finally appends the executable script.
+native `DecompressionStream("gzip")`, validates the payload version and every
+payload field before mutating the document, restores document data in dependency
+order, and finally appends the executable script.
 
 If decompression, parsing, version validation, import-map support, or module
 loading fails, the bootstrap replaces the document with a readable error rather
@@ -438,10 +485,11 @@ than leaving a blank page or starting a partial application.
 
 ## 8. Directory publication
 
-`buildApplication()` never asks Vite to write directly into the destination.
-It creates a sibling `.rtifact-stage-*` directory, runs the temporary Vite
-build, copies the completed Vite output into the stage, and writes
-`.rtifact-output.json` containing:
+Directory builds write nothing directly into the destination. The worker process
+first builds the application into a prepared directory beneath its isolated workspace.
+The parent process then invokes `publishPreparedDirectory()`, which creates a
+sibling `.rtifact-stage-*` directory, copies the prepared directory into the stage,
+validates the staged files, and writes `.rtifact-output.json` containing:
 
 - the package name;
 - the output marker format version; and
@@ -449,40 +497,55 @@ build, copies the completed Vite output into the stage, and writes
 
 Only after the stage is complete does `commitOutput()` publish it:
 
+- revalidate the destination's authorized identity and canonical path at the
+  mutation boundary;
+
 - if the destination is absent, rename the stage into place;
 - if it exists, rename the old output to a unique backup, rename the stage into
   place, restore the backup if that second rename fails, then remove the backup
   after success.
+
+Rtifact attempts restoration once. If publication and backup restoration both
+fail, the publication error remains the primary diagnostic, the diagnostic
+names the unique recoverable backup, and Rtifact leaves that backup untouched
+for manual recovery rather than moving it again during cleanup.
 
 A failed compile or copy therefore leaves the previous successful output
 untouched.
 
 ## 9. HTML file publication
 
-Both direct file builds and `pack` fully normalize and compress the artifact in
-memory before calling `commitFileOutput()`.
+For direct file builds and `pack`, the build worker fully normalizes and compresses
+the artifact within its isolated workspace. The parent process then receives the
+prepared output metadata and invokes `publishPreparedFile()`.
 
-Publication writes the completed HTML to a unique sibling staging file using
-exclusive creation. If a destination exists, it is renamed to a unique backup;
-the stage is then renamed into place. A failed publication restores the backup,
-and final cleanup removes the stage and any obsolete backup when possible.
+Publication writes the prepared HTML to a unique sibling staging file using
+exclusive creation. It revalidates the authorized file identity and canonical
+path before calling `commitFileOutput()` to replace the target. If a destination
+exists, it is renamed to a unique backup; the stage is then renamed into place. A
+failed publication restores the backup, and final cleanup removes the stage and
+any obsolete backup when possible.
 
 Parent directories are created as needed, but unrelated sibling files are not
 removed.
 
 ## 10. Cleanup and diagnostics
 
-`withTemporaryApplicationBuild()` always removes its temporary workspace after
-the consumer finishes, whether the build, packaging, or consumer succeeds or
-fails. Directory build stages are likewise cleaned on failure.
+Rtifact always removes worker and Vite workspaces after the consumer finishes,
+whether the build, packaging, or consumer succeeds or fails.
+Directory and file publication stages are likewise cleaned on failure. Cleanup
+uses bounded retries for transient filesystem locks. If cleanup also fails, the
+original build, publication, or recovery error remains primary and cleanup
+context is appended; a named recoverable backup is never removed by final
+cleanup.
 
 The source-discovery build uses `write: false`, so a rejected source graph has
 no discovery output to remove. If directory mode already created a publication
 stage, the normal failure cleanup removes it.
 
 Non-Rtifact build failures are wrapped as `BUILD_FAILED` while retaining their
-cause. `formatError()` preserves useful Vite source IDs, source locations, code
-frames, and nested causes. Packaging failures use `PACK_FAILED`; direct file
+cause. `formatError()` preserves useful Vite source IDs, source locations, and
+nested causes while omitting source code frames. Packaging failures use `PACK_FAILED`; direct file
 builds append a recommendation to retry with `--out-dir dist` when the
 application graph cannot be represented by the portable format.
 
@@ -493,16 +556,19 @@ resolved output directory.
 
 ## Implementation map
 
-| Concern                                                | Source                                                                                 |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------- |
-| Executable entry                                       | [`src/bin.ts`](../src/bin.ts)                                                          |
-| CLI parsing and dispatch                               | [`src/args.ts`](../src/args.ts), [`src/cli.ts`](../src/cli.ts)                         |
-| Path validation                                        | [`src/paths.ts`](../src/paths.ts)                                                      |
-| Replacement confirmation                               | [`src/confirmation.ts`](../src/confirmation.ts)                                        |
-| Temporary workspace and Vite invocation                | [`src/build.ts`](../src/build.ts)                                                      |
-| Generated HTML, CSS, and virtual entry modules         | [`src/templates.ts`](../src/templates.ts)                                              |
-| Package aliases and CDN import map                     | [`src/dependencies.ts`](../src/dependencies.ts)                                        |
-| Theme loading and validation                           | [`src/theme-modules.ts`](../src/theme-modules.ts), [`src/themes.ts`](../src/themes.ts) |
-| Portable payload normalization and bootstrap packaging | [`src/single-file.ts`](../src/single-file.ts)                                          |
-| Staged publication and cleanup                         | [`src/output.ts`](../src/output.ts)                                                    |
-| Error normalization                                    | [`src/errors.ts`](../src/errors.ts)                                                    |
+| Concern                                                | Source                                                                                                     |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| Executable entry                                       | [`src/bin.ts`](../src/bin.ts)                                                                              |
+| CLI parsing and dispatch                               | [`src/args.ts`](../src/args.ts), [`src/cli.ts`](../src/cli.ts)                                             |
+| Worker process containment and job dispatch            | [`src/build-worker.ts`](../src/build-worker.ts), [`src/build-worker-main.ts`](../src/build-worker-main.ts) |
+| Resource and size limits                               | [`src/resource-limits.ts`](../src/resource-limits.ts)                                                      |
+| TOCTOU-safe file reading                               | [`src/stable-files.ts`](../src/stable-files.ts)                                                            |
+| Path validation                                        | [`src/paths.ts`](../src/paths.ts)                                                                          |
+| Replacement confirmation                               | [`src/confirmation.ts`](../src/confirmation.ts)                                                            |
+| Temporary workspace and Vite invocation                | [`src/build.ts`](../src/build.ts)                                                                          |
+| Generated HTML, CSS, and virtual entry modules         | [`src/templates.ts`](../src/templates.ts)                                                                  |
+| Package aliases and CDN import map                     | [`src/dependencies.ts`](../src/dependencies.ts)                                                            |
+| Theme loading and validation                           | [`src/theme-modules.ts`](../src/theme-modules.ts), [`src/themes.ts`](../src/themes.ts)                     |
+| Portable payload normalization and bootstrap packaging | [`src/single-file.ts`](../src/single-file.ts)                                                              |
+| Staged publication and cleanup                         | [`src/output.ts`](../src/output.ts)                                                                        |
+| Error normalization                                    | [`src/errors.ts`](../src/errors.ts)                                                                        |

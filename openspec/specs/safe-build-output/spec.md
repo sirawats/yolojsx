@@ -190,3 +190,41 @@ The CLI SHALL avoid deleting a managed output's last successful build before a r
 
 - **WHEN** an existing managed output is selected and the new build fails
 - **THEN** the previous successful output remains available and the CLI reports the failure
+
+### Requirement: Mutation-boundary output authorization
+
+The CLI SHALL retain the filesystem identity and canonical destination observed
+when replacement is authorized and SHALL revalidate that state immediately
+before renaming or removing any destination. `--force` SHALL NOT bypass this
+check.
+
+#### Scenario: Authorized destination is swapped
+
+- **WHEN** a directory or HTML destination changes identity, type, symbolic-link state, or canonical path after validation or confirmation
+- **THEN** publication fails without renaming, removing, or following the replacement object
+
+#### Scenario: Backup restoration also fails
+
+- **WHEN** publication fails after the prior destination became a backup and restoring that backup also fails
+- **THEN** the original publication failure remains primary, the recoverable backup is preserved, and the diagnostic identifies its path
+
+### Requirement: Contained build preparation
+
+The CLI SHALL run custom-theme evaluation, source discovery, Vite/Tailwind execution, normalization, and compression in a single-purpose child process whose working directory is its OS-temporary workspace. Every nested Vite workspace and prepared output SHALL remain beneath that parent-owned workspace. The child SHALL return bounded control metadata rather than artifact contents. The parent SHALL resolve the real workspace and prepared-output paths, reject symbolic-link ancestors and physical escapes, validate the prepared tree, and retain sole authority over final publication.
+
+The current internal worker safeguards are a 120-second timeout and a 768 MiB V8 old-space ceiling. These values are implementation safeguards subject to evidence-based adjustment, not public compatibility guarantees or user-configurable options.
+
+#### Scenario: Worker fails or exceeds a limit
+
+- **WHEN** the worker times out, exits abnormally, is terminated by a signal or memory failure, returns malformed or oversized control data, or returns invalid prepared output
+- **THEN** the parent exits unsuccessfully, preserves any previous destination, removes the worker workspace with bounded cleanup retries, and reports only bounded, control-character-sanitized failure information with credential-like environment values redacted and without copying raw child stderr
+
+#### Scenario: Prepared output traverses a symbolic-link ancestor
+
+- **WHEN** worker metadata names an output whose resolved path is outside the workspace or whose workspace-relative path traverses any symbolic-link ancestor
+- **THEN** the parent rejects it before copying or publication
+
+#### Scenario: Cleanup also fails
+
+- **WHEN** publication or recovery fails and subsequent stage or workspace cleanup also fails
+- **THEN** the publication or recovery error remains primary and the diagnostic appends cleanup context, including any recoverable backup path already reported

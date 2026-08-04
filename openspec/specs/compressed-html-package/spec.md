@@ -101,6 +101,11 @@ The packager SHALL normalize application markup, ordered styles, executable code
 - **WHEN** the bootstrap encounters an unknown payload version
 - **THEN** it reports an incompatible artifact error without executing the payload
 
+#### Scenario: Invalid payload structure
+
+- **WHEN** any required title, markup, style, import-map, script-type, or script field has an unsupported shape
+- **THEN** the bootstrap reports an invalid artifact before changing the restored title, head, styles, body, or application script
+
 ### Requirement: Compatible build validation
 
 The `pack` workflow SHALL validate that an input build can be represented by the supported single-file payload and SHALL reject it before creating output when required resources cannot be normalized.
@@ -117,8 +122,17 @@ The `pack` workflow SHALL validate that an input build can be represented by the
 
 #### Scenario: Unsupported resource graph
 
-- **WHEN** the input requires unresolved local references, additional executable chunks, workers, runtime-loaded WASM, or runtime-relative file reads
+- **WHEN** the emitted build contains unresolved local references, remaining local CSS imports, `srcset`, additional executable chunks, or explicitly detectable unsupported executable-resource syntax such as dynamic imports, workers, runtime-loaded WASM, or runtime-relative file reads
 - **THEN** the packager exits unsuccessfully with a diagnostic identifying the unsupported resource
+
+The executable syntax checks are compatibility validation over emitted bundle
+syntax, not a sandbox or proof that trusted application code cannot call an
+arbitrary browser API through aliases or computed expressions.
+
+#### Scenario: Packaging resource budget is exceeded
+
+- **WHEN** a build directory exceeds 4,096 files, 16 MiB per file, or 64 MiB total, its normalized payload exceeds 96 MiB, or its final portable HTML exceeds 128 MiB
+- **THEN** inventory and normalized-payload limits fail before compression, the final-HTML limit is checked after compression and shell generation, and every limit fails before publication with an actionable diagnostic
 
 ### Requirement: Packaging diagnostics
 

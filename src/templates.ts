@@ -255,6 +255,8 @@ export function createSingleFileHtml(
       (() => {
         const showError = (error) => {
           const message = error instanceof Error ? error.message : String(error);
+          document.head.replaceChildren();
+          document.title = "Unable to load Rtifact artifact";
           document.body.replaceChildren();
           const output = document.createElement("pre");
           output.style.cssText = "white-space:pre-wrap;font:16px/1.5 system-ui,sans-serif;padding:2rem;color:#991b1b";
@@ -285,8 +287,40 @@ export function createSingleFileHtml(
           if (payload.version !== ${JSON.stringify(payloadVersion)}) {
             throw new Error("Unsupported packaged application version: " + payload.version);
           }
+          const object = payload && typeof payload === "object" && !Array.isArray(payload);
+          const strings = object && Array.isArray(payload.styles) && payload.styles.every((value) => typeof value === "string");
+          const importMap = object && payload.importMap;
+          const validImportMap = importMap === undefined || (
+            importMap &&
+            typeof importMap === "object" &&
+            !Array.isArray(importMap) &&
+            Object.keys(importMap).length === 1 &&
+            importMap.imports &&
+            typeof importMap.imports === "object" &&
+            !Array.isArray(importMap.imports) &&
+            Object.values(importMap.imports).every((value) => typeof value === "string")
+          );
+          if (
+            !object ||
+            typeof payload.title !== "string" ||
+            typeof payload.head !== "string" ||
+            typeof payload.body !== "string" ||
+            !strings ||
+            payload.scriptType !== "module" ||
+            typeof payload.script !== "string" ||
+            !validImportMap
+          ) {
+            throw new Error("Invalid packaged application payload.");
+          }
+          if (payload.importMap && (
+            typeof HTMLScriptElement !== "function" ||
+            typeof HTMLScriptElement.supports !== "function" ||
+            !HTMLScriptElement.supports("importmap")
+          )) {
+            throw new Error("This browser does not support import maps required by this application.");
+          }
 
-          document.title = payload.title || "Rtifact";
+          document.title = payload.title;
           if (payload.head) {
             document.head.insertAdjacentHTML("beforeend", payload.head);
           }
@@ -296,13 +330,6 @@ export function createSingleFileHtml(
             document.head.append(style);
           }
           if (payload.importMap) {
-            if (
-              typeof HTMLScriptElement !== "function" ||
-              typeof HTMLScriptElement.supports !== "function" ||
-              !HTMLScriptElement.supports("importmap")
-            ) {
-              throw new Error("This browser does not support import maps required by this application.");
-            }
             const importMap = document.createElement("script");
             importMap.type = "importmap";
             importMap.textContent = JSON.stringify(payload.importMap);

@@ -1,5 +1,14 @@
 import assert from "node:assert/strict";
-import { rm } from "node:fs/promises";
+import {
+  chmod,
+  link,
+  mkdir,
+  rename,
+  rm,
+  symlink,
+  truncate,
+  writeFile,
+} from "node:fs/promises";
 import test from "node:test";
 import vm from "node:vm";
 import { gzipSync } from "node:zlib";
@@ -7,7 +16,9 @@ import { SINGLE_FILE_PAYLOAD_VERSION } from "../../src/constants.js";
 import { createCdnImportMap } from "../../src/dependencies.js";
 import {
   createSingleFileArtifact,
+  inventoryPackFiles,
   normalizeBuildDirectory,
+  readPackFile,
   readEmbeddedPayload,
 } from "../../src/single-file.js";
 import { createSingleFileHtml } from "../../src/templates.js";
@@ -105,6 +116,232 @@ test("rejects incompatible build resource shapes", async (t) => {
   await assert.rejects(normalizeBuildDirectory(fixture), /found 2/);
 });
 
+test("rejects dynamic imports regardless of expression position", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head></head><body><script type="module" src="app.js"></script></body></html>`,
+    "app.js": `const lazy = import("https://example.com/remote.js");`,
+  });
+
+  await assert.rejects(
+    normalizeBuildDirectory(fixture),
+    /unsupported additional JavaScript imports/,
+  );
+});
+
+test("rejects an oversized pack input before reading or encoding it", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head></head><body><img src="large.png"><script type="module" src="app.js"></script></body></html>`,
+    "app.js": `document.body.dataset.ready="yes";`,
+    "large.png": "",
+  });
+  await truncate(`${fixture}/large.png`, 16 * 1024 * 1024 + 1);
+
+  await assert.rejects(
+    normalizeBuildDirectory(fixture),
+    /pack input file exceeds 16 MiB.*large\.png/i,
+  );
+});
+
+test("binds pack reads and accounting to inventoried physical files", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, { "asset.bin": "original" });
+  await link(`${fixture}/asset.bin`, `${fixture}/alias.bin`);
+
+  const inventory = await inventoryPackFiles(fixture);
+  assert.equal(inventory.physicalBytes, Buffer.byteLength("original"));
+  assert.equal(inventory.files.size, 2);
+
+  await writeFile(`${fixture}/replacement.bin`, "replaced");
+  await rename(`${fixture}/replacement.bin`, `${fixture}/asset.bin`);
+  await assert.rejects(
+    readPackFile(inventory.files.get("asset.bin")!),
+    /changed after inventory/,
+  );
+});
+
+test("rejects inventoried pack files that grow, shrink, disappear, or change type", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const file = `${fixture}/asset.bin`;
+
+  const expectMutationRejected = async (
+    mutate: () => Promise<unknown>,
+    expected: RegExp,
+  ) => {
+    await rm(file, { recursive: true, force: true });
+    await writeFile(file, "original");
+    const record = (await inventoryPackFiles(fixture)).files.get("asset.bin")!;
+    await mutate();
+    await assert.rejects(readPackFile(record), expected);
+  };
+
+  await expectMutationRejected(
+    () => writeFile(file, "original-grown"),
+    /changed/,
+  );
+  await expectMutationRejected(() => writeFile(file, "short"), /changed/);
+  await expectMutationRejected(() => rm(file), /disappeared after inventory/);
+  await expectMutationRejected(async () => {
+    await rm(file);
+    await mkdir(file);
+  }, /not a regular non-symbolic-link file/);
+  await expectMutationRejected(async () => {
+    await rm(file);
+    await symlink(`${fixture}/target.bin`, file);
+  }, /not a regular non-symbolic-link file/);
+});
+
+test("rejects changed inventoried files before they can exceed the aggregate budget", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(
+    fixture,
+    Object.fromEntries(
+      Array.from({ length: 5 }, (_, index) => [`asset-${index}.bin`, "x"]),
+    ),
+  );
+  const inventory = await inventoryPackFiles(fixture);
+
+  for (let index = 0; index < 5; index += 1) {
+    const replacement = `${fixture}/replacement-${index}.bin`;
+    await writeFile(replacement, "");
+    await truncate(replacement, 15 * 1024 * 1024);
+    await rename(replacement, `${fixture}/asset-${index}.bin`);
+  }
+
+  for (const record of inventory.files.values()) {
+    await assert.rejects(readPackFile(record), /changed after inventory/);
+  }
+});
+
+test("reports an inventoried pack file that becomes unreadable", async (t) => {
+  if (process.platform === "win32" || process.getuid?.() === 0) {
+    t.skip("POSIX permission behavior requires an unprivileged process");
+    return;
+  }
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const file = `${fixture}/asset.bin`;
+  await writeFile(file, "asset");
+  const record = (await inventoryPackFiles(fixture)).files.get("asset.bin")!;
+  await chmod(file, 0);
+  await assert.rejects(readPackFile(record), /Pack input is not readable/);
+});
+
+test("rejects repeated asset expansion while normalizing", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  const repeatedImages = Array.from(
+    { length: 80 },
+    () => `<img src="large.png">`,
+  ).join("");
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head></head><body>${repeatedImages}<script type="module" src="app.js"></script></body></html>`,
+    "app.js": `document.body.dataset.ready="yes";`,
+    "large.png": "",
+  });
+  await truncate(`${fixture}/large.png`, 1024 * 1024);
+
+  await assert.rejects(
+    normalizeBuildDirectory(fixture),
+    /Normalized portable payload exceeds 96 MiB/,
+  );
+});
+
+test("rejects unsupported local CSS imports and HTML srcset", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><link rel="stylesheet" href="app.css"></head><body><img srcset="small.png 1x, large.png 2x"><script type="module" src="app.js"></script></body></html>`,
+    "app.css": `@import "theme.css";`,
+    "app.js": `document.body.dataset.ready="yes";`,
+    "theme.css": `body{color:red}`,
+    "small.png": "small",
+    "large.png": "large",
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /local CSS import/);
+
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><link rel="stylesheet" href="app.css"></head><body><script type="module" src="app.js"></script></body></html>`,
+    "app.css": `@IMPORT url( theme.css );`,
+    "theme.css": `.icon{background:url(icon.png)}`,
+    "icon.png": "icon",
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /local CSS import/);
+
+  await writeFixture(fixture, {
+    "app.css": String.raw`@\69mport "theme.css";`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /local CSS import/);
+
+  await writeFixture(fixture, { "app.css": `@import url(` });
+  await assert.rejects(normalizeBuildDirectory(fixture), /local CSS import/);
+
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><link rel="stylesheet" href="app.css"></head><body><img srcset="small.png 1x, large.png 2x"><script type="module" src="app.js"></script></body></html>`,
+    "app.css": `body{color:red}`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /HTML srcset/);
+
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head></head><body><img srcset="https://example.com/image.png 1x"><script type="module" src="app.js"></script></body></html>`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /HTML srcset/);
+
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head></head><body><img SrCsEt=https://example.com/image.png><script type="module" src="app.js"></script></body></html>`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /HTML srcset/);
+});
+
+test("inlines assets referenced by escaped CSS url functions", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><link rel="stylesheet" href="app.css"></head><body><script type="module" src="app.js"></script></body></html>`,
+    "app.css": String.raw`.icon{background:u\72l(icon.png)}`,
+    "app.js": `document.body.dataset.ready="yes";`,
+    "icon.png": "icon",
+  });
+
+  const payload = await normalizeBuildDirectory(fixture);
+  assert.match(payload.styles[0], /url\("data:image\/png;base64,/);
+  assert.doesNotMatch(payload.styles[0], /icon\.png/);
+});
+
+test("ignores harmless CSS import and HTML srcset text", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><link rel="stylesheet" href="app.css"></head><body><!-- srcset="ignored.png 1x" --><p>srcset= is documentation</p><img data-srcset="ignored.png 1x"><script type="module" src="app.js"></script></body></html>`,
+    "app.css": `/* @import "ignored.css"; */ body::before{content:"@import 'ignored.css'"}@import url("https://example.com/remote.css") screen;@import "data:text/css,body%7Bcolor:red%7D";`,
+    "app.js": `document.body.dataset.ready="yes";`,
+  });
+
+  const payload = await normalizeBuildDirectory(fixture);
+  assert.match(payload.body, /data-srcset/);
+  assert.match(payload.styles[0], /example\.com\/remote\.css/);
+
+  await writeFixture(fixture, {
+    "index.html": `<!doctype html><html><head><link rel="stylesheet" href="app.css"></head><body><textarea><img srcset="literal.png 1x"></textarea><script type="module" src="app.js"></script></body></html>`,
+    "app.css": `.icon{background:url(foo@import)}`,
+    "foo@import": "asset",
+  });
+  const rawTextPayload = await normalizeBuildDirectory(fixture);
+  assert.match(rawTextPayload.body, /textarea/);
+  assert.match(rawTextPayload.styles[0], /data:application\/octet-stream/);
+
+  await writeFixture(fixture, {
+    "app.css": `body::before{content:"broken\n}@import "ignored.css";`,
+  });
+  await assert.rejects(normalizeBuildDirectory(fixture), /local CSS import/);
+});
+
 test("rejects CSS root escapes, workers, and non-local entries", async (t) => {
   const fixture = await makeFixture();
   t.after(() => rm(fixture, { recursive: true, force: true }));
@@ -122,6 +359,14 @@ test("rejects CSS root escapes, workers, and non-local entries", async (t) => {
   await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
 
   await writeFixture(fixture, { "app.js": `new Worker(workerUrl);` });
+  await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
+
+  await writeFixture(fixture, { "app.js": `new Worker(runtime.filename);` });
+  await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
+
+  await writeFixture(fixture, {
+    "app.js": `new Worker(runtime.filename).onmessage = function(){runtime.postMessage(JSON.stringify({immediateClose:true}))};`,
+  });
   await assert.rejects(normalizeBuildDirectory(fixture), /web workers/);
 
   await writeFixture(fixture, {
@@ -191,6 +436,10 @@ async function runBootstrap(
   const head = {
     children: [] as FakeElement[],
     html: "",
+    replaceChildren() {
+      this.children = [];
+      this.html = "";
+    },
     insertAdjacentHTML(_position: string, value: string) {
       this.html = value;
     },
@@ -279,6 +528,23 @@ test("bootstrap restores supported payloads and renders failure messages", async
     createSingleFileHtml("not-base64", SINGLE_FILE_PAYLOAD_VERSION),
   );
   assert.match(corrupt.body.children[0].textContent, /Unable to load/);
+
+  const invalidPayload = {
+    ...payload,
+    title: "Must not be restored",
+    head: "<meta name=must-not-be-restored>",
+    styles: "not-an-array",
+  };
+  const invalidEncoded = gzipSync(
+    Buffer.from(JSON.stringify(invalidPayload)),
+  ).toString("base64");
+  const invalid = await runBootstrap(
+    createSingleFileHtml(invalidEncoded, SINGLE_FILE_PAYLOAD_VERSION),
+  );
+  assert.match(invalid.body.children[0].textContent, /Invalid packaged/);
+  assert.notEqual(invalid.document.title, invalidPayload.title);
+  assert.equal(invalid.head.html, "");
+  assert.equal(invalid.head.children.length, 0);
 });
 
 test("bootstrap installs import maps and reports CDN failures", async () => {
@@ -308,4 +574,7 @@ test("bootstrap installs import maps and reports CDN failures", async () => {
 
   const failed = await runBootstrap(html, { moduleError: true });
   assert.match(failed.body.children[0].textContent, /application runtime/);
+  assert.notEqual(failed.document.title, payload.title);
+  assert.equal(failed.head.html, "");
+  assert.equal(failed.head.children.length, 0);
 });

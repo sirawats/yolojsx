@@ -55,7 +55,7 @@ test("preserves relative imports, assets, local packages, base, and config isola
 import logo from "../logo.svg";
 import message from "local-message";
 export default function Home() {
-  return <><img src={logo} /><Child />{message}</>;
+  return <><img src={logo} /><Child />{message}{import.meta.env.VITE_RTIFACT_SENTINEL}</>;
 }`,
     "components/Child.jsx": `export default function Child() { return <div className="font-bold tracking-[0.17em]">Relative child</div>; }`,
     "unrelated.js": `export const unrelatedClass = "tracking-[13.37em]";`,
@@ -63,6 +63,8 @@ export default function Home() {
     "node_modules/local-message/package.json": `{"name":"local-message","version":"1.0.0","type":"module","exports":"./index.js"}`,
     "node_modules/local-message/index.js": `export default "Local dependency";`,
     "vite.config.js": `throw new Error("UNRELATED_CONFIG_EXECUTED");`,
+    ".env": `VITE_RTIFACT_SENTINEL=ENV_SECRET_MUST_NOT_LOAD`,
+    "public/sentinel.txt": `PUBLIC_SECRET_MUST_NOT_COPY`,
   });
 
   const result = await invoke(
@@ -83,6 +85,32 @@ export default function Home() {
   assert.match(javascript, /Local dependency/);
   assert.match(javascript, /data:image\/svg\+xml;base64/);
   assert.doesNotMatch(result.stderr, /UNRELATED_CONFIG_EXECUTED/);
+  assert.doesNotMatch(javascript, /ENV_SECRET_MUST_NOT_LOAD/);
+  assert.ok(!(await readdir(output)).includes("sentinel.txt"));
+});
+
+test("does not scan thousands of unrelated sibling sources", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "App.jsx": `export default () => <div className="p-4">Bounded</div>;`,
+  });
+  for (let start = 0; start < 2_500; start += 100) {
+    const files: Record<string, string> = {};
+    for (let index = start; index < start + 100; index += 1) {
+      files[`siblings/${index}.jsx`] =
+        `export default () => <div className="tracking-[${index}.01em]" />;`;
+    }
+    await writeFixture(fixture, files);
+  }
+
+  const result = await invoke(["App.jsx", "--out-dir", "dist"], {
+    cwd: fixture,
+  });
+  assert.equal(result.exitCode, 0, result.stderr);
+  const css = await readAsset(path.join(fixture, "dist"), ".css");
+  assert.match(css, /\.p-4\{/);
+  assert.doesNotMatch(css, /tracking-/);
 });
 
 test("builds apps using supplied icons and Prism packages without local installations", async (t) => {
