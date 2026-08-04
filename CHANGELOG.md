@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.2 - 2026-08-04
+
 - Build Tailwind content from a bounded snapshot of the reachable JavaScript
   and TypeScript module graph, rejecting more than 2,000 files, 4 MiB per file,
   or 32 MiB total before Tailwind can exhaust memory.

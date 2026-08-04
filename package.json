@@ -1,6 +1,6 @@
 {
   "name": "rtifact",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Turn agent-authored JSX into portable, interactive HTML artifacts.",
   "type": "module",
   "bin": {
