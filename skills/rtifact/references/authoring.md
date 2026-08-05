@@ -187,3 +187,28 @@ card. Use tables for exact comparisons, not general page layout.
 - Use remote media when it materially improves the artifact. Preserve essential
   meaning in nearby text or `alt`; do not generate dozens of speculative
   fallbacks.
+
+## Embedding user data
+
+When the user provides structured data — JSON objects, CSV rows, plain lists —
+embed it as a typed constant at module level rather than fetching it at runtime:
+
+```jsx
+const ROWS = [
+  { region: "APAC", actual: 1_420_000, target: 1_300_000 },
+  { region: "EMEA", actual: 980_000, target: 1_000_000 },
+];
+
+export default function Report() {
+  return <DataTable rows={ROWS} />;
+}
+```
+
+- Inline data the user supplies. Do not invent or estimate values; ask for the
+  data or mark placeholders clearly and visibly.
+- Parse CSV or JSON once at module level, not inside render functions.
+- For large datasets (roughly > 500 rows), note the size impact and confirm
+  before embedding — the artifact file grows proportionally.
+- Use remote `fetch` for live data, public APIs, or data too large to inline.
+  When fetch is part of the workflow, cover loading, error, and empty states.
+- Never embed credentials, tokens, PII, or secrets in a portable artifact.

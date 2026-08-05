@@ -8,12 +8,14 @@ import {
   createThemeRuntime,
   resolveFoundationStylesheet,
 } from "../../src/theme-css.js";
+import defaultDef from "../../src/themes/default.js";
 import {
   FIXED_THEMES,
   OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES,
   THEME_CSS_PROPERTIES,
   THEMES,
   contrastRatio,
+  createTheme,
   renderThemeCatalog,
   renderThemeCss,
   resolveTheme,
@@ -146,6 +148,30 @@ test("stores every bundled preset as a checked JSX manifest", async () => {
       filename,
     );
   }
+});
+
+test("supports and validates custom theme embedded CSS", () => {
+  const validDef = {
+    ...defaultDef,
+    id: "custom-css-theme",
+    name: "Custom CSS Theme",
+    css: ":not(pre) > code { padding: 0.2em; }",
+  };
+  const valid = createTheme(validDef);
+  assert.equal(validateThemeCatalog([valid]), true);
+  assert.match(
+    renderThemeCss(valid),
+    /:not\(pre\) > code \{ padding: 0\.2em; \}/,
+  );
+
+  const invalidDef = {
+    ...defaultDef,
+    id: "invalid-css-theme",
+    name: "Invalid CSS Theme",
+    css: 123 as unknown as string,
+  };
+  const invalid = createTheme(invalidDef);
+  assert.throws(() => validateThemeCatalog([invalid]), /invalid css property/);
 });
 
 test("family aliases always resolve to fixed light presets", async () => {

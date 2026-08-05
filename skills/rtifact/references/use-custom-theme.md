@@ -39,6 +39,18 @@ import { BrandPage } from "../themes/brand-theme.jsx";
 
 A value is treated as a file path when it is absolute, starts with `.`, contains a forward or backslash (`/` or `\`), or has a file extension. Other values are treated as preset names such as `material-dark`.
 
+## Embedded theme CSS
+
+The default `ThemeDefinition` may include an optional `css` string. Rtifact
+automatically places it after generated theme variables in `@layer components`
+for default, self-contained, and directory JSX builds. The artifact does not
+import a second stylesheet or extract the string itself.
+
+Embedded CSS may reference semantic variables such as `var(--primary)`,
+`var(--foreground)`, and `var(--code)`. Named React exports remain independent
+and still require ordinary application imports. If embedded CSS is malformed,
+the build fails with a Vite CSS diagnostic before publishing output.
+
 ## Runtime and dependency boundaries
 
 - Theme modules are compiled and executed during the build. Do not use `window`, `document`, or `localStorage` at module top level.
@@ -55,4 +67,6 @@ Validate the smallest theme before writing branded components:
 rtifact Minimal.jsx --theme ./brand-theme.jsx --output Minimal.html
 ```
 
-Then build the real artifact. On failure, fix the named role from the diagnostic and retry the same command. Do not switch output modes to evade a theme validation error.
+Then build the real artifact. On failure, fix the failing field or malformed
+embedded CSS identified in the error message and retry the same command. Do not
+switch output modes to evade a theme validation error.

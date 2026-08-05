@@ -6,7 +6,7 @@ Check whether `rtifact` is available on `PATH` first. This finds a global
 installation when present; otherwise run the package through `npx`:
 
 ```sh
-if command -v rtifact >/dev/null 2>&1; then
+if command -v rtifact > /dev/null 2>&1; then
   rtifact Report.jsx
 else
   npx rtifact Report.jsx
@@ -14,7 +14,8 @@ fi
 ```
 
 Apply the same choice to the commands below: use `rtifact ...` when the check
-succeeds and `npx rtifact ...` when it does not.
+succeeds and `npx rtifact ...` when it does not. Entries may be `.jsx` or
+`.tsx`; both are supported identically.
 
 ## Output modes
 
@@ -81,9 +82,12 @@ the installed PrismJS and Prism Themes packages.
 
 `--theme` also accepts a readable local `.ts` or `.jsx` module resolved from the
 invocation directory. Its default export is the complete declarative theme
-manifest. Applications import named exports, including reusable components,
-normally; Rtifact does not inject them. Theme modules are trusted local code
-compiled and executed before output is created. They apply to JSX builds, not
+manifest and may include an optional `css` string. Rtifact emits that CSS after
+theme variables in `@layer components` in every JSX output mode; no stylesheet
+import is needed. Applications import named exports, including reusable
+components, normally; Rtifact does not inject them. Theme modules are trusted
+local code compiled and executed before output is created. Malformed embedded
+CSS fails the build before publication. Theme modules apply to JSX builds, not
 discovery or `pack` commands, and do not appear in `rtifact themes`.
 
 Import application-specific CSS from the JSX or TSX entry:
@@ -137,7 +141,7 @@ inspection, but keep the user's requested output mode for the deliverable. If no
 browser tooling is available, verify the build and interaction paths from source,
 state the limitation, and do not claim visual correctness.
 
-When a build fails:
+## When a build fails
 
 1. Read the originating source path and diagnostic.
 2. Fix JSX syntax, missing default export, missing bare dependency, or the

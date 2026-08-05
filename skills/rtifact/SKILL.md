@@ -1,6 +1,6 @@
 ---
 name: rtifact
-description: Create, revise, build, or diagnose portable, interactive HTML artifacts with the Rtifact CLI and its supplied React, Ant Design, Tailwind CSS, React Icons, and PrismJS stack. Use when a user wants a shareable report, guide, demo, comparison, dashboard, or small browser tool; mentions Rtifact or an Rtifact theme/output mode; asks for JSX compatible with Rtifact; or wants to turn content or data into one portable HTML file, an offline artifact, or a deployable static asset directory.
+description: Use when you need to turn content, data, findings, or an existing JSX entry into a portable, self-contained file someone opens in a browser — including reports, dashboards, calculators, tech specs, setup guides, code review summaries, demos, comparisons, or small browser tools. Use this skill even if the user hasn't said "Rtifact" or "HTML", as long as the goal is a shareable readable artifact rather than a reusable codebase or full application. Also use when diagnosing Rtifact build failures, choosing an output mode, authoring JSX for the Rtifact stack, or applying a theme to an existing artifact. Do not use for HTML email templates, npm packages, scaffolded web app projects, or general static site generators.
 ---
 
 # Rtifact
@@ -26,8 +26,10 @@ Apply these in order:
 1. Identify the audience, the information they need, and the action the artifact
    should enable. Treat reports, internal guides, demos, design comparisons, and
    small developer tools as common patterns, not fixed templates.
-2. Read [references/authoring.md](references/authoring.md) before creating or
-   revising JSX.
+2. For a new artifact or when uncertain about a stack behavior, read
+   [references/authoring.md](references/authoring.md) before writing JSX.
+   For a targeted revision, read only the section relevant to the change
+   (e.g., just "PrismJS highlighting" or just "Interaction").
 3. Read the closest complete example from the routing guide below. Read a second
    only when the requested artifact combines two patterns.
 4. Prefer one self-contained `.jsx` or `.tsx` entry with a default-exported component.
@@ -41,10 +43,14 @@ Apply these in order:
    reference only when path, import, or runtime boundaries are relevant.
    Use Ant Design for interactive components and Tailwind utilities for layout and
    focused adjustments.
-7. When the user wants a built artifact, needs an output-mode decision, or has a
-   CLI/build failure, read [references/cli.md](references/cli.md), run the
-   smallest relevant build, and fix actionable diagnostics.
-8. Check the rendered information structure and interactive states. At minimum,
+7. Run the smallest relevant build once the JSX is ready. Read
+   [references/cli.md](references/cli.md) for output mode selection and option
+   constraints. A successful build is the minimum quality gate — do not skip it
+   and do not present the artifact as complete from a source-only review.
+8. If a build fails, read [references/cli.md](references/cli.md) ("When a
+   build fails" section) and fix the diagnostic there before trying any other
+   workaround. Do not switch output modes to evade a build error.
+9. Check the rendered information structure and interactive states. At minimum,
    verify the JSX builds successfully; do not claim visual correctness from a
    source-only review.
 
@@ -72,6 +78,9 @@ branding or content.
   [examples/TaxCalculator.jsx](examples/TaxCalculator.jsx)
 - RFC, technical specification, requirements matrix, or implementation plan:
   [examples/Techspec.jsx](examples/Techspec.jsx)
+- Full Ant Design component catalog, theme stress-test, or verifying that all
+  interactive components render correctly under a theme:
+  [examples/AntD.jsx](examples/AntD.jsx)
 
 The copied examples are complete runnable references. Their shared
 [examples/favicon.svg](examples/favicon.svg) supports the metadata import.
@@ -93,3 +102,8 @@ The copied examples are complete runnable references. Their shared
   boilerplate for every enhancement.
 - Do not force-overwrite an existing output unless the user authorized replacing
   that exact target.
+- Do not read `node_modules` to understand Rtifact's behavior. All necessary
+  information about the CLI, output modes, stack, and authoring conventions is
+  documented in this skill's references. Reading Rtifact internals from
+  `node_modules` will produce misleading results because the public surface is
+  the only stable contract.

@@ -99,6 +99,9 @@
 
   :not(pre) > code,
   kbd {
+    padding: 0.18em 0.45em;
+    margin-inline: 0.15em;
+    font-size: 0.88em;
     border-radius: var(--theme-radius-sm);
     background: var(--code);
   }

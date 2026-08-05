@@ -125,6 +125,7 @@ export interface ThemeDefinition {
   radius: { small: string; medium: string; large: string };
   shadow: string;
   controlHeight: number;
+  css?: string;
 }
 
 export interface Theme {
@@ -134,6 +135,7 @@ export interface Theme {
   aliases: string[];
   mode: "fixed";
   appearance: Appearance;
+  css?: string;
   semantic: {
     colors: ThemeColors;
     typography: { sans: string; mono: string; heading: string };
@@ -531,6 +533,7 @@ export function createTheme(definition: ThemeDefinition): Theme {
     aliases,
     mode: "fixed",
     appearance,
+    css: definition.css,
     semantic,
     antDesign: {
       algorithm: appearance,
@@ -717,6 +720,9 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
       !["light", "dark"].includes(theme.appearance)
     ) {
       throw new Error(`${theme.id} has an invalid mode or appearance.`);
+    }
+    if (theme.css !== undefined && typeof theme.css !== "string") {
+      throw new Error(`${theme.id} has an invalid css property.`);
     }
     const colors = theme.semantic?.colors;
     for (const key of REQUIRED_COLORS) {
@@ -978,7 +984,7 @@ export function renderThemeCss(theme: Theme) {
   --heading-tracking: ${rhythm.letterSpacing};
   --content-measure: ${rhythm.contentMeasure};
 }
-`;
+${theme.css ? `\n@layer components {\n${theme.css}\n}\n` : ""}`;
 }
 
 validateThemeCatalog();
