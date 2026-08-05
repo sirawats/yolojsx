@@ -5,22 +5,24 @@ import { DEFAULT_THEME_ID } from "./themes.js";
 export const USAGE = `Usage: rtifact <entry.jsx|entry.tsx> [options]
        rtifact themes | rtifact --themes
        rtifact prism-themes | rtifact --prism-themes
+       rtifact theme-inspect <theme-name> | rtifact --theme-inspect <theme-name>
        rtifact pack <directory> --output <file.html> [options]
 
 Build a JSX component into one CDN-backed compressed HTML file by default.
 
 Options:
-      --output <path>    HTML output path (default: ./<EntryName>.html)
-  -o, --out-dir <path>  Build a directory instead of one HTML file
-      --base <path>     Directory-mode public base path (default: ./)
-      --self-contained  Embed runtime dependencies for offline use
-      --theme <value>   Global theme preset or .ts/.jsx module (default: default)
-      --themes           List available theme names
-      --prism-themes     List available Prism theme names
-      --single-file     Deprecated alias for the default file mode
-      --force           Replace an existing protected output
-  -h, --help            Show this help
-  -v, --version         Show the installed version
+      --output <path>        HTML output path (default: ./<EntryName>.html)
+  -o, --out-dir <path>      Build a directory instead of one HTML file
+      --base <path>         Directory-mode public base path (default: ./)
+      --self-contained      Embed runtime dependencies for offline use
+      --theme <value>       Global theme preset or .ts/.jsx module (default: default)
+      --themes               List available theme names
+      --prism-themes         List available Prism theme names
+      --theme-inspect <name> Print theme definition source code
+      --single-file         Deprecated alias for the default file mode
+      --force               Replace an existing protected output
+  -h, --help                Show this help
+  -v, --version             Show the installed version
 
 Run \`rtifact themes\` or \`rtifact prism-themes\` to list available themes.`;
 
@@ -50,7 +52,8 @@ export type ParsedArguments =
   | { action: "help" }
   | { action: "version"; version: string }
   | { action: "themes" }
-  | { action: "prism-themes" };
+  | { action: "prism-themes" }
+  | { action: "theme-inspect"; themeName: string };
 
 function invalid(message: string) {
   return new RtifactError(message, { code: "INVALID_ARGUMENTS" });
@@ -73,6 +76,10 @@ function setOnce(seen: Set<string>, name: string) {
 
 export function parseArgs(argv: string[]): ParsedArguments {
   const requestedAction = argv[0];
+  const isThemeInspectAction =
+    requestedAction === "theme-inspect" ||
+    requestedAction === "--theme-inspect" ||
+    requestedAction?.startsWith("--theme-inspect=");
   const action =
     requestedAction === "pack"
       ? "pack"
@@ -81,9 +88,11 @@ export function parseArgs(argv: string[]): ParsedArguments {
         : requestedAction === "prism-themes" ||
             requestedAction === "--prism-themes"
           ? "prism-themes"
-          : "build";
+          : isThemeInspectAction
+            ? "theme-inspect"
+            : "build";
   const options: {
-    action: "build" | "pack" | "themes" | "prism-themes";
+    action: "build" | "pack" | "themes" | "prism-themes" | "theme-inspect";
     entry?: string;
     inputDir?: string;
     outDir?: string;
@@ -137,6 +146,19 @@ export function parseArgs(argv: string[]): ParsedArguments {
       options.selfContained = true;
       continue;
     }
+    if (parseOptions && arg === "--theme-inspect") {
+      setOnce(seen, "--theme-inspect");
+      const themeName = readOptionValue(argv, index, "--theme-inspect");
+      return { action: "theme-inspect", themeName };
+    }
+    if (parseOptions && arg.startsWith("--theme-inspect=")) {
+      setOnce(seen, "--theme-inspect");
+      const themeName = arg.slice("--theme-inspect=".length);
+      if (!themeName) {
+        throw invalid("--theme-inspect requires a value.");
+      }
+      return { action: "theme-inspect", themeName };
+    }
 
     const valueOptions = [
       ["--output", "output"],
@@ -171,6 +193,31 @@ export function parseArgs(argv: string[]): ParsedArguments {
       throw invalid(`Unknown option: ${arg}`);
     }
     positionals.push(arg);
+  }
+
+  if (action === "theme-inspect") {
+    if (requestedAction.startsWith("--theme-inspect=")) {
+      const themeName = requestedAction.slice("--theme-inspect=".length);
+      if (!themeName) {
+        throw invalid("--theme-inspect requires a value.");
+      }
+      if (positionals.length > 0 || seen.size > 0) {
+        throw invalid(
+          "The theme-inspect command does not accept additional build options.",
+        );
+      }
+      return { action: "theme-inspect", themeName };
+    }
+    if (seen.size > 0) {
+      throw invalid("The theme-inspect command does not accept build options.");
+    }
+    if (positionals.length === 0) {
+      throw invalid("The theme-inspect command requires a theme name.");
+    }
+    if (positionals.length > 1) {
+      throw invalid("Exactly one theme name is supported for inspection.");
+    }
+    return { action: "theme-inspect", themeName: positionals[0] };
   }
 
   if (action === "themes" || action === "prism-themes") {

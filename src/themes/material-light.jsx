@@ -6,6 +6,8 @@ export default {
   appearance: "light",
   description:
     "A tonal light surface system with rounded, deliberate controls.",
+  prismTheme: "material-light",
+  tableStyle: "rows",
   source: {
     name: "Material Web",
     url: "https://github.com/material-components/material-web",

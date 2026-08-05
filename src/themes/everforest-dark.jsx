@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A soft forest-dark canvas with moss-green interactions.",
+  prismTheme: "duotone-forest",
+  tableStyle: "striped",
   source: {
     name: "Everforest",
     url: "https://github.com/sainnhe/everforest",

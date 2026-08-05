@@ -36,17 +36,17 @@ export default function Report() {
 ```
 
 Use the optional `RTIFACT` export when the artifact needs a meaningful
-browser-tab title, favicon, or PrismJS token theme. `icon` may be an imported
-local image or a remote/data URL. When rendering HTML from `Prism.highlight()`,
-select one supplied Prism theme by name:
+browser-tab title, favicon, or a PrismJS token theme that overrides the selected
+Rtifact theme's default. `icon` may be an imported local image or a remote/data
+URL. Select one supplied Prism theme by name only when an override is useful:
 
 ```jsx
 export const RTIFACT = { prismTheme: "prism" };
 ```
 
-`prism` selects PrismJS's default theme. Run `rtifact prism-themes` to discover
-all names supplied by PrismJS and `prism-themes`. Unknown names use `prism` and
-produce a CLI warning.
+`prism` selects PrismJS's original theme. Run `rtifact prism-themes` to discover
+all names supplied by PrismJS and `prism-themes`. Unknown names use the selected
+Rtifact theme's default and produce a CLI warning.
 
 ## Stack responsibilities
 
@@ -77,8 +77,6 @@ language name for the grammar lookup, `Prism.highlight()` call, and
 ```jsx
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
-
-export const RTIFACT = { prismTheme: "prism" };
 
 const lang = "json";
 const source = `{"status":"ready"}`;
@@ -187,3 +185,28 @@ card. Use tables for exact comparisons, not general page layout.
 - Use remote media when it materially improves the artifact. Preserve essential
   meaning in nearby text or `alt`; do not generate dozens of speculative
   fallbacks.
+
+## Embedding user data
+
+When the user provides structured data — JSON objects, CSV rows, plain lists —
+embed it as a typed constant at module level rather than fetching it at runtime:
+
+```jsx
+const ROWS = [
+  { region: "APAC", actual: 1_420_000, target: 1_300_000 },
+  { region: "EMEA", actual: 980_000, target: 1_000_000 },
+];
+
+export default function Report() {
+  return <DataTable rows={ROWS} />;
+}
+```
+
+- Inline data the user supplies. Do not invent or estimate values; ask for the
+  data or mark placeholders clearly and visibly.
+- Parse CSV or JSON once at module level, not inside render functions.
+- For large datasets (roughly > 500 rows), note the size impact and confirm
+  before embedding — the artifact file grows proportionally.
+- Use remote `fetch` for live data, public APIs, or data too large to inline.
+  When fetch is part of the workflow, cover loading, error, and empty states.
+- Never embed credentials, tokens, PII, or secrets in a portable artifact.

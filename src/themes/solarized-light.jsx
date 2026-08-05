@@ -5,6 +5,8 @@ export default {
   aliases: ["solarized"],
   appearance: "light",
   description: "A warm low-glare light canvas with cyan-blue structure.",
+  prismTheme: "solarizedlight",
+  tableStyle: "rows",
   source: {
     name: "Solarized",
     url: "https://github.com/altercation/solarized",

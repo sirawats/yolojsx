@@ -5,6 +5,8 @@ export default {
   aliases: ["onedark"],
   appearance: "dark",
   description: "A focused editor-dark adaptation with cool blue interactions.",
+  prismTheme: "one-dark",
+  tableStyle: "striped",
   source: {
     name: "Atom One Dark syntax",
     url: "https://github.com/atom/one-dark-syntax",
@@ -23,7 +25,7 @@ export default {
     focus: "#61afef",
     selection: "#3e4451",
     selectionText: "#ffffff",
-    codeBackground: "#1f2329",
+    codeBackground: "#3e4451",
   },
   typography: {
     sans: "Inter, ui-sans-serif, system-ui, sans-serif",

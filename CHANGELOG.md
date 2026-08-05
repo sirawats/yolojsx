@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 1.0.3 - 2026-08-05
+
+- Add optional embedded CSS support (`css` property) to custom theme definitions, injected into `@layer components`.
+- Validate custom theme `css` property structure and report actionable diagnostics for malformed embedded CSS syntax during build.
+- Refine inline `code` and `kbd` element spacing, padding, and font size in `foundation.css`.
+- Update agent skills (`rtifact`, `rtifact-create-theme`), theme schema references, and examples for custom theme embedded CSS.
+- Improve themed defaults for unclassed tables, keycaps, form controls, highlights, and disclosures.
+- Give each theme a distinct native-table treatment and matching default PrismJS stylesheet, and improve One Dark inline-code contrast.
+- Keep the website's isolated example preview synchronized with each selected theme's PrismJS stylesheet.
+- Add `--theme-inspect <theme-name>` / `theme-inspect <theme-name>` CLI command to output a preset or custom theme definition `.jsx` source code.
+
 ## 1.0.2 - 2026-08-04
 
 - Build Tailwind content from a bounded snapshot of the reachable JavaScript

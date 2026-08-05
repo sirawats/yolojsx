@@ -62,6 +62,7 @@ export default function Catalog() {
     assert.match(javascript, /defaultHoverBg/, theme.id);
     assert.match(javascript, /defaultActiveBg/, theme.id);
     assert.match(javascript, /defaultBgDisabled/, theme.id);
+    assert.match(javascript, /rtifactPrismTheme/, theme.id);
     assert.doesNotMatch(
       css,
       /\.bg-rtifact-|\.text-rtifact-|\.rtifact-/i,
@@ -314,6 +315,9 @@ test("lists themes discovered from PrismJS and Prism Themes", async () => {
   assert.ok(catalog.has("prism"));
   assert.ok(catalog.has("vsc-dark-plus"));
   assert.ok([...catalog.keys()].every((name) => !name.endsWith(".min")));
+  for (const theme of THEMES) {
+    assert.ok(catalog.has(theme.prismTheme), theme.id);
+  }
 
   const listing = await invoke(["prism-themes"]);
   assert.equal(listing.exitCode, 0, listing.stderr);
@@ -322,4 +326,140 @@ test("lists themes discovered from PrismJS and Prism Themes", async () => {
   const optionListing = await invoke(["--prism-themes"]);
   assert.equal(optionListing.exitCode, 0, optionListing.stderr);
   assert.equal(optionListing.stdout, listing.stdout);
+});
+
+test("builds single-file and directory outputs with custom theme embedded CSS", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "App.jsx": `export default () => <main><code className="custom-code">const x = 1;</code></main>;`,
+    "themes/embedded.jsx": `${defaultDefinition
+      .replace('id: "default"', 'id: "embedded-custom"')
+      .replace(
+        "controlHeight: 32,",
+        'controlHeight: 32, css: ":not(pre) > code { padding: 0.35em; border: 2px solid var(--primary); }",',
+      )}`,
+  });
+
+  const directory = await invoke(
+    ["App.jsx", "--theme", "./themes/embedded.jsx", "--out-dir", "dist"],
+    { cwd: fixture },
+  );
+  assert.equal(directory.exitCode, 0, directory.stderr);
+  const directoryCss = await readAsset(path.join(fixture, "dist"), ".css");
+  assert.match(directoryCss, /padding:0?\.35em/);
+  assert.match(directoryCss, /border:2px solid var\(--primary\)/);
+
+  const singleFile = await invoke(
+    ["App.jsx", "--theme", "./themes/embedded.jsx", "--output", "App.html"],
+    { cwd: fixture },
+  );
+  assert.equal(singleFile.exitCode, 0, singleFile.stderr);
+  const html = await readFile(path.join(fixture, "App.html"), "utf8");
+  const payload = readEmbeddedPayload(html);
+  assert.match(payload.styles.join("\n"), /padding:0?\.35em/);
+});
+
+test("reports actionable diagnostic when custom theme embedded CSS contains malformed syntax", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "App.jsx": `export default () => <main>App</main>;`,
+    "themes/broken-css.jsx": `${defaultDefinition
+      .replace('id: "default"', 'id: "broken-css"')
+      .replace(
+        "controlHeight: 32,",
+        'controlHeight: 32, css: "div { color: ;",',
+      )}`,
+  });
+
+  const result = await invoke(
+    ["App.jsx", "--theme", "./themes/broken-css.jsx"],
+    { cwd: fixture },
+  );
+  assert.notEqual(
+    result.exitCode,
+    0,
+    "Build should fail for malformed embedded CSS",
+  );
+  assert.match(result.stderr, /error|invalid|Unexpected|Unclosed|css/i);
+});
+
+test("preserves theme build isolation and scans custom theme source for CSS discovery without leaking across builds", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+  await writeFixture(fixture, {
+    "App.jsx": `import { CustomWidget } from "./themes/first.jsx";
+export default () => <main><CustomWidget /></main>;`,
+    "themes/first.jsx": `export function CustomWidget() { return <div className="tracking-widest">Widget</div>; }
+${defaultDefinition
+  .replace('id: "default"', 'id: "first-theme"')
+  .replace(
+    "controlHeight: 32,",
+    'controlHeight: 32, css: ".first-theme-rule { opacity: 0.99; }",',
+  )}`,
+    "themes/second.jsx": defaultDefinition
+      .replace('id: "default"', 'id: "second-theme"')
+      .replace(
+        "controlHeight: 32,",
+        'controlHeight: 32, css: ".second-theme-rule { opacity: 0.88; }",',
+      ),
+  });
+
+  const firstBuild = await invoke(
+    ["App.jsx", "--theme", "./themes/first.jsx", "--out-dir", "first-dist"],
+    { cwd: fixture },
+  );
+  assert.equal(firstBuild.exitCode, 0, firstBuild.stderr);
+  const firstCss = await readAsset(path.join(fixture, "first-dist"), ".css");
+  assert.match(firstCss, /first-theme-rule/);
+  assert.match(firstCss, /tracking-widest/);
+  assert.doesNotMatch(firstCss, /second-theme-rule/);
+
+  const secondBuild = await invoke(
+    ["App.jsx", "--theme", "./themes/second.jsx", "--out-dir", "second-dist"],
+    { cwd: fixture },
+  );
+  assert.equal(secondBuild.exitCode, 0, secondBuild.stderr);
+  const secondCss = await readAsset(path.join(fixture, "second-dist"), ".css");
+  assert.match(secondCss, /second-theme-rule/);
+  assert.doesNotMatch(secondCss, /first-theme-rule/);
+});
+
+test("outputs theme definition source code via theme-inspect and --theme-inspect", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+
+  const presetInspect = await invoke(["--theme-inspect", "rtifact"]);
+  assert.equal(presetInspect.exitCode, 0, presetInspect.stderr);
+  assert.match(presetInspect.stdout, /id:\s*"rtifact"/);
+  assert.match(presetInspect.stdout, /appearance:\s*"light"/);
+
+  const positionalInspect = await invoke(["theme-inspect", "github-dark"]);
+  assert.equal(positionalInspect.exitCode, 0, positionalInspect.stderr);
+  assert.match(positionalInspect.stdout, /id:\s*"github-dark"/);
+
+  const aliasInspect = await invoke(["--theme-inspect", "solarized"]);
+  assert.equal(aliasInspect.exitCode, 0, aliasInspect.stderr);
+  assert.match(aliasInspect.stdout, /id:\s*"solarized-light"/);
+
+  await writeFixture(fixture, {
+    "custom-theme.jsx": defaultDefinition.replace(
+      'id: "default"',
+      'id: "custom-inspect-theme"',
+    ),
+  });
+
+  const customInspect = await invoke(
+    ["--theme-inspect", "./custom-theme.jsx"],
+    {
+      cwd: fixture,
+    },
+  );
+  assert.equal(customInspect.exitCode, 0, customInspect.stderr);
+  assert.match(customInspect.stdout, /id:\s*"custom-inspect-theme"/);
+
+  const unknownInspect = await invoke(["--theme-inspect", "nonexistent-theme"]);
+  assert.notEqual(unknownInspect.exitCode, 0);
+  assert.match(unknownInspect.stderr, /Unknown theme/);
 });

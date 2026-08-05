@@ -17,7 +17,6 @@ import icon from "./favicon.svg";
 export const RTIFACT = {
   title: "Local API Setup Guide",
   icon,
-  prismTheme: "prism",
 };
 
 const stages = [
@@ -118,6 +117,7 @@ function CodeBlock({ language, value }) {
 
 export default function SetupGuide() {
   const [completed, setCompleted] = useState([]);
+  const [readinessCheck, setReadinessCheck] = useState("");
   const percent = Math.round((completed.length / stages.length) * 100);
   const firstIncomplete = stages.findIndex(({ id }) => !completed.includes(id));
   const current = firstIncomplete === -1 ? stages.length : firstIncomplete;
@@ -127,6 +127,15 @@ export default function SetupGuide() {
       checked
         ? [...currentCompleted, id]
         : currentCompleted.filter((value) => value !== id),
+    );
+  }
+
+  function recordReadinessCheck(event) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const notes = data.get("notes");
+    setReadinessCheck(
+      `Recorded ${data.get("status")} for ${data.get("endpoint")}${notes ? ` — ${notes}` : ""}.`,
     );
   }
 
@@ -167,6 +176,14 @@ export default function SetupGuide() {
                   </a>
                 </li>
               ))}
+              <li>
+                <a
+                  href="#configuration-reference"
+                  className="block rounded-md px-3 py-2 hover:bg-card hover:text-foreground"
+                >
+                  Configuration reference
+                </a>
+              </li>
               <li>
                 <a
                   href="#troubleshooting"
@@ -260,6 +277,101 @@ export default function SetupGuide() {
               description="The checklist is local page state, not proof from the service. Confirm the readiness response before beginning development."
             />
           )}
+
+          <section
+            id="configuration-reference"
+            aria-labelledby="configuration-reference-heading"
+            className="mt-10"
+          >
+            <Typography.Title id="configuration-reference-heading" level={2}>
+              Configuration reference
+            </Typography.Title>
+            <Typography.Paragraph className="max-w-3xl leading-7">
+              Use these local defaults unless the repository says otherwise.{" "}
+              <mark>Never enter production credentials in this guide.</mark>
+            </Typography.Paragraph>
+
+            <div className="overflow-x-auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Setting</th>
+                    <th>Local value</th>
+                    <th>Purpose</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <code>PORT</code>
+                    </td>
+                    <td>3000</td>
+                    <td>Local HTTP listener</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>LOG_LEVEL</code>
+                    </td>
+                    <td>debug</td>
+                    <td>Development diagnostics</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <code>API_BASE_URL</code>
+                    </td>
+                    <td>http://localhost:3000</td>
+                    <td>Local client requests</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-6 rounded-lg border border-border bg-card p-4">
+              <details>
+                <summary>Record a manual readiness check</summary>
+                <p className="max-w-3xl text-muted-foreground">
+                  Move between fields with <kbd>Tab</kbd>, then press{" "}
+                  <kbd>Enter</kbd> to record the result in this page.
+                </p>
+                <form
+                  onSubmit={recordReadinessCheck}
+                  className="grid max-w-xl gap-4"
+                >
+                  <label className="grid gap-1">
+                    Endpoint
+                    <input
+                      name="endpoint"
+                      type="url"
+                      defaultValue="http://localhost:3000/health/ready"
+                      required
+                    />
+                  </label>
+                  <label className="grid gap-1">
+                    Result
+                    <select name="status" defaultValue="HTTP 200">
+                      <option>HTTP 200</option>
+                      <option>HTTP 503</option>
+                      <option>Connection failed</option>
+                    </select>
+                  </label>
+                  <label className="grid gap-1">
+                    Notes
+                    <textarea
+                      name="notes"
+                      rows={3}
+                      placeholder="Optional local observation"
+                    />
+                  </label>
+                  <div>
+                    <button type="submit">Record check</button>
+                  </div>
+                  <p aria-live="polite" className="mb-0 text-sm">
+                    {readinessCheck}
+                  </p>
+                </form>
+              </details>
+            </div>
+          </section>
 
           <section
             id="troubleshooting"

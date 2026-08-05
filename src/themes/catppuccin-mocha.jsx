@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A rich violet-charcoal dark adaptation with blue interactions.",
+  prismTheme: "synthwave84",
+  tableStyle: "striped",
   source: {
     name: "Catppuccin Palette",
     url: "https://github.com/catppuccin/palette",

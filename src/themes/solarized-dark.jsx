@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A deep teal low-glare dark canvas with cyan interactions.",
+  prismTheme: "solarized-dark-atom",
+  tableStyle: "rows",
   source: {
     name: "Solarized",
     url: "https://github.com/altercation/solarized",

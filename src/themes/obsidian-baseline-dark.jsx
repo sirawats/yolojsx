@@ -6,6 +6,8 @@ export default {
   appearance: "dark",
   description:
     "An original typographic dark canvas inspired by Baseline's hierarchy.",
+  prismTheme: "tomorrow",
+  tableStyle: "grid",
   source: {
     name: "Baseline for Obsidian",
     url: "https://github.com/aaaaalexis/obsidian-baseline",

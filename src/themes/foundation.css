@@ -99,8 +99,18 @@
 
   :not(pre) > code,
   kbd {
+    padding: 0.18em 0.45em;
+    margin-inline: 0.15em;
+    font-size: 0.88em;
     border-radius: var(--theme-radius-sm);
     background: var(--code);
+    color: var(--foreground);
+  }
+
+  kbd:not([class]) {
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 0 var(--border);
+    font-size: 0.82em;
   }
 
   pre {
@@ -159,6 +169,41 @@
     font-weight: var(--heading-weight);
   }
 
+  input:not(
+    [class],
+    [type="checkbox"],
+    [type="radio"],
+    [type="range"],
+    [type="color"],
+    [type="file"],
+    [type="image"]
+  ),
+  select:not([class]) {
+    padding-inline: 0.75rem;
+  }
+
+  textarea:not([class]) {
+    padding: 0.5rem 0.75rem;
+    resize: vertical;
+  }
+
+  button:not([class]):enabled,
+  select:not([class]):enabled {
+    cursor: pointer;
+  }
+
+  mark:not([class]) {
+    border-radius: var(--theme-radius-sm);
+    background: var(--warning-background);
+    color: var(--warning-foreground);
+    padding: 0.1em 0.3em;
+  }
+
+  summary:not([class]) {
+    cursor: pointer;
+    font-weight: var(--heading-weight);
+  }
+
   ::selection {
     background: var(--selection);
     color: var(--selection-foreground);
@@ -169,8 +214,31 @@
     outline-offset: 2px;
   }
 
-  table {
-    border-color: var(--border);
+  table:not([class]) {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: start;
+  }
+
+  table:not([class]) th {
+    border-bottom: 2px solid var(--border);
+    background: var(--table-header-background);
+    padding: 0.6em 0.8em;
+    font-weight: var(--heading-weight);
+    text-align: start;
+  }
+
+  table:not([class]) td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.6em 0.8em;
+  }
+
+  table:not([class]) :is(th, td) + :is(th, td) {
+    border-inline-start: var(--table-column-border-width) solid var(--border);
+  }
+
+  table:not([class]) tbody tr:nth-child(even) {
+    background: var(--table-stripe-background);
   }
 }
 

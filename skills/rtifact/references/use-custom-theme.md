@@ -39,6 +39,25 @@ import { BrandPage } from "../themes/brand-theme.jsx";
 
 A value is treated as a file path when it is absolute, starts with `.`, contains a forward or backslash (`/` or `\`), or has a file extension. Other values are treated as preset names such as `material-dark`.
 
+## Theme-owned document defaults
+
+Set optional `prismTheme` to a name from `rtifact prism-themes` when the custom
+theme needs a specific syntax palette. Otherwise Rtifact uses `prism` for light
+themes and `vsc-dark-plus` for dark themes. Set optional `tableStyle` to `rows`,
+`grid`, or `striped` to choose the native unclassed-table treatment.
+
+## Embedded theme CSS
+
+The default `ThemeDefinition` may include an optional `css` string. Rtifact
+automatically places it after generated theme variables in `@layer components`
+for default, self-contained, and directory JSX builds. The artifact does not
+import a second stylesheet or extract the string itself.
+
+Embedded CSS may reference semantic variables such as `var(--primary)`,
+`var(--foreground)`, and `var(--code)`. Named React exports remain independent
+and still require ordinary application imports. If embedded CSS is malformed,
+the build fails with a Vite CSS diagnostic before publishing output.
+
 ## Runtime and dependency boundaries
 
 - Theme modules are compiled and executed during the build. Do not use `window`, `document`, or `localStorage` at module top level.
@@ -46,6 +65,7 @@ A value is treated as a file path when it is absolute, starts with `.`, contains
 - Treat theme modules as trusted local code. Never embed secrets.
 - Do not import Rtifact theme CSS or add an application `ConfigProvider`; the output already supplies the theme boundary.
 - Custom themes do not appear in `rtifact themes`, and they do not apply to `rtifact pack`.
+- Print a theme definition source code with `rtifact theme-inspect <name>` or `rtifact --theme-inspect <name>`.
 
 ## Build order
 
@@ -55,4 +75,6 @@ Validate the smallest theme before writing branded components:
 rtifact Minimal.jsx --theme ./brand-theme.jsx --output Minimal.html
 ```
 
-Then build the real artifact. On failure, fix the named role from the diagnostic and retry the same command. Do not switch output modes to evade a theme validation error.
+Then build the real artifact. On failure, fix the failing field or malformed
+embedded CSS identified in the error message and retry the same command. Do not
+switch output modes to evade a theme validation error.

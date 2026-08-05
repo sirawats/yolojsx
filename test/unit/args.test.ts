@@ -83,6 +83,18 @@ test("parses deprecated single-file, theme discovery, and pack commands", () => 
   assert.deepEqual(parseArgs(["--themes"]), { action: "themes" });
   assert.deepEqual(parseArgs(["prism-themes"]), { action: "prism-themes" });
   assert.deepEqual(parseArgs(["--prism-themes"]), { action: "prism-themes" });
+  assert.deepEqual(parseArgs(["theme-inspect", "rtifact"]), {
+    action: "theme-inspect",
+    themeName: "rtifact",
+  });
+  assert.deepEqual(parseArgs(["--theme-inspect", "rtifact"]), {
+    action: "theme-inspect",
+    themeName: "rtifact",
+  });
+  assert.deepEqual(parseArgs(["--theme-inspect=rtifact"]), {
+    action: "theme-inspect",
+    themeName: "rtifact",
+  });
   assert.deepEqual(parseArgs(["pack", "dist", "--output=index.html"]), {
     action: "pack",
     inputDir: "dist",

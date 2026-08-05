@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A warm charcoal adaptation with amber-orange interactions.",
+  prismTheme: "gruvbox-dark",
+  tableStyle: "striped",
   source: {
     name: "Gruvbox",
     url: "https://github.com/morhetz/gruvbox",

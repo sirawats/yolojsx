@@ -5,6 +5,8 @@ export default {
   aliases: ["github"],
   appearance: "light",
   description: "A crisp forge-inspired light interface with compact surfaces.",
+  prismTheme: "ghcolors",
+  tableStyle: "grid",
   source: {
     name: "Primer Primitives",
     url: "https://github.com/primer/primitives",

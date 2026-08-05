@@ -55,15 +55,11 @@ function findPrismThemeValue(program: {
   }
 }
 
-function injectPrismTheme(
-  code: string,
-  start: number,
-  end: number,
-  filename: string,
-) {
-  const identifier = "__rtifactPrismThemeCss";
+function injectPrismTheme(code: string, filename: string) {
+  const identifier = "__rtifactPrismThemeCssValue";
   return `import ${identifier} from ${JSON.stringify(`${filename}?inline`)};
-${code.slice(0, start)}${identifier}${code.slice(end)}`;
+${code}
+export { ${identifier} as __rtifactPrismThemeCss };`;
 }
 
 export function createHtml(importMap?: unknown) {
@@ -123,6 +119,18 @@ export function createEntryPlugin(
 ): Plugin {
   const runtime = createThemeRuntime(selectedTheme);
   const entryId = entry.replaceAll(path.sep, "/");
+  let defaultPrismTheme = selectedTheme.prismTheme;
+  let defaultPrismFilename = prismThemes.get(defaultPrismTheme);
+  if (!defaultPrismFilename) {
+    onWarning(
+      `Unknown default Prism theme "${defaultPrismTheme}"; using "${DEFAULT_PRISM_THEME}". Run \`rtifact prism-themes\` to list available themes.`,
+    );
+    defaultPrismTheme = DEFAULT_PRISM_THEME;
+    defaultPrismFilename = prismThemes.get(defaultPrismTheme);
+  }
+  if (!defaultPrismFilename) {
+    throw new Error(`Missing default Prism theme "${DEFAULT_PRISM_THEME}".`);
+  }
   return {
     name: "rtifact-entry",
     resolveId(source) {
@@ -187,18 +195,17 @@ if (metadata?.icon) {
   icon.href = metadata.icon;
   document.head.append(icon);
 }
-if (typeof metadata?.prismTheme === "string" && metadata.prismTheme) {
-  const prismTheme = document.createElement("style");
-  const prismImport = metadata.prismTheme.match(/^@import[^;]+;\\s*/)?.[0] ?? "";
-  prismTheme.dataset.rtifactPrismTheme = "";
-  prismTheme.textContent = \`\${prismImport}@layer components {
-\${metadata.prismTheme.slice(prismImport.length)}
+const prismTheme = document.createElement("style");
+const prismThemeCss = EntryModule.__rtifactPrismThemeCss;
+const prismImport = prismThemeCss.match(/^@import[^;]+;\\s*/)?.[0] ?? "";
+prismTheme.dataset.rtifactPrismTheme = "";
+prismTheme.textContent = \`\${prismImport}@layer components {
+\${prismThemeCss.slice(prismImport.length)}
 .token.operator {
   background: transparent;
 }
 }\`;
-  document.head.append(prismTheme);
-}
+document.head.append(prismTheme);
 
 createRoot(rootElement).render(React.createElement(RtifactThemeBoundary));
 `;
@@ -210,27 +217,27 @@ createRoot(rootElement).render(React.createElement(RtifactThemeBoundary));
           lang: path.extname(entry).toLowerCase() === ".tsx" ? "tsx" : "jsx",
         }) as unknown as { body: AstNode[] },
       );
-      if (!value) return null;
       if (
-        value.type !== "Literal" ||
-        typeof value.value !== "string" ||
-        typeof value.start !== "number" ||
-        typeof value.end !== "number"
+        value &&
+        (value.type !== "Literal" || typeof value.value !== "string")
       ) {
         this.error("RTIFACT.prismTheme must be a string literal.", value.start);
       }
-      let filename = prismThemes.get(value.value);
-      if (!filename) {
+      const requestedTheme = value?.value as string | undefined;
+      let filename = requestedTheme
+        ? prismThemes.get(requestedTheme)
+        : defaultPrismFilename;
+      if (requestedTheme && !filename) {
         onWarning(
-          `Unknown Prism theme "${value.value}"; using "${DEFAULT_PRISM_THEME}". Run \`rtifact prism-themes\` to list available themes.`,
+          `Unknown Prism theme "${requestedTheme}"; using "${defaultPrismTheme}". Run \`rtifact prism-themes\` to list available themes.`,
         );
-        filename = prismThemes.get(DEFAULT_PRISM_THEME);
+        filename = defaultPrismFilename;
       }
       if (!filename) {
         this.error(`Missing default Prism theme "${DEFAULT_PRISM_THEME}".`);
       }
       return {
-        code: injectPrismTheme(code, value.start, value.end, filename),
+        code: injectPrismTheme(code, filename),
         map: null,
       };
     },

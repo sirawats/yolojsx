@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A high-contrast forge-inspired dark interface.",
+  prismTheme: "vsc-dark-plus",
+  tableStyle: "grid",
   source: {
     name: "Primer Primitives",
     url: "https://github.com/primer/primitives",
