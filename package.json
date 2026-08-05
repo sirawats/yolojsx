@@ -75,7 +75,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-icons": "^5.7.0",
-    "rolldown": "1.1.5",
+    "rolldown": "1.2.1",
     "semver": "^7.8.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.1.5"
