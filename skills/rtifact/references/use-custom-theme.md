@@ -39,6 +39,13 @@ import { BrandPage } from "../themes/brand-theme.jsx";
 
 A value is treated as a file path when it is absolute, starts with `.`, contains a forward or backslash (`/` or `\`), or has a file extension. Other values are treated as preset names such as `material-dark`.
 
+## Theme-owned document defaults
+
+Set optional `prismTheme` to a name from `rtifact prism-themes` when the custom
+theme needs a specific syntax palette. Otherwise Rtifact uses `prism` for light
+themes and `vsc-dark-plus` for dark themes. Set optional `tableStyle` to `rows`,
+`grid`, or `striped` to choose the native unclassed-table treatment.
+
 ## Embedded theme CSS
 
 The default `ThemeDefinition` may include an optional `css` string. Rtifact
@@ -58,6 +65,7 @@ the build fails with a Vite CSS diagnostic before publishing output.
 - Treat theme modules as trusted local code. Never embed secrets.
 - Do not import Rtifact theme CSS or add an application `ConfigProvider`; the output already supplies the theme boundary.
 - Custom themes do not appear in `rtifact themes`, and they do not apply to `rtifact pack`.
+- Print a theme definition source code with `rtifact theme-inspect <name>` or `rtifact --theme-inspect <name>`.
 
 ## Build order
 

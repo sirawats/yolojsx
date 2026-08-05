@@ -22,7 +22,7 @@ import {
   publishPreparedFile,
 } from "./output.js";
 import { renderPrismThemeCatalog } from "./prism-themes.js";
-import { resolveThemeInput } from "./theme-modules.js";
+import { getThemeSource, resolveThemeInput } from "./theme-modules.js";
 import { renderThemeCatalog } from "./themes.js";
 
 type Writable = Pick<NodeJS.WritableStream, "write">;
@@ -83,6 +83,11 @@ export async function runCli(
     }
     if (options.action === "prism-themes") {
       stdout.write(await renderPrismThemeCatalog());
+      return 0;
+    }
+    if (options.action === "theme-inspect") {
+      const sourceCode = await getThemeSource(options.themeName, cwd);
+      stdout.write(sourceCode.endsWith("\n") ? sourceCode : `${sourceCode}\n`);
       return 0;
     }
 

@@ -71,6 +71,8 @@ self-contained artifact.
 ```sh
 rtifact themes
 rtifact prism-themes
+rtifact theme-inspect rtifact
+rtifact --theme-inspect ./company-theme.jsx
 rtifact Report.jsx --theme material
 rtifact Report.jsx --theme material-dark
 rtifact Report.jsx --theme ./company-theme.jsx
@@ -78,7 +80,10 @@ rtifact Report.jsx --theme ./company-theme.jsx
 
 Unsuffixed family aliases resolve to fixed light presets; dark mode is selected
 only by naming a dark preset. `prism-themes` lists syntax themes discovered from
-the installed PrismJS and Prism Themes packages.
+the installed PrismJS and Prism Themes packages. Every selected Rtifact theme
+supplies a matching Prism default; `RTIFACT.prismTheme` remains an explicit
+per-entry override. Run `rtifact theme-inspect <name>` or `rtifact --theme-inspect <name>`
+to print the `.jsx` source code of any preset theme or custom theme module for inspection.
 
 `--theme` also accepts a readable local `.ts` or `.jsx` module resolved from the
 invocation directory. Its default export is the complete declarative theme

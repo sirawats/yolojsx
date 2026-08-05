@@ -58,6 +58,11 @@ test("validates the complete immutable theme catalog", async () => {
   assert.ok(THEMES.every(Object.isFrozen));
   assert.equal(resolveTheme("rtifact").id, "rtifact");
   assert.equal(resolveTheme("onedark").id, "one-dark");
+  assert.ok(new Set(THEMES.map((theme) => theme.prismTheme)).size >= 12);
+  assert.deepEqual(
+    new Set(THEMES.map((theme) => theme.tableStyle)),
+    new Set(["rows", "grid", "striped"]),
+  );
   for (const theme of THEMES) {
     const stylesheet = renderThemeCss(theme);
     assert.match(stylesheet, new RegExp(`Original Rtifact theme: ${theme.id}`));
@@ -106,6 +111,9 @@ test("validates the complete immutable theme catalog", async () => {
         `${THEME_CSS_PROPERTIES.controlHeight}:\\s*${theme.semantic.controlHeight}px`,
       ),
     );
+    assert.match(stylesheet, /--table-header-background:/, theme.id);
+    assert.match(stylesheet, /--table-stripe-background:/, theme.id);
+    assert.match(stylesheet, /--table-column-border-width:/, theme.id);
     assert.match(
       stylesheet,
       new RegExp(
@@ -172,6 +180,17 @@ test("supports and validates custom theme embedded CSS", () => {
   };
   const invalid = createTheme(invalidDef);
   assert.throws(() => validateThemeCatalog([invalid]), /invalid css property/);
+
+  assert.throws(
+    () =>
+      createTheme({
+        ...defaultDef,
+        id: "invalid-table-theme",
+        name: "Invalid Table Theme",
+        tableStyle: "cards",
+      }),
+    /invalid table style/,
+  );
 });
 
 test("family aliases always resolve to fixed light presets", async () => {
@@ -215,6 +234,7 @@ test("stored presets include typography, density, and original semantic values",
   const material = renderThemeCss(resolveTheme("material-light"));
   const github = renderThemeCss(resolveTheme("github-light"));
   const foundation = await readFile(resolveFoundationStylesheet(), "utf8");
+  const oneDark = resolveTheme("one-dark");
   assert.match(material, /Roboto/);
   assert.match(material, /--control-height: 40px/);
   assert.match(github, /BlinkMacSystemFont/);
@@ -228,12 +248,28 @@ test("stored presets include typography, density, and original semantic values",
   assert.match(foundation, /:not\(pre\) > code,\s*kbd/);
   assert.match(
     foundation,
+    /background: var\(--code\);\s*color: var\(--foreground\)/,
+  );
+  assert.match(foundation, /kbd:not\(\[class\]\)[\s\S]*box-shadow/);
+  assert.match(foundation, /table:not\(\[class\]\)[\s\S]*border-collapse/);
+  assert.match(foundation, /textarea:not\(\[class\]\)[\s\S]*resize: vertical/);
+  assert.match(foundation, /mark:not\(\[class\]\)/);
+  assert.match(foundation, /summary:not\(\[class\]\)/);
+  assert.match(
+    foundation,
     /pre > code[\s\S]*background: transparent[\s\S]*color: inherit/,
   );
   assert.doesNotMatch(foundation, /--color-rtifact-|\.rtifact-/);
   assert.doesNotMatch(
     material,
     /\.workspace|\.markdown-source-view|\.view-content/,
+  );
+  assert.equal(oneDark.semantic.colors.codeBackground, "#3e4451");
+  assert.ok(
+    contrastRatio(
+      oneDark.semantic.colors.text,
+      oneDark.semantic.colors.codeBackground,
+    ) >= 4.5,
   );
 });
 

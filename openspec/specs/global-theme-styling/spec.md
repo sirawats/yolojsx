@@ -56,7 +56,7 @@ The JSX build form SHALL accept `--theme <file.ts|file.jsx>` in default HTML fil
 
 ### Requirement: Custom theme module contract
 
-A local theme module SHALL use its default export as one declarative theme definition, SHALL allow named exports to remain ordinary application modules, and SHALL NOT auto-register or inject named exports into application scope.
+A local theme module SHALL use its default export as one declarative theme definition, SHALL allow optional default Prism-theme and native-table-style selections, SHALL allow named exports to remain ordinary application modules, and SHALL NOT auto-register or inject named exports into application scope.
 
 #### Scenario: Default theme definition
 
@@ -171,12 +171,17 @@ Each preset SHALL define one semantic theme manifest that maps page, surface, fo
 
 ### Requirement: Theme-transparent JSX authoring
 
-The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use an Rtifact-specific class-name vocabulary.
+The CLI-managed stylesheet graph SHALL make the selected preset available through inherited document styling, ordinary Ant Design props, and conventional unbranded semantic Tailwind theme names, and SHALL NOT require application JSX to use an Rtifact-specific class-name vocabulary. Each theme SHALL select a native table treatment from row dividers, column grid lines, or alternating row surfaces.
 
 #### Scenario: Native document inherits its theme
 
-- **WHEN** an entry renders semantic headings, paragraphs, links, code, selection, and focusable controls without theme classes
-- **THEN** the generated application applies the selected preset's appropriate typography, foreground, interaction, code, selection, and focus styling
+- **WHEN** an entry renders semantic headings, paragraphs, links, code, keycaps, tables, form controls, highlights, disclosures, selection, and focusable controls without theme classes
+- **THEN** the generated application applies readable structure and the selected preset's appropriate typography, foreground, interaction, code, status, border, selection, and focus styling
+
+#### Scenario: Native table reflects the selected theme
+
+- **WHEN** an entry renders an unclassed native table under different selected themes
+- **THEN** the table retains readable headers and cells while its row, column, header-surface, or alternating-row treatment follows each theme's declared table style
 
 #### Scenario: PrismJS line numbers inherit code typography
 

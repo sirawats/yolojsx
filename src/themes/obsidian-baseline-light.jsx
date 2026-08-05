@@ -6,6 +6,8 @@ export default {
   appearance: "light",
   description:
     "An original typographic light canvas inspired by Baseline's hierarchy.",
+  prismTheme: "coy-without-shadows",
+  tableStyle: "grid",
   source: {
     name: "Baseline for Obsidian",
     url: "https://github.com/aaaaalexis/obsidian-baseline",

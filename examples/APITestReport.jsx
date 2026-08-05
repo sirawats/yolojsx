@@ -20,7 +20,6 @@ import icon from "./favicon.svg";
 export const RTIFACT = {
   title: "API Regression Test Report",
   icon,
-  prismTheme: "prism",
 };
 
 const tests = [

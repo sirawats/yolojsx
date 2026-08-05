@@ -62,6 +62,7 @@ export default function Catalog() {
     assert.match(javascript, /defaultHoverBg/, theme.id);
     assert.match(javascript, /defaultActiveBg/, theme.id);
     assert.match(javascript, /defaultBgDisabled/, theme.id);
+    assert.match(javascript, /rtifactPrismTheme/, theme.id);
     assert.doesNotMatch(
       css,
       /\.bg-rtifact-|\.text-rtifact-|\.rtifact-/i,
@@ -314,6 +315,9 @@ test("lists themes discovered from PrismJS and Prism Themes", async () => {
   assert.ok(catalog.has("prism"));
   assert.ok(catalog.has("vsc-dark-plus"));
   assert.ok([...catalog.keys()].every((name) => !name.endsWith(".min")));
+  for (const theme of THEMES) {
+    assert.ok(catalog.has(theme.prismTheme), theme.id);
+  }
 
   const listing = await invoke(["prism-themes"]);
   assert.equal(listing.exitCode, 0, listing.stderr);
@@ -420,4 +424,42 @@ ${defaultDefinition
   const secondCss = await readAsset(path.join(fixture, "second-dist"), ".css");
   assert.match(secondCss, /second-theme-rule/);
   assert.doesNotMatch(secondCss, /first-theme-rule/);
+});
+
+test("outputs theme definition source code via theme-inspect and --theme-inspect", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+
+  const presetInspect = await invoke(["--theme-inspect", "rtifact"]);
+  assert.equal(presetInspect.exitCode, 0, presetInspect.stderr);
+  assert.match(presetInspect.stdout, /id:\s*"rtifact"/);
+  assert.match(presetInspect.stdout, /appearance:\s*"light"/);
+
+  const positionalInspect = await invoke(["theme-inspect", "github-dark"]);
+  assert.equal(positionalInspect.exitCode, 0, positionalInspect.stderr);
+  assert.match(positionalInspect.stdout, /id:\s*"github-dark"/);
+
+  const aliasInspect = await invoke(["--theme-inspect", "solarized"]);
+  assert.equal(aliasInspect.exitCode, 0, aliasInspect.stderr);
+  assert.match(aliasInspect.stdout, /id:\s*"solarized-light"/);
+
+  await writeFixture(fixture, {
+    "custom-theme.jsx": defaultDefinition.replace(
+      'id: "default"',
+      'id: "custom-inspect-theme"',
+    ),
+  });
+
+  const customInspect = await invoke(
+    ["--theme-inspect", "./custom-theme.jsx"],
+    {
+      cwd: fixture,
+    },
+  );
+  assert.equal(customInspect.exitCode, 0, customInspect.stderr);
+  assert.match(customInspect.stdout, /id:\s*"custom-inspect-theme"/);
+
+  const unknownInspect = await invoke(["--theme-inspect", "nonexistent-theme"]);
+  assert.notEqual(unknownInspect.exitCode, 0);
+  assert.match(unknownInspect.stderr, /Unknown theme/);
 });

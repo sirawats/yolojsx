@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A muted blue-gray fixed dark adaptation.",
+  prismTheme: "dracula",
+  tableStyle: "striped",
   source: {
     name: "Catppuccin Palette",
     url: "https://github.com/catppuccin/palette",

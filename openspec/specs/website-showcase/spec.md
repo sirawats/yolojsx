@@ -60,7 +60,7 @@ The website SHALL derive its theme controls from the canonical theme catalog, pa
 #### Scenario: Switch theme preset
 
 - **WHEN** a user pages to a theme family and selects one of its variants
-- **THEN** the preview updates its semantic CSS variables and Ant Design configuration to the selected preset
+- **THEN** the preview updates its semantic CSS variables, Ant Design configuration, native table treatment, and default Prism stylesheet to the selected preset
 
 #### Scenario: Catalog gains a preset
 

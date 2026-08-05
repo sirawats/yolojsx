@@ -37,11 +37,15 @@ Apply these in order:
    harder to understand.
 5. Use static markup for static content. Add React state only for interaction
    that improves exploration, comparison, validation, or task completion.
-6. Let the selected Rtifact theme handle global styling. When consuming an
-   existing custom theme, read [references/use-custom-theme.md](references/use-custom-theme.md).
-   When creating or revising one, use the `rtifact-create-theme` skill; read the
-   reference only when path, import, or runtime boundaries are relevant.
-   Use Ant Design for interactive components and Tailwind utilities for layout and
+6. Let the selected Rtifact theme handle global styling. Run `rtifact themes`
+   to list available presets. When selecting a theme for visual quality or
+   checking its exact palette, typography, status tokens, or embedded CSS, run
+   `rtifact theme-inspect <name>` (or `rtifact --theme-inspect <name>`) to inspect
+   its definition before writing JSX. When consuming an existing custom theme,
+   read [references/use-custom-theme.md](references/use-custom-theme.md). When
+   creating or revising one, use the `rtifact-create-theme` skill; read the
+   reference only when path, import, or runtime boundaries are relevant. Use
+   Ant Design for interactive components and Tailwind utilities for layout and
    focused adjustments.
 7. Run the smallest relevant build once the JSX is ready. Read
    [references/cli.md](references/cli.md) for output mode selection and option

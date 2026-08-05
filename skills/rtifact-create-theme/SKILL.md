@@ -72,6 +72,8 @@ export default {
   name: "Brand Dark",
   appearance: "dark", // exactly "light" or "dark"
   description: "Dark editorial adaptation of Brand.",
+  prismTheme: "one-dark", // optional; defaults by appearance
+  tableStyle: "striped", // optional: rows, grid, or striped
   source: {
     name: "Brand reference image",
     url: "./brand-reference.png", // path, public URL, or descriptive URN for a prompt-only brief
@@ -262,6 +264,7 @@ build proves compatibility, not visual quality.
 - `invalid semantic color`: use a full `#rrggbb` value; shorthand, alpha hex,
   CSS variables, and named colors are invalid in the theme definition.
 - `invalid css property`: make `css` a string or omit it.
+- `invalid table style`: use exactly `rows`, `grid`, or `striped`.
 - CSS parser error: fix the malformed rule in `css` and retry the same build.
 
 ---

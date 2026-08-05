@@ -19,7 +19,6 @@ import icon from "./favicon.svg";
 export const RTIFACT = {
   title: "Code Review Report",
   icon,
-  prismTheme: "prism",
 };
 
 const findings = [

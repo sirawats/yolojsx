@@ -4,6 +4,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import {
+  getThemeSource,
   loadThemeModule,
   resolveThemeSelection,
 } from "../../src/theme-modules.js";
@@ -93,5 +94,31 @@ export default base;`,
   await assert.rejects(
     loadThemeModule(path.join(fixture, "theme.jsx"), fixture),
     /Build resource exceeds 16 MiB.*large\.txt/is,
+  );
+});
+
+test("reads theme source code for built-in themes, aliases, and custom modules", async (t) => {
+  const fixture = await makeFixture();
+  t.after(() => rm(fixture, { recursive: true, force: true }));
+
+  const presetSource = await getThemeSource("rtifact", fixture);
+  assert.match(presetSource, /id:\s*"rtifact"/);
+
+  const aliasSource = await getThemeSource("solarized", fixture);
+  assert.match(aliasSource, /id:\s*"solarized-light"/);
+
+  await writeFixture(fixture, {
+    "custom-theme.jsx": defaultDefinition.replace(
+      'id: "default"',
+      'id: "custom-source-theme"',
+    ),
+  });
+
+  const customSource = await getThemeSource("./custom-theme.jsx", fixture);
+  assert.match(customSource, /id:\s*"custom-source-theme"/);
+
+  await assert.rejects(
+    getThemeSource("nonexistent-theme", fixture),
+    /Unknown theme: nonexistent-theme/,
   );
 });

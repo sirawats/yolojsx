@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A softened charcoal forge-inspired fixed dark variant.",
+  prismTheme: "coldark-dark",
+  tableStyle: "grid",
   source: {
     name: "Primer Primitives",
     url: "https://github.com/primer/primitives",

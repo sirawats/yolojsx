@@ -25,6 +25,8 @@ export default {
   name: "Brand Light",
   appearance: "light",
   description: "Clean light variant of Brand with a teal primary.",
+  prismTheme: "prism", // Optional; defaults to "prism" for light themes.
+  tableStyle: "grid", // Optional: "rows", "grid", or "striped".
 
   source: {
     name: "Brand style guide v3",

@@ -16,23 +16,25 @@ documents every field's type, requirement, and allowed values.
 
 ## Top-level fields
 
-| Field           | Type                  | Required | Notes                                                                                                               |
-| --------------- | --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------- |
-| `id`            | string                | Yes      | Lowercase kebab-case. Must be unique when installed alongside other custom themes.                                  |
-| `name`          | string                | Yes      | Human-readable display name shown by `rtifact themes`.                                                              |
-| `aliases`       | string[]              | No       | Additional preset names that resolve to this theme.                                                                 |
-| `appearance`    | `"light"` \| `"dark"` | Yes      | Exactly one of these two strings. Controls Ant Design's algorithm selection and Tailwind's dark-mode utility class. |
-| `description`   | string                | Yes      | One-sentence description of the theme's intent.                                                                     |
-| `source`        | object                | Yes      | Provenance record. All four sub-fields are required.                                                                |
-| `colors`        | object                | Yes      | Semantic color palette. See Colors section.                                                                         |
-| `typography`    | object                | Yes      | Font stack choices.                                                                                                 |
-| `rhythm`        | object                | Yes      | Prose rhythm and heading weight.                                                                                    |
-| `components`    | object                | Yes      | Component-level sizing and spacing tokens.                                                                          |
-| `radius`        | object                | Yes      | Border-radius scale with three named sizes.                                                                         |
-| `shadow`        | string                | Yes      | Default elevation shadow, e.g. `"0 18px 48px rgb(0 0 0 / 0.35)"`.                                                   |
-| `controlHeight` | number                | Yes      | Default Ant Design control height in pixels (e.g. `38`).                                                            |
-| `status`        | object                | No       | Override any subset of status roles. Omit to use built-in light/dark status palette.                                |
-| `css`           | string                | No       | Embedded custom CSS string applied to the document after theme variables under `@layer components`.                 |
+| Field           | Type                                | Required | Notes                                                                                                                       |
+| --------------- | ----------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `id`            | string                              | Yes      | Lowercase kebab-case. Must be unique when installed alongside other custom themes.                                          |
+| `name`          | string                              | Yes      | Human-readable display name shown by `rtifact themes`.                                                                      |
+| `aliases`       | string[]                            | No       | Additional preset names that resolve to this theme.                                                                         |
+| `appearance`    | `"light"` \| `"dark"`               | Yes      | Exactly one of these two strings. Controls Ant Design's algorithm selection and Tailwind's dark-mode utility class.         |
+| `description`   | string                              | Yes      | One-sentence description of the theme's intent.                                                                             |
+| `prismTheme`    | string                              | No       | Default syntax theme from `rtifact prism-themes`; defaults to `prism` for light themes and `vsc-dark-plus` for dark themes. |
+| `tableStyle`    | `"rows"` \| `"grid"` \| `"striped"` | No       | Native-table treatment. Defaults to `rows`.                                                                                 |
+| `source`        | object                              | Yes      | Provenance record. All four sub-fields are required.                                                                        |
+| `colors`        | object                              | Yes      | Semantic color palette. See Colors section.                                                                                 |
+| `typography`    | object                              | Yes      | Font stack choices.                                                                                                         |
+| `rhythm`        | object                              | Yes      | Prose rhythm and heading weight.                                                                                            |
+| `components`    | object                              | Yes      | Component-level sizing and spacing tokens.                                                                                  |
+| `radius`        | object                              | Yes      | Border-radius scale with three named sizes.                                                                                 |
+| `shadow`        | string                              | Yes      | Default elevation shadow, e.g. `"0 18px 48px rgb(0 0 0 / 0.35)"`.                                                           |
+| `controlHeight` | number                              | Yes      | Default Ant Design control height in pixels (e.g. `38`).                                                                    |
+| `status`        | object                              | No       | Override any subset of status roles. Omit to use built-in light/dark status palette.                                        |
+| `css`           | string                              | No       | Embedded custom CSS string applied to the document after theme variables under `@layer components`.                         |
 
 ---
 

@@ -59,6 +59,30 @@ const RAW_EXAMPLES = import.meta.glob<string>("../examples/*.jsx", {
   import: "default",
 });
 
+const PRISM_THEME_STYLES = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<string>(
+      [
+        "../node_modules/prismjs/themes/prism.css",
+        "../node_modules/prism-themes/themes/prism-*.css",
+        "!../node_modules/prism-themes/themes/*.min.css",
+      ],
+      { eager: true, query: "?inline", import: "default" },
+    ),
+  ).map(([file, css]) => {
+    const filename = file.slice(file.lastIndexOf("/") + 1, -4);
+    return [filename === "prism" ? filename : filename.slice(6), css];
+  }),
+);
+
+function renderPrismThemeCss(css: string) {
+  const prismImport = css.match(/^@import[^;]+;\s*/)?.[0] ?? "";
+  return `${prismImport}@layer components {
+${css.slice(prismImport.length)}
+.token.operator { background: transparent; }
+}`;
+}
+
 interface Example {
   id: string;
   label: string;
@@ -549,7 +573,7 @@ export default function Website() {
     base.href = document.baseURI;
     const styles = [
       ...document.head.querySelectorAll(
-        'link[rel="stylesheet"], style:not([data-rc-order])',
+        'link[rel="stylesheet"], style:not([data-rc-order]):not([data-rtifact-prism-theme])',
       ),
     ].map((node) => node.cloneNode(true));
     frameDocument.head.replaceChildren(base, ...styles);
@@ -918,6 +942,12 @@ export default function Website() {
                   createPortal(
                     <>
                       <style>{renderThemeCss(activeTheme)}</style>
+                      <style data-rtifact-prism-theme="">
+                        {renderPrismThemeCss(
+                          PRISM_THEME_STYLES[activeTheme.prismTheme] ??
+                            PRISM_THEME_STYLES.prism,
+                        )}
+                      </style>
                       <StyleProvider container={previewDocument.head} layer>
                         <ConfigProvider theme={previewTheme}>
                           <ActiveExample />

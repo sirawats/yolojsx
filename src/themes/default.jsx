@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "light",
   description: "A clear neutral canvas with confident blue interactions.",
+  prismTheme: "prism",
+  tableStyle: "striped",
   source: {
     name: "rtifact",
     url: "https://github.com/sirawats/rtifact",

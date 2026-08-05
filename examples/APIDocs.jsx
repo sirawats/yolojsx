@@ -22,7 +22,6 @@ import icon from "./favicon.svg";
 export const RTIFACT = {
   title: "Open API Atlas",
   icon,
-  prismTheme: "prism",
 };
 
 const apis = {

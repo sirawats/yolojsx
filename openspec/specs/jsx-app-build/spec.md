@@ -57,7 +57,7 @@ The CLI SHALL accept an existing `.jsx` or `.tsx` module whose default export is
 #### Scenario: Theme-aware PrismJS tokens
 
 - **WHEN** the entry exports a discovered Prism theme name as the string literal `RTIFACT.prismTheme`
-- **THEN** the generated application resolves and applies only that `prism-themes` stylesheet
+- **THEN** the generated application resolves and applies only that stylesheet instead of the selected Rtifact theme's Prism default
 
 #### Scenario: Prism theme discovery
 
@@ -67,7 +67,7 @@ The CLI SHALL accept an existing `.jsx` or `.tsx` module whose default export is
 #### Scenario: Unknown Prism theme
 
 - **WHEN** `RTIFACT.prismTheme` names a theme absent from the discovered catalog
-- **THEN** the build succeeds with PrismJS's default `prism` theme and the CLI prints a warning
+- **THEN** the build succeeds with the selected Rtifact theme's Prism default and the CLI prints a warning
 
 #### Scenario: No application metadata
 

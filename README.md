@@ -181,22 +181,24 @@ Requires Node.js `^20.19.0` or `>=22.12.0`.
 Usage: rtifact <entry.jsx|entry.tsx> [options]
        rtifact themes | rtifact --themes
        rtifact prism-themes | rtifact --prism-themes
+       rtifact theme-inspect <theme-name> | rtifact --theme-inspect <theme-name>
        rtifact pack <directory> --output <file.html> [options]
 
 Build a JSX component into one CDN-backed compressed HTML file by default.
 
 Options:
-      --output <path>    HTML output path (default: ./<EntryName>.html)
-  -o, --out-dir <path>  Build a directory instead of one HTML file
-      --base <path>     Directory-mode public base path (default: ./)
-      --self-contained  Embed runtime dependencies for offline use
-      --theme <value>   Global theme preset or .ts/.jsx module (default: default)
-      --themes           List available theme names
-      --prism-themes     List available Prism theme names
-      --single-file     Deprecated alias for the default file mode
-      --force           Replace an existing protected output
-  -h, --help            Show this help
-  -v, --version         Show the installed version
+      --output <path>        HTML output path (default: ./<EntryName>.html)
+  -o, --out-dir <path>      Build a directory instead of one HTML file
+      --base <path>         Directory-mode public base path (default: ./)
+      --self-contained      Embed runtime dependencies for offline use
+      --theme <value>       Global theme preset or .ts/.jsx module (default: default)
+      --themes               List available theme names
+      --prism-themes         List available Prism theme names
+      --theme-inspect <name> Print theme definition source code
+      --single-file         Deprecated alias for the default file mode
+      --force               Replace an existing protected output
+  -h, --help                Show this help
+  -v, --version             Show the installed version
 
 Run `rtifact themes` or `rtifact prism-themes` to list available themes.
 ```
@@ -314,14 +316,15 @@ Other bare package imports resolve from the input project's `node_modules`.
 
 ### Prism themes
 
-Set syntax highlighting independently from the page theme:
+Each Rtifact theme supplies a matching PrismJS theme automatically. Override it
+for one artifact when needed:
 
 ```jsx
 export const RTIFACT = { prismTheme: "prism" };
 ```
 
 Run `npx rtifact prism-themes` to discover installed Prism theme names. Unknown
-names warn and fall back to `prism`.
+names warn and fall back to the selected Rtifact theme's default.
 
 <a id="custom-theme"></a>
 

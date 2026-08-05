@@ -1,4 +1,6 @@
+import { readFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { build, normalizePath, type Plugin } from "vite";
 import { createBuildResourceBudgetPlugin } from "./build.js";
@@ -169,4 +171,27 @@ export async function loadThemeInput(
     theme: await loadThemeModule(input.source, cwd),
     source: input.source,
   };
+}
+
+export async function readBuiltInThemeSource(themeId: string): Promise<string> {
+  const baseDir = path.dirname(fileURLToPath(import.meta.url));
+  const jsxPath = path.join(baseDir, "themes", `${themeId}.jsx`);
+  try {
+    return await readFile(jsxPath, "utf8");
+  } catch {
+    const jsPath = path.join(baseDir, "themes", `${themeId}.js`);
+    return await readFile(jsPath, "utf8");
+  }
+}
+
+export async function getThemeSource(
+  value: string,
+  cwd: string = process.cwd(),
+): Promise<string> {
+  const themeInput = await resolveThemeInput(value, cwd);
+  if (themeInput.kind === "module") {
+    return await readFile(themeInput.source, "utf8");
+  }
+  const theme = resolveTheme(themeInput.value);
+  return await readBuiltInThemeSource(theme.id);
 }

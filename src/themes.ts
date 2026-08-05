@@ -26,6 +26,7 @@ import obsidianBaselineDarkDef from "./themes/obsidian-baseline-dark.js";
 
 type Appearance = "light" | "dark";
 type StatusName = "success" | "warning" | "danger" | "info";
+type TableStyle = "rows" | "grid" | "striped";
 
 export const OVERRIDDEN_ANT_DESIGN_COMPONENT_NAMES = Object.freeze([
   "Button",
@@ -85,6 +86,8 @@ export interface ThemeDefinition {
   aliases?: string[];
   appearance: string;
   description: string;
+  prismTheme?: string;
+  tableStyle?: string;
   source: {
     name: string;
     url: string;
@@ -135,6 +138,8 @@ export interface Theme {
   aliases: string[];
   mode: "fixed";
   appearance: Appearance;
+  prismTheme: string;
+  tableStyle: TableStyle;
   css?: string;
   semantic: {
     colors: ThemeColors;
@@ -492,6 +497,10 @@ export function createTheme(definition: ThemeDefinition): Theme {
   if (appearance !== "light" && appearance !== "dark") {
     throw new Error(`${id} has an invalid appearance.`);
   }
+  const tableStyle = (definition.tableStyle ?? "rows") as TableStyle;
+  if (!(["rows", "grid", "striped"] as const).includes(tableStyle)) {
+    throw new Error(`${id} has an invalid table style.`);
+  }
   const defaultStatus = appearance === "dark" ? DARK_STATUS : LIGHT_STATUS;
   const colors = {
     ...definitionColors,
@@ -533,6 +542,10 @@ export function createTheme(definition: ThemeDefinition): Theme {
     aliases,
     mode: "fixed",
     appearance,
+    prismTheme:
+      definition.prismTheme ??
+      (appearance === "dark" ? "vsc-dark-plus" : "prism"),
+    tableStyle,
     css: definition.css,
     semantic,
     antDesign: {
@@ -721,6 +734,12 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
     ) {
       throw new Error(`${theme.id} has an invalid mode or appearance.`);
     }
+    if (!theme.prismTheme) {
+      throw new Error(`${theme.id} has an invalid Prism theme.`);
+    }
+    if (!(["rows", "grid", "striped"] as const).includes(theme.tableStyle)) {
+      throw new Error(`${theme.id} has an invalid table style.`);
+    }
     if (theme.css !== undefined && typeof theme.css !== "string") {
       throw new Error(`${theme.id} has an invalid css property.`);
     }
@@ -750,6 +769,13 @@ export function validateThemeCatalog(themes: readonly Theme[] = THEMES) {
     }
     requireContrast(theme, "body text", colors.text, colors.canvas, 4.5);
     requireContrast(theme, "surface text", colors.text, colors.surface, 4.5);
+    requireContrast(
+      theme,
+      "inline code",
+      colors.text,
+      colors.codeBackground,
+      4.5,
+    );
     requireContrast(theme, "muted text", colors.textMuted, colors.canvas, 3);
     requireContrast(theme, "link", colors.link, colors.canvas, 4.5);
     requireContrast(
@@ -939,6 +965,11 @@ export function renderThemeCss(theme: Theme) {
   const { colors, typography, rhythm, radius, shadow, controlHeight } =
     theme.semantic;
   const status = colors.status;
+  const tableHeaderBackground =
+    theme.tableStyle === "rows" ? "transparent" : colors.surfaceRaised;
+  const tableStripeBackground =
+    theme.tableStyle === "striped" ? colors.codeBackground : "transparent";
+  const tableColumnBorderWidth = theme.tableStyle === "grid" ? "1px" : "0px";
   return `/* Original Rtifact theme: ${theme.id}. No upstream CSS is included. */
 :root {
   color-scheme: ${theme.appearance};
@@ -983,6 +1014,9 @@ export function renderThemeCss(theme: Theme) {
   --heading-weight: ${rhythm.headingWeight};
   --heading-tracking: ${rhythm.letterSpacing};
   --content-measure: ${rhythm.contentMeasure};
+  --table-header-background: ${tableHeaderBackground};
+  --table-stripe-background: ${tableStripeBackground};
+  --table-column-border-width: ${tableColumnBorderWidth};
 }
 ${theme.css ? `\n@layer components {\n${theme.css}\n}\n` : ""}`;
 }

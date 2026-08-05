@@ -5,6 +5,8 @@ export default {
   aliases: [],
   appearance: "dark",
   description: "A tonal dark surface system with luminous violet accents.",
+  prismTheme: "material-dark",
+  tableStyle: "rows",
   source: {
     name: "Material Web",
     url: "https://github.com/material-components/material-web",

@@ -27,6 +27,8 @@ export default {
   name: "Brand Dark",
   appearance: "dark", // Exactly "light" or "dark".
   description: "Dark editorial adaptation of Brand.",
+  prismTheme: "one-dark", // Optional; use a name from `rtifact prism-themes`.
+  tableStyle: "striped", // Optional: "rows", "grid", or "striped".
 
   // Provenance is required. For a prompt-only brief, use a descriptive URN:
   //   url: "urn:rtifact-source:user-supplied-brand-brief"

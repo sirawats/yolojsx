@@ -6,6 +6,8 @@ export default {
   appearance: "dark",
   description:
     "An original restrained dark reading canvas inspired by Minimal's rhythm.",
+  prismTheme: "dark",
+  tableStyle: "rows",
   source: {
     name: "Minimal for Obsidian",
     url: "https://github.com/kepano/obsidian-minimal",

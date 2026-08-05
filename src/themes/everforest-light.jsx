@@ -5,6 +5,8 @@ export default {
   aliases: ["everforest"],
   appearance: "light",
   description: "A gentle botanical light canvas with calm green interactions.",
+  prismTheme: "duotone-light",
+  tableStyle: "striped",
   source: {
     name: "Everforest",
     url: "https://github.com/sainnhe/everforest",

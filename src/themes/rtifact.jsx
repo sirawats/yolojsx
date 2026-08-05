@@ -5,6 +5,8 @@ export default {
   appearance: "light",
   description:
     "A warm archaeological palette with parchment surfaces and vivid artifact accents.",
+  prismTheme: "duotone-light",
+  tableStyle: "grid",
   source: {
     name: "rtifact",
     url: "https://github.com/sirawats/rtifact",

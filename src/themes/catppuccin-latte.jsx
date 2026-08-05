@@ -5,6 +5,8 @@ export default {
   aliases: ["catppuccin"],
   appearance: "light",
   description: "A creamy light adaptation with lavender-blue interactions.",
+  prismTheme: "one-light",
+  tableStyle: "grid",
   source: {
     name: "Catppuccin Palette",
     url: "https://github.com/catppuccin/palette",

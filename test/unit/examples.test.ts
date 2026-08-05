@@ -67,3 +67,15 @@ test("packaged examples rely on CLI-managed theme styling", async () => {
     assert.doesNotMatch(source, /--css\b/, filename);
   }
 });
+
+test("website preview replaces the shell Prism theme with the selected preset", async () => {
+  const source = await readFile(
+    path.join(repository, "website/index.tsx"),
+    "utf8",
+  );
+  assert.match(
+    source,
+    /style:not\(\[data-rc-order\]\):not\(\[data-rtifact-prism-theme\]\)/,
+  );
+  assert.match(source, /PRISM_THEME_STYLES\[activeTheme\.prismTheme\]/);
+});
